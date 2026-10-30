@@ -323,19 +323,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   body { padding: 0; background: #fff; }
   .top, .heading, .palette, .inspector, .status, .toast, dialog, .drawer, .hdl, .page, .ghost, .marq { display: none !important; }
+  .app { gap: 0; display: block; }
   .work { display: block; }
-  .scroller { border: 0; box-shadow: none; overflow: visible; background: #fff; }
-  #room { width: 100% !important; height: auto !important; max-height: var(--ph, 6.4in); }
+  .plan { display: flex; align-items: center; justify-content: center; height: var(--ah, 7.3in); }
+  .scroller { border: 0; box-shadow: none; overflow: visible; background: #fff; display: flex; align-items: center; justify-content: center; flex: 1; min-width: 0; }
+  #room { width: var(--pw, 10in) !important; height: var(--ph, 7in) !important; margin: 0; }
   #room.editfix #itemsG { opacity: 1; }
-  .printhead { display: block; margin: 0 0 10px; }
-  .printhead .phrow { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
-  .printhead .phd { font-size: 16px; font-weight: 600; }
-  .printhead .ph1 { font-size: 22px; font-weight: 700; }
+  .printhead { display: block; height: 0.6in; margin: 0; }
+  .printhead .phrow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; }
+  .printhead .phd { grid-column: 3; text-align: right; font-size: 16px; font-weight: 600; }
+  .printhead .ph1 { grid-column: 2; text-align: center; font-size: 24px; font-weight: 700; }
   body.no-nums .tlabel.num { display: none; }
   body.no-seats .tseats { display: none; }
-  .printhead .ph2 { font: 400 12px var(--font-num); color: #444; margin-top: 2px; }
-  body.pn .plan { display: grid; grid-template-columns: minmax(0, 1fr) 2.6in; gap: 0.25in; align-items: start; }
-  body.pn .printnotes { display: block; border-left: 1px solid #bbb; padding-left: 0.2in; }
+  .printhead .ph2 { font: 400 12px var(--font-num); color: #444; margin-top: 2px; text-align: center; }
+  body.pn .plan { gap: 0.12in; }
+  body.pn .printnotes { display: block; width: 2.4in; flex: none; align-self: stretch; border-left: 1px solid #bbb; padding-left: 0.12in; overflow: hidden; }
   .printnotes .pnh { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #444; margin-bottom: 6px; }
   .printnotes .pnt { font-size: 12pt; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
   .table.sel .tbody, .shape.sel .shp { stroke-width: 1.6; fill: var(--table); }
@@ -412,7 +414,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="3" cy="9" r="1.7" fill="currentColor"/><circle cx="9" cy="9" r="1.7" fill="currentColor"/><circle cx="15" cy="9" r="1.7" fill="currentColor"/></svg>
         </button>
         <div class="menu" id="menu" hidden>
-          <button class="mi" id="tplBtn" type="button"><span>Templates</span></button>
+          <button class="mi" id="defaultBtn" type="button"><span>Load room default</span></button>
           <button class="mi" id="openBtn" type="button"><span>Open file or pasted text</span></button>
           <button class="mi" id="saveBtn" type="button"><span>Save to file</span><kbd>Ctrl+S</kbd></button>
           <button class="mi" id="cloudSaveBtn" type="button"><span>Save to cloud</span></button>
@@ -624,13 +626,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <textarea id="notesInput" maxlength="4000" placeholder="Linens, napkins, tablecloths, table specifics for the servers..."></textarea>
   <button class="mi" id="printNotesBtn" type="button" role="switch" aria-checked="false"><span>Print notes with layout</span><span class="sw"></span></button>
 </aside>
-
-<dialog id="tplDlg" aria-labelledby="tplTitle">
-  <h2 id="tplTitle">Templates</h2>
-  <p class="lead" id="tplLead"></p>
-  <div class="tpls" id="tplList"></div>
-  <form method="dialog" class="dlgfoot"><button class="btn">Close</button></form>
-</dialog>
 
 <dialog id="openDlg" aria-labelledby="openTitle">
   <h2 id="openTitle">Open a layout</h2>
@@ -849,7 +844,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var wInput = $('wInput'), hInput = $('hInput'), fillRow = $('fillRow'), wtRow = $('wtRow');
   var textInput = $('textInput'), sizeRow = $('sizeRow'), boldBtn = $('boldBtn');
   var rotInput = $('rotInput'), rotateBtn = $('rotateBtn'), dupBtn = $('dupBtn'), lockBtn = $('lockBtn'), delBtn = $('delBtn');
-  var tplDlg = $('tplDlg'), openDlg = $('openDlg'), toastEl = $('toast');
+  var openDlg = $('openDlg'), toastEl = $('toast');
   var notesPanel = $('notesPanel'), notesBtn = $('notesBtn'), notesInput = $('notesInput');
   var inspMulti = $('inspMulti'), mergeBtn = $('mergeBtn'), unmergeBtn = $('unmergeBtn'), seatRotField = $('seatRotField'), seatRotInput = $('seatRotInput'), dateInput = $('dateInput');
 
@@ -1193,6 +1188,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       h.undo.push(h.last); if (h.undo.length > 100) h.undo.shift();
       h.redo = []; h.last = now;
     }
+    doc().fresh = false;
     save(); syncUndo();
   }
   function restore(s) {
@@ -1919,7 +1915,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return out;
   }
   function cleanDoc(d) {
-    return { name: String(d.name || '').slice(0, 60), date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || '') ? d.date : '', showTitle: d.showTitle !== false, notes: String(d.notes || '').slice(0, 4000), showNotes: !!d.showNotes, items: cleanItems(d.items) };
+    return { fresh: !!d.fresh, name: String(d.name || '').slice(0, 60), date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || '') ? d.date : '', showTitle: d.showTitle !== false, notes: String(d.notes || '').slice(0, 4000), showNotes: !!d.showNotes, items: cleanItems(d.items) };
   }
 
   function save() {
@@ -2066,11 +2062,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   window.addEventListener('beforeprint', function () {
     if (sel || multi.length) select(null);
     var pn = fillPrintHead();
-    var head = !$('printHead').hidden;
-    var landscape = pn || room().w >= room().h;
-    pageStyle.textContent = '@page { size: letter ' + (landscape ? 'landscape' : 'portrait') + '; margin: 0.5in; }';
-    svg.style.setProperty('--ph', landscape ? (head ? '6.2in' : '7in') : (head ? '8.7in' : '9.4in'));
+    var head = !$('printHead').hidden, R = room();
+    var pad = S.dims ? PAD : 20;
+    svg.setAttribute('viewBox', (-pad) + ' ' + (-pad) + ' ' + (R.w + 2 * pad) + ' ' + (R.h + 2 * pad));
+    pageStyle.textContent = '@page { size: letter landscape; margin: 0.25in; }';
+    var ah = head ? 7.3 : 7.9, aw = 10.5 - (pn ? 2.4 + 0.12 + 0.12 : 0);
+    var vw = R.w + 2 * pad, vh = R.h + 2 * pad, k = Math.min(aw / vw, ah / vh);
+    document.body.style.setProperty('--ah', ah + 'in');
+    document.body.style.setProperty('--pw', (vw * k).toFixed(3) + 'in');
+    document.body.style.setProperty('--ph', (vh * k).toFixed(3) + 'in');
   });
+  window.addEventListener('afterprint', function () { applyRoom(); });
   function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
   $('printBtn').addEventListener('click', function () { closeMenu(); doPrint(); });
 
@@ -2092,6 +2094,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function cloudMsg(e) {
     if (e && e.message === 'setup') return 'The cloud table is not set up yet. Run the SQL in Supabase first.';
     if (e instanceof TypeError) return 'Could not reach the cloud. Check the connection.';
+    if (e && /is_default/.test(e.message)) return 'The cloud table needs one more SQL line (is_default). Run it in Supabase.';
     return 'Cloud error: ' + (e && e.message);
   }
   var csDlg = $('cloudSaveDlg'), coDlg = $('cloudOpenDlg');
@@ -2119,8 +2122,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var row = { kind: kind, room: S.room, name: name, author: author, data: payload(), updated_at: new Date().toISOString() };
     var replace = ref && !$('csReplaceRow').hidden && $('csReplace').checked;
     $('csGo').disabled = true; $('csErr').textContent = 'Saving...';
-    var req = replace ? sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation') : sb('POST', '', row, 'return=representation');
-    req.then(function (rows) {
+    var pre = (kind === 'standard' && !replace)
+      ? sb('GET', '?kind=eq.standard&is_default=eq.true&room=eq.' + encodeURIComponent(S.room) + '&select=id').then(function (rs) { row.is_default = !rs.length; }, function () {})
+      : Promise.resolve();
+    pre.then(function () {
+      return replace ? sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation') : sb('POST', '', row, 'return=representation');
+    }).then(function (rows) {
       $('csGo').disabled = false;
       if (!rows || !rows[0]) { $('csErr').textContent = 'The save did not go through.'; return; }
       cloudRef[S.room] = { id: rows[0].id, kind: kind, name: name };
@@ -2133,7 +2140,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var row = document.createElement('div'); row.className = 'crow';
     var n = document.createElement('div'); n.className = 'cn'; n.textContent = r.name || 'Untitled'; row.appendChild(n);
     var m = document.createElement('div'); m.className = 'cm';
-    m.textContent = [(ROOMS[r.room] || {}).name || r.room, r.author, fmtShort(r.updated_at)].filter(Boolean).join(' · '); row.appendChild(m);
+    m.textContent = [r.is_default ? 'Default' : '', (ROOMS[r.room] || {}).name || r.room, r.author, fmtShort(r.updated_at)].filter(Boolean).join(' · '); row.appendChild(m);
     var bs = document.createElement('div'); bs.className = 'cb';
     var open = document.createElement('button'); open.type = 'button'; open.className = 'btn primary'; open.textContent = 'Open';
     open.addEventListener('click', function () {
@@ -2154,14 +2161,24 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         row.remove(); toast('Deleted from the cloud.');
       }, function (e) { $('coErr').textContent = cloudMsg(e); });
     });
+    if (r.kind === 'standard' && !r.is_default) {
+      var def = document.createElement('button'); def.type = 'button'; def.className = 'btn'; def.textContent = 'Make default';
+      def.addEventListener('click', function () {
+        $('coErr').textContent = 'Saving...';
+        sb('PATCH', '?kind=eq.standard&room=eq.' + encodeURIComponent(r.room) + '&is_default=eq.true', { is_default: false })
+          .then(function () { return sb('PATCH', '?id=eq.' + encodeURIComponent(r.id), { is_default: true }); })
+          .then(function () { toast('Default for ' + ((ROOMS[r.room] || {}).name || r.room) + ' set.'); loadCloudList(); },
+                function (e) { $('coErr').textContent = cloudMsg(e); });
+      });
+      bs.appendChild(def);
+    }
     bs.appendChild(open); bs.appendChild(del); row.appendChild(bs);
     return row;
   }
-  function openCloud() {
-    closeMenu();
+  function openCloud() { closeMenu(); coDlg.showModal(); loadCloudList(); }
+  function loadCloudList() {
     var list = $('coList'); list.replaceChildren(); $('coErr').textContent = 'Loading...';
-    coDlg.showModal();
-    sb('GET', '?select=id,kind,room,name,author,updated_at&order=updated_at.desc&limit=200').then(function (rows) {
+    sb('GET', '?select=id,kind,room,name,author,is_default,updated_at&order=updated_at.desc&limit=200').then(function (rows) {
       $('coErr').textContent = '';
       var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard'; });
       function sect(title, arr, empty) {
@@ -2169,64 +2186,39 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         if (!arr.length) { var e = document.createElement('p'); e.className = 'fine'; e.textContent = empty; list.appendChild(e); }
         arr.forEach(function (r) { list.appendChild(cloudRow(r)); });
       }
-      std.sort(function (a, b) { return (b.room === S.room) - (a.room === S.room); });
+      std.sort(function (a, b) { return (b.room === S.room) - (a.room === S.room) || (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0); });
       sect('Standard layouts', std, 'None yet. Use Save to cloud and pick standard layout.');
       sect('Saved layouts', lay, 'None yet.');
     }, function (e) { $('coErr').textContent = cloudMsg(e); });
   }
   $('cloudOpenBtn').addEventListener('click', openCloud);
+  $('defaultBtn').addEventListener('click', function () {
+    closeMenu();
+    sb('GET', '?kind=eq.standard&is_default=eq.true&room=eq.' + encodeURIComponent(S.room) + '&select=id,name,data&limit=1').then(function (rows) {
+      if (!rows || !rows.length) { toast('No default set for ' + room().name + '. Open from cloud and press Make default.'); return; }
+      var err = applyLayout(JSON.stringify(rows[0].data));
+      if (err) { toast(err); return; }
+      cloudRef[S.room] = { id: rows[0].id, kind: 'standard', name: rows[0].name };
+      toast('Loaded the default layout. Undo brings your last one back.');
+    }, function (e) { toast(cloudMsg(e)); });
+  });
+  /* Rooms nobody has edited yet start from the room's default standard layout. */
+  function seedDefaults() {
+    sb('GET', '?kind=eq.standard&is_default=eq.true&select=id,room,name,data').then(function (rows) {
+      rows.forEach(function (r) {
+        var d = S.docs[r.room];
+        if (!d || !d.fresh || !ROOMS[r.room] || !r.data || !Array.isArray(r.data.items)) return;
+        var cd = cleanDoc(r.data); cd.fresh = true; S.docs[r.room] = cd;
+        if (Array.isArray(r.data.fixtures) && !S.fix[r.room].length) S.fix[r.room] = cleanItems(r.data.fixtures, true);
+        cloudRef[r.room] = { id: r.id, kind: 'standard', name: r.name };
+        delete hist[r.room];
+        if (S.room === r.room) { sel = null; multi = []; H(); syncDocUI(); render(); syncInspector(); syncUndo(); }
+      });
+      save();
+    }, function () {});
+  }
   $('openCloud').addEventListener('click', openCloud);
   $('coClose').addEventListener('click', function () { coDlg.close(); });
-
-  /* ---------- templates ---------- */
-  function sampleItems(roomKey, typeKey) {
-    var R = ROOMS[roomKey], T = TYPES[typeKey], out = [];
-    var gx = isRound(T) ? 56 : 48, gy = 56, m = 40;
-    var cols = Math.max(1, Math.floor((R.w - 2 * m + gx) / (T.w + gx)));
-    var rows = Math.max(1, Math.floor((R.h - 2 * m + gy) / (T.h + gy)));
-    var totW = cols * T.w + (cols - 1) * gx, totH = rows * T.h + (rows - 1) * gy;
-    var x0 = (R.w - totW) / 2 + T.w / 2, y0 = (R.h - totH) / 2 + T.h / 2, n = 1;
-    for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
-      out.push({ kind: 'table', type: typeKey, x: x0 + c * (T.w + gx), y: y0 + r * (T.h + gy), rot: 0, seats: T.seats, seatRot: T.seatRot || 0, label: String(n++) });
-    }
-    return out;
-  }
-  var SAMPLE_TYPE = { bistro: 'bsq', tavern: 'tavrect', patio: 'm', bistropatio: 's', hunt: 'l' };
-  var TEMPLATES = ROOM_ORDER.map(function (k) {
-    return { id: 'sample-' + k, room: k, name: 'Sample: ' + TYPES[SAMPLE_TYPE[k]].name + ' rows', items: sampleItems(k, SAMPLE_TYPE[k]) };
-  });
-
-  function thumb(tpl) {
-    var R = ROOMS[tpl.room], s = el('svg', { viewBox: (-PAD) + ' ' + (-PAD) + ' ' + (R.w + 2 * PAD) + ' ' + (R.h + 2 * PAD), 'aria-hidden': 'true' });
-    el('rect', { 'class': 'floor', x: 0, y: 0, width: R.w, height: R.h }, s);
-    el('rect', { 'class': 'wall', x: -1.5, y: -1.5, width: R.w + 3, height: R.h + 3, rx: 1.5 }, s);
-    var arr = (S.fix[tpl.room] || []).concat(tpl.items).map(function (o) { var c = clone(o); c.id = 'x'; return c; });
-    arr.forEach(function (it) { s.appendChild(buildNode(it, false, arr)); });
-    return s;
-  }
-  $('tplBtn').addEventListener('click', function () {
-    closeMenu();
-    var list = $('tplList'); list.replaceChildren();
-    var mine = TEMPLATES.filter(function (t) { return t.room === S.room; });
-    $('tplLead').textContent = mine.length
-      ? 'Opening a template puts an editable copy in ' + room().name + '. The template itself never changes, and Undo brings your current layout back.'
-      : 'No templates for ' + room().name + ' yet.';
-    mine.forEach(function (tpl) {
-      var s = stats(tpl.items), card = document.createElement('div'); card.className = 'tpl';
-      card.appendChild(thumb(tpl));
-      var nm = document.createElement('div'); nm.className = 'tn'; nm.textContent = tpl.name; card.appendChild(nm);
-      var mt = document.createElement('div'); mt.className = 'tm'; mt.textContent = seatWord(s.seats) + ' · ' + s.tables + ' tables'; card.appendChild(mt);
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = 'Use this template';
-      b.addEventListener('click', function () {
-        doc().name = tpl.name; doc().items = newItems(tpl.items); sel = null; multi = [];
-        syncDocUI(); render(); syncInspector(); commit();
-        tplDlg.close(); toast('Template opened as an editable copy.');
-      });
-      card.appendChild(b);
-      list.appendChild(card);
-    });
-    tplDlg.showModal();
-  });
 
   /* ---------- rooms ---------- */
   function setRoom(key) {
@@ -2245,7 +2237,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- start ---------- */
   var saved = loadSaved();
   ROOM_ORDER.forEach(function (k) {
-    S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : { name: 'Sample layout', date: '', showTitle: true, notes: '', showNotes: false, items: newItems(sampleItems(k, SAMPLE_TYPE[k])) };
+    S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : { name: '', date: '', showTitle: true, notes: '', showNotes: false, items: [], fresh: true };
     S.fix[k] = saved && saved.fix[k] ? saved.fix[k] : newItems(BUILTIN_FIXTURES[k] || []);
   });
   if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; S.dims = saved.dims; }
@@ -2320,6 +2312,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   if (mq && mq.addEventListener) mq.addEventListener('change', syncTheme);
   syncTheme();
 
+  seedDefaults();
   var startHash = (location.hash || '').slice(1);
   showView(VIEWS[startHash] ? startHash : 'home', true);
 
