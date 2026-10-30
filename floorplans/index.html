@@ -162,7 +162,12 @@ body.padDragging { user-select: none; -webkit-user-select: none; cursor: grabbin
 .scroller.dropok { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
 #allRoom { display: block; margin: 0 auto; user-select: none; -webkit-user-select: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
 .alabel { font: 700 22px var(--font-ui); fill: var(--ink); }
-.allroom { cursor: pointer; outline: none; }
+.allroom { cursor: grab; outline: none; touch-action: none; }
+.allroom.locked { cursor: pointer; }
+.allroom.moving { cursor: grabbing; opacity: .85; }
+.allonly { display: none; }
+body.allv .allonly { display: inline-flex; }
+#autoBtn[disabled] { opacity: .45; pointer-events: none; }
 .allroom .item { pointer-events: none; }
 .allroom:hover .wall, .allroom:focus-visible .wall { stroke: var(--accent); stroke-width: 4; }
 body.allv .work { grid-template-columns: minmax(0, 1fr); }
@@ -465,6 +470,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="pill" id="multiBtn" type="button" role="switch" aria-checked="false"><span>Multi-day</span><span class="sw"></span></button>
           <label class="sr" for="endInput">End date</label>
           <input id="endInput" class="datein" type="date" title="Last day of the event" hidden>
+          <button class="pill allonly" id="arrLock" type="button" role="switch" aria-checked="false" title="Lock the room arrangement"><span>Lock layout</span><span class="sw"></span></button>
+          <button class="pill allonly" id="autoBtn" type="button" title="Go back to the automatic arrangement"><span>Auto-arrange</span></button>
         </div>
         <div class="hr">
           <span class="fixpill" id="fixPill" hidden>Editing fixtures</span>
@@ -783,6 +790,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function isSvc(T) { return T.group === 'service'; }
   function isSeg(it) { return it.kind === 'line' || it.kind === 'chairs'; }
   function vDate(v) { return /^\d{4}-\d{2}-\d{2}$/.test(v || '') ? v : ''; }
+  function cleanPos(p, rooms) {
+    if (!p || typeof p !== 'object') return null;
+    var o = {};
+    for (var i = 0; i < rooms.length; i++) {
+      var q = p[rooms[i]];
+      if (!q || !isFinite(q.x) || !isFinite(q.y)) return null;
+      o[rooms[i]] = { x: Math.round(q.x), y: Math.round(q.y) };
+    }
+    return o;
+  }
   function freshDoc() { return { name: '', showTitle: true, notes: '', showNotes: false, items: [], fresh: true }; }
   function rad(d) { return d * Math.PI / 180; }
   function rotVec(x, y, deg) { var c = Math.cos(rad(deg)), s = Math.sin(rad(deg)); return { x: x * c - y * s, y: x * s + y * c }; }
@@ -838,7 +855,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- state ---------- */
   var S = { room: 'bistro', snap: true, grid: false, dims: false, docs: {}, fix: {}, editFix: false, all: false, allVB: null,
-    event: { rooms: ROOM_ORDER.slice(), name: '', date: '', multi: false, endDate: '' } };
+    event: { rooms: ROOM_ORDER.slice(), name: '', date: '', multi: false, endDate: '', pos: null, locked: false } };
   var hist = {};
   var sel = null, multi = [], curView = 'home';
   var drag = null;
@@ -1974,7 +1991,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!rooms.length) rooms = ROOM_ORDER.slice();
       var odate = '';
       ROOM_ORDER.forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
-      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '' };
+      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
       return { event: event, room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
@@ -1991,7 +2008,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      event: { name: S.event.name, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice() },
+      event: { name: S.event.name, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), pos: S.event.pos, locked: S.event.locked },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
@@ -2035,13 +2052,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function ensureInEvent(k) {
     if (S.event.rooms.indexOf(k) >= 0) return;
     S.event.rooms = ROOM_ORDER.filter(function (r) { return S.event.rooms.indexOf(r) >= 0 || r === k; });
+    S.event.pos = null; S.event.locked = false;
     buildRoomSelect();
   }
   function applyEvent(o) {
     var keys = ROOM_ORDER.filter(function (k) { return o.rooms[k] && Array.isArray(o.rooms[k].items); });
     if (!keys.length) return 'That file has no rooms this app knows.';
     var ev = o.event || {};
-    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate) };
+    var ps = cleanPos(ev.pos, keys);
+    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
     keys.forEach(function (k) {
       var r = o.rooms[k];
       S.docs[k] = cleanDoc(r); delete hist[k];
@@ -2164,7 +2183,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (sel || multi.length) select(null);
     var pn = fillPrintHead();
     var head = !$('printHead').hidden, R = room(), vw, vh;
-    if (S.all) { vw = S.allVB.w; vh = S.allVB.h; }
+    if (S.all) { renderAll(true); vw = S.allVB.w; vh = S.allVB.h; }
     else {
       var pad = S.dims ? PAD : 20;
       svg.setAttribute('viewBox', (-pad) + ' ' + (-pad) + ' ' + (R.w + 2 * pad) + ' ' + (R.h + 2 * pad));
@@ -2176,7 +2195,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     document.body.style.setProperty('--pw', (vw * k).toFixed(3) + 'in');
     document.body.style.setProperty('--ph', (vh * k).toFixed(3) + 'in');
   });
-  window.addEventListener('afterprint', function () { applyRoom(); });
+  window.addEventListener('afterprint', function () { applyRoom(); if (S.all) { renderAll(); fitSize(); } });
   function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
   $('printBtn').addEventListener('click', function () { closeMenu(); doPrint(); });
 
@@ -2391,14 +2410,29 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     return { pos: pos, w: best.bw, h: best.bh };
   }
-  function renderAll() {
-    var pk = packRooms(S.event.rooms), pad = 20;
+  function allPlan(tight) {
+    var ev = S.event, pk;
+    if (ev.pos) {
+      var x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9, pos = {};
+      ev.rooms.forEach(function (k) {
+        var p = ev.pos[k], R = ROOMS[k]; pos[k] = { x: p.x, y: p.y };
+        x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x + R.w); y1 = Math.max(y1, p.y + R.h + ALAB);
+      });
+      var m = (tight || ev.locked) ? 0 : 140;
+      pk = { pos: pos, x: x0 - m, y: y0 - m, w: x1 - x0 + 2 * m, h: y1 - y0 + 2 * m };
+    } else {
+      var a = packRooms(ev.rooms); pk = { pos: a.pos, x: 0, y: 0, w: a.w, h: a.h };
+    }
+    return pk;
+  }
+  function renderAll(tight) {
+    var pk = allPlan(tight), pad = 20, locked = S.event.locked;
     allSvg.replaceChildren();
     S.allVB = { w: pk.w + 2 * pad, h: pk.h + 2 * pad };
-    allSvg.setAttribute('viewBox', (-pad) + ' ' + (-pad) + ' ' + S.allVB.w + ' ' + S.allVB.h);
+    allSvg.setAttribute('viewBox', (pk.x - pad) + ' ' + (pk.y - pad) + ' ' + S.allVB.w + ' ' + S.allVB.h);
     S.event.rooms.forEach(function (k) {
       var R = ROOMS[k], P = pk.pos[k], d = S.docs[k];
-      var g = el('g', { 'class': 'allroom', transform: 'translate(' + P.x + ' ' + (P.y + ALAB) + ')', 'data-room': k, tabindex: '0', role: 'button', 'aria-label': 'Edit ' + R.name }, allSvg);
+      var g = el('g', { 'class': 'allroom' + (locked ? ' locked' : ''), transform: 'translate(' + P.x + ' ' + (P.y + ALAB) + ')', 'data-room': k, tabindex: '0', role: 'button', 'aria-label': 'Edit ' + R.name }, allSvg);
       el('rect', { 'class': 'floor', x: 0, y: 0, width: R.w, height: R.h }, g);
       el('rect', { 'class': 'wall', x: -1.5, y: -1.5, width: R.w + 3, height: R.h + 3, rx: 1.5 }, g);
       S.fix[k].forEach(function (it) { var n = buildNode(it, false, d.items); n.classList.add('fixture'); g.appendChild(n); });
@@ -2407,18 +2441,68 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var st = stats(d.items);
       t.textContent = R.name + (d.name ? ' - ' + d.name : '') + ' (' + seatWord(st.seats) + ')';
     });
+    syncArrUI();
   }
+  function syncArrUI() {
+    setSwitch($('arrLock'), S.event.locked);
+    $('autoBtn').disabled = !S.event.pos || S.event.locked;
+    statusP.textContent = S.event.locked ? 'Arrangement locked. Click a room to edit it. Print shows this page.' : 'Drag rooms to arrange them, then lock. Click a room to edit it. Print shows this page.';
+  }
+  $('arrLock').addEventListener('click', function () {
+    if (!S.all) return;
+    if (!S.event.pos) S.event.pos = allPlan(true).pos;
+    S.event.locked = !S.event.locked;
+    renderAll(); fitSize(); save();
+  });
+  $('autoBtn').addEventListener('click', function () {
+    if (!S.all || S.event.locked) return;
+    S.event.pos = null; renderAll(); fitSize(); save();
+  });
+  var armv = null;
+  allSvg.addEventListener('pointerdown', function (e) {
+    var g = e.target.closest && e.target.closest('.allroom');
+    if (!g || S.event.locked || e.button > 0) return;
+    var k = g.getAttribute('data-room'), r = allSvg.getBoundingClientRect();
+    armv = { k: k, g: g, sx: e.clientX, sy: e.clientY, f: S.allVB.w / r.width, moved: false, id: e.pointerId };
+  });
+  allSvg.addEventListener('pointermove', function (e) {
+    if (!armv || e.pointerId !== armv.id) return;
+    var dx = e.clientX - armv.sx, dy = e.clientY - armv.sy;
+    if (!armv.moved && Math.abs(dx) + Math.abs(dy) < 5) return;
+    if (!armv.moved) {
+      armv.moved = true;
+      if (!S.event.pos) {
+        var oldF = armv.f, oldVB = S.allVB.w;
+        S.event.pos = allPlan(true).pos; renderAll(); fitSize();
+        armv.f = S.allVB.w / allSvg.getBoundingClientRect().width;
+        armv.g = allSvg.querySelector('.allroom[data-room="' + armv.k + '"]');
+        armv.sx = e.clientX; armv.sy = e.clientY; dx = 0; dy = 0;
+      }
+      armv.ox = S.event.pos[armv.k].x; armv.oy = S.event.pos[armv.k].y;
+      armv.g.classList.add('moving');
+      try { allSvg.setPointerCapture(armv.id); } catch (x) {}
+    }
+    var x = Math.round(armv.ox + dx * armv.f), y = Math.round(armv.oy + dy * armv.f);
+    S.event.pos[armv.k] = { x: x, y: y };
+    armv.g.setAttribute('transform', 'translate(' + x + ' ' + (y + ALAB) + ')');
+  });
+  function endArr(e) {
+    if (!armv || e.pointerId !== armv.id) return;
+    var a = armv; armv = null;
+    if (a.moved) { allSvg.dataset.moved = '1'; setTimeout(function () { delete allSvg.dataset.moved; }, 0); renderAll(); fitSize(); save(); }
+  }
+  allSvg.addEventListener('pointerup', endArr);
+  allSvg.addEventListener('pointercancel', endArr);
   function showAll() {
     if (S.editFix) setEditFix(false);
     sel = null; multi = []; S.all = true;
     document.body.classList.add('allv');
     hide(svg, true); hide(allSvg, false);
     roomSel.value = '__all';
-    statusP.textContent = 'All rooms in this event at the same scale. Click a room to edit it. Print shows this page.';
     renderAll(); syncDocUI(); fitSize(); updateStats(true); syncUndo();
   }
   function goRoomFromAll(k) { roomSel.value = k; setRoom(k); }
-  allSvg.addEventListener('click', function (e) { var g = e.target.closest && e.target.closest('.allroom'); if (g) goRoomFromAll(g.getAttribute('data-room')); });
+  allSvg.addEventListener('click', function (e) { if (allSvg.dataset.moved) return; var g = e.target.closest && e.target.closest('.allroom'); if (g) goRoomFromAll(g.getAttribute('data-room')); });
   allSvg.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { var g = e.target.closest && e.target.closest('.allroom'); if (g) { e.preventDefault(); goRoomFromAll(g.getAttribute('data-room')); } } });
 
   /* New floorplan: pick rooms, make one event. */
@@ -2454,7 +2538,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function newEvent(keys) {
     keys = ROOM_ORDER.filter(function (k) { return keys.indexOf(k) >= 0; });
     if (!keys.length) return;
-    S.event = { rooms: keys, name: '', date: '', multi: false, endDate: '' };
+    S.event = { rooms: keys, name: '', date: '', multi: false, endDate: '', pos: null, locked: false };
     keys.forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
     leaveAll(); sel = null; multi = [];
