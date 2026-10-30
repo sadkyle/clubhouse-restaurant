@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Applebrook Floor Plans</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -104,6 +109,11 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .title::placeholder { color: var(--muted); font-weight: 500; }
 .title:hover { border-color: var(--line); }
 .title:focus { border-color: var(--accent); background: var(--panel); }
+.titlerow { display: flex; align-items: center; gap: 8px; }
+.titlerow .title { flex: 1; min-width: 0; }
+.datein { flex: none; width: 150px; padding: 7px 8px; font: 500 14px var(--font-ui); background: transparent; border: 1px solid var(--line); border-radius: 8px; }
+.datein:hover { border-color: var(--muted); }
+.datein:focus { border-color: var(--accent); background: var(--panel); }
 .hr { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
 .pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; font-size: 13px; font-weight: 600; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; white-space: nowrap; }
 .pill:hover, .pill[aria-expanded="true"] { border-color: var(--accent); }
@@ -111,6 +121,44 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .fixpill { padding: 7px 11px; font-size: 13px; font-weight: 600; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent); white-space: nowrap; }
 
 .printhead, .printnotes { display: none; }
+
+/* pages: landing, new, settings */
+.page { max-width: 980px; margin: 0 auto; display: grid; gap: 28px; align-content: start; padding-top: 2vh; }
+.phead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.phead .l { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.ptitle { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: -.01em; }
+.hero h1 { margin: 6px 0 0; font-size: 40px; line-height: 1.1; font-weight: 700; letter-spacing: -.02em; }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.card { display: grid; gap: 10px; align-content: start; justify-items: start; text-align: left; padding: 22px 20px; min-height: 176px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; cursor: pointer; font: inherit; color: inherit; }
+.card:hover:not(:disabled) { border-color: var(--accent); }
+.card:disabled { opacity: .55; cursor: default; }
+.card .ci { width: 44px; height: 44px; border-radius: 12px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; }
+.card h2 { margin: 4px 0 0; font-size: 20px; font-weight: 700; letter-spacing: -.01em; }
+.card p { margin: 0; color: var(--muted); font-size: 14px; }
+.badge { font: 600 11px var(--font-ui); letter-spacing: .08em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); }
+.tabwrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); }
+.dtab { width: 100%; border-collapse: collapse; font-size: 14px; }
+.dtab th { text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); border-bottom: 1px solid var(--line); }
+.dtab td { padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.dtab tr:last-child td { border-bottom: 0; }
+.dtab .num { font: 400 13px var(--font-num); white-space: nowrap; }
+.dtab .grow td { background: var(--accent-soft); font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 6px 14px; }
+.lead2 { margin: 0; color: var(--muted); font-size: 14px; }
+.ghost { position: fixed; z-index: 70; width: 44px; height: 44px; margin: -22px 0 0 -22px; display: grid; place-items: center; background: var(--panel); border: 1px solid var(--accent); border-radius: 10px; pointer-events: none; opacity: .92; box-shadow: 0 6px 18px rgb(0 0 0 / .25); }
+.ghost svg { width: 30px; height: 30px; }
+.ghost .ic { fill: var(--table); stroke: var(--table-edge); stroke-width: 1.5; }
+.ghost .ic.svc { fill: var(--svc); stroke: var(--svc-edge); }
+.ghost .ic.dr { fill: var(--f-gray); stroke: var(--shape-edge); }
+.ghost .ic.ch { fill: var(--chair); stroke: var(--chair-back); stroke-width: 1.2; }
+.ghost .ln { stroke: var(--line-ink); stroke-width: 3; stroke-linecap: round; fill: none; }
+.ghost .aa { font: 700 13px var(--font-ui); fill: var(--ink); }
+body.padDragging { user-select: none; -webkit-user-select: none; cursor: grabbing; }
+.scroller.dropok { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+.mcap { margin: 6px 10px 2px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.checks { display: grid; gap: 4px; margin-bottom: 4px; }
+.chk { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 15px; cursor: pointer; }
+.chk:hover { background: var(--accent-soft); }
+.chk input { width: 18px; height: 18px; accent-color: var(--accent); }
 
 /* three columns */
 .work { display: grid; grid-template-columns: 200px minmax(0, 1fr) 270px; gap: 16px; align-items: start; }
@@ -140,7 +188,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .floor { fill: var(--floor); }
 .gl { stroke: var(--grid); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
 .gl2 { stroke: var(--grid2); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
-.wall { fill: none; stroke: var(--wall); stroke-width: 6; }
+.wall { fill: none; stroke: var(--wall); stroke-width: 3; }
 .dim { font: 500 13px var(--font-num); fill: var(--muted); text-anchor: middle; dominant-baseline: central; }
 .empty { font: 500 18px var(--font-ui); fill: var(--muted); text-anchor: middle; pointer-events: none; }
 .status { margin: 10px 2px 0; font-size: 13px; color: var(--muted); }
@@ -165,6 +213,8 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .shape.sel .shp, .item:hover .shp { stroke: var(--accent); }
 .shape.sel .shp { stroke-width: 3; }
 .fixture .shp { stroke: var(--wall); stroke-width: 3; }
+.seam { stroke: var(--table-edge); stroke-width: 1; stroke-dasharray: 3 3; opacity: .6; pointer-events: none; }
+.marq { fill: var(--accent-soft); fill-opacity: .5; stroke: var(--accent); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; pointer-events: none; }
 .fixture .lnvis { stroke: var(--wall); }
 .lnvis { stroke: var(--line-ink); fill: none; }
 .lnhit { stroke: transparent; fill: none; pointer-events: stroke; }
@@ -240,6 +290,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
 @media (max-width: 900px) {
   .heading { grid-template-columns: minmax(0, 1fr); }
+  .hero h1 { font-size: 32px; }
   .hr { justify-content: flex-start; }
   .work { grid-template-columns: minmax(0, 1fr); }
   .palette { position: static; max-height: none; overflow: visible; gap: 10px; }
@@ -259,13 +310,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     color-scheme: light;
   }
   body { padding: 0; background: #fff; }
-  .top, .heading, .palette, .inspector, .status, .toast, dialog, .drawer, .hdl { display: none !important; }
+  .top, .heading, .palette, .inspector, .status, .toast, dialog, .drawer, .hdl, .page, .ghost, .marq { display: none !important; }
   .work { display: block; }
   .scroller { border: 0; box-shadow: none; overflow: visible; background: #fff; }
   #room { width: 100% !important; height: auto !important; max-height: var(--ph, 6.4in); }
   #room.editfix #itemsG { opacity: 1; }
   .printhead { display: block; margin: 0 0 10px; }
+  .printhead .phrow { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; }
+  .printhead .phd { font-size: 16px; font-weight: 600; }
   .printhead .ph1 { font-size: 22px; font-weight: 700; }
+  body.no-nums .tlabel.num { display: none; }
+  body.no-seats .tseats { display: none; }
   .printhead .ph2 { font: 400 12px var(--font-num); color: #444; margin-top: 2px; }
   body.pn .plan { display: grid; grid-template-columns: minmax(0, 1fr) 2.6in; gap: 0.25in; align-items: start; }
   body.pn .printnotes { display: block; border-left: 1px solid #bbb; padding-left: 0.2in; }
@@ -277,12 +332,56 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   .chguide { opacity: 0 !important; }
 }
 </style>
+<script>try{var __t=localStorage.getItem('applebrook-theme');if(__t==='light'||__t==='dark')document.documentElement.setAttribute('data-theme',__t)}catch(e){}</script>
 
-<div class="app">
+<main class="page" id="viewHome">
+  <header class="phead"><div class="club">Applebrook Golf Club</div><button class="iconbtn themeBtn" type="button"></button></header>
+  <div class="hero"><h1>Floor Plans</h1></div>
+  <div class="cards">
+    <button class="card" type="button" data-go="new"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 4v14M4 11h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New</h2><p>Start a floor plan or an event.</p></button>
+    <button class="card" type="button" id="goLoad"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 15V4M6.5 8.5L11 4l4.5 4.5M4 15v3h14v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Load</h2><p>Open a saved layout from this device.</p></button>
+    <button class="card" type="button" data-go="settings"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 7h9M17 7h1M4 15h1M9 15h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="15" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><h2>Settings</h2><p>Room sizes, standard layouts, and table sizes.</p></button>
+  </div>
+</main>
+
+<main class="page" id="viewNew" hidden>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">New</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <div class="cards">
+    <button class="card" type="button" data-go="editor"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="4.5" width="15" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="11" r="2.2" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M14 9v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span><h2>New Floorplan</h2><p>Open the editor and lay out a room.</p></button>
+    <button class="card" type="button" disabled aria-disabled="true"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="5" width="15" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h15M7.5 3v4M14.5 3v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New Event</h2><p>Several rooms, one event.</p><span class="badge">Coming soon</span></button>
+  </div>
+</main>
+
+<main class="page" id="viewSettings" hidden>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Settings</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <div class="cards">
+    <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Room sizes and standard layouts.</p></button>
+    <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Available table sizes and shapes.</p></button>
+  </div>
+</main>
+
+<main class="page" id="viewRooms" hidden>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="settings">&larr; Back</button><h1 class="ptitle">Room Settings</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <p class="lead2">Current rooms and their sizes. Adding, deleting, and arranging rooms, and managing standard layouts, comes in a later build.</p>
+  <div class="tabwrap"><table class="dtab" id="roomTab"></table></div>
+</main>
+
+<main class="page" id="viewTables" hidden>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="settings">&larr; Back</button><h1 class="ptitle">Table Settings</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <p class="lead2">Current table catalog and defaults. Adding and editing table sizes and shapes comes in a later build.</p>
+  <div class="tabwrap"><table class="dtab" id="tableTab"></table></div>
+</main>
+
+<div class="app" id="viewEditor" hidden>
   <header class="top">
-    <div>
-      <div class="club">Applebrook</div>
-      <h1 class="brand">Floor Plans</h1>
+    <div class="topl" style="display:flex;align-items:center;gap:12px">
+      <button class="iconbtn" id="homeBtn" type="button" aria-label="Home" title="Home" data-go="home">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 8.5L9 3l6 5.5V15H3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      </button>
+      <div>
+        <div class="club">Applebrook</div>
+        <h1 class="brand">Floor Plans</h1>
+      </div>
     </div>
     <div class="top-right">
       <div class="stats" aria-live="polite">
@@ -295,6 +394,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       <button class="iconbtn" id="redoBtn" type="button" aria-label="Redo" title="Redo (Ctrl+Y)">
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M11.5 3.5L15 7l-3.5 3.5M14.5 7H7a4 4 0 000 8h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
+      <button class="iconbtn themeBtn" type="button"></button>
       <div class="menuwrap">
         <button class="iconbtn" id="menuBtn" type="button" aria-label="More options" aria-haspopup="true" aria-expanded="false" aria-controls="menu">
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="3" cy="9" r="1.7" fill="currentColor"/><circle cx="9" cy="9" r="1.7" fill="currentColor"/><circle cx="15" cy="9" r="1.7" fill="currentColor"/></svg>
@@ -305,10 +405,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="saveBtn" type="button"><span>Save to file</span><kbd>Ctrl+S</kbd></button>
           <button class="mi" id="copyBtn" type="button"><span>Copy layout text</span></button>
           <button class="mi" id="printBtn" type="button"><span>Print or save PDF</span></button>
+          <button class="mi" id="printSetBtn" type="button"><span>Print settings</span></button>
           <hr>
           <button class="mi" id="fixBtn" type="button" role="switch" aria-checked="false"><span>Edit room fixtures</span><span class="sw"></span></button>
+          <div class="mcap">Display</div>
           <button class="mi" id="snapBtn" type="button" role="switch" aria-checked="true"><span>Snap to 6 in</span><span class="sw"></span></button>
-          <button class="mi" id="gridBtn" type="button" role="switch" aria-checked="true"><span>Show grid</span><span class="sw"></span></button>
+          <button class="mi" id="gridBtn" type="button" role="switch" aria-checked="false"><span>Show grid</span><span class="sw"></span></button>
+          <button class="mi" id="dimsBtn" type="button" role="switch" aria-checked="false"><span>Show room size</span><span class="sw"></span></button>
           <hr>
           <button class="mi" id="clearBtn" type="button"><span>Clear layout</span></button>
         </div>
@@ -316,7 +419,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     </div>
   </header>
 
-  <div class="printhead" id="printHead"><div class="ph1" id="ph1"></div><div class="ph2" id="ph2"></div></div>
+  <div class="printhead" id="printHead"><div class="phrow"><div class="ph1" id="ph1"></div><div class="phd" id="phd"></div></div><div class="ph2" id="ph2"></div></div>
 
   <div class="work">
     <nav class="palette" id="palette" aria-label="Add to room"></nav>
@@ -331,9 +434,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           </div>
           <span class="dims" id="dims"></span>
         </div>
-        <div>
+        <div class="titlerow">
           <label class="sr" for="nameInput">Layout title</label>
           <input id="nameInput" class="title" type="text" maxlength="60" placeholder="Layout title" autocomplete="off">
+          <label class="sr" for="dateInput">Event date (optional)</label>
+          <input id="dateInput" class="datein" type="date" title="Event date (optional)">
         </div>
         <div class="hr">
           <span class="fixpill" id="fixPill" hidden>Editing fixtures</span>
@@ -366,13 +471,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         </div>
         <div class="printnotes" id="printNotes"><div class="pnh">Setup notes</div><div class="pnt" id="pnt"></div></div>
       </div>
-      <p class="status">Drag to move. Arrow keys nudge 6 in (Shift 1 in). [ and ] rotate 5 degrees, R rotates 90. Ctrl+Z undoes. Grid squares are 1 ft, heavy lines every 5 ft.</p>
+      <p class="status">Drag to move, or drag a table in from the left. Shift-click or drag a box to select several. Arrow keys nudge 6 in (Shift 1 in). [ and ] rotate 5 degrees, R rotates 90. Ctrl+Z undoes.</p>
     </section>
 
     <aside class="inspector" aria-label="Selected item">
       <div id="inspEmpty">
         <h2>Nothing selected</h2>
-        <p>Click a table, shape, line, or label to edit it.</p>
+        <p>Click a table, shape, line, or label to edit it. Shift-click or drag a box to select several.</p>
+      </div>
+      <div id="inspMulti" hidden>
+        <h2 id="mTitle"></h2>
+        <p class="sub">Drag to move them together.</p>
+        <div class="actions">
+          <button class="btn primary full" id="mergeBtn" type="button">Merge into one table</button>
+          <button class="btn danger full" id="mDelBtn" type="button">Delete selected</button>
+        </div>
+        <p class="fine" id="mergeWhy" style="margin-top:10px"></p>
       </div>
       <div id="inspBody" hidden>
         <h2 id="inspTitle"></h2>
@@ -391,6 +505,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
               <button class="btn" id="seatPlus" type="button" aria-label="More seats">+</button>
             </div>
             <span class="fine" id="seatMax"></span>
+          </div>
+          <div class="field" id="seatRotField">
+            <label for="seatRotInput">Seat ring rotation (degrees)</label>
+            <input id="seatRotInput" type="number" step="0.5" inputmode="decimal">
           </div>
         </div>
 
@@ -474,6 +592,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         <div class="actions">
           <button class="btn" id="rotateBtn" type="button">Rotate 90&deg;</button>
           <button class="btn" id="dupBtn" type="button">Duplicate</button>
+          <button class="btn full" id="unmergeBtn" type="button" hidden>Unmerge into separate tables</button>
           <button class="btn full" id="lockBtn" type="button">Lock as room fixture</button>
           <button class="btn danger full" id="delBtn" type="button">Delete</button>
         </div>
@@ -513,6 +632,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   </div>
 </dialog>
 
+<dialog id="printDlg" aria-labelledby="printTitle">
+  <h2 id="printTitle">Print settings</h2>
+  <p class="lead">Choose what appears on the printed page. Saved in this browser.</p>
+  <div class="checks">
+    <label class="chk"><input type="checkbox" id="ppTitle"><span>Title</span></label>
+    <label class="chk"><input type="checkbox" id="ppDate"><span>Event date</span></label>
+    <label class="chk"><input type="checkbox" id="ppNotes"><span>Notes</span></label>
+    <label class="chk"><input type="checkbox" id="ppNums"><span>Table numbers</span></label>
+    <label class="chk"><input type="checkbox" id="ppSeats"><span># of seats</span></label>
+  </div>
+  <div class="dlgfoot">
+    <button class="btn" id="ppClose" type="button">Close</button>
+    <button class="btn primary" id="ppPrint" type="button">Print</button>
+  </div>
+</dialog>
+
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
 <script>
@@ -521,7 +656,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   var NS = 'http://www.w3.org/2000/svg';
   var SNAP = 6, CHAIR_W = 18, CHAIR_D = 14, GAP = 9, PAD = 36, CHAIR_PITCH = 20;
-  var KEY = 'applebrook-floorplans-v2';
+  var KEY = 'applebrook-floorplans-v2', PRINT_KEY = 'applebrook-print-v1', THEME_KEY = 'applebrook-theme';
   var WEIGHTS = { 1: 3, 2: 6, 3: 12 };
   var TSIZE = { s: 10, m: 14, l: 22, xl: 34 };
   var FILLS = ['none', 'gray', 'green', 'amber', 'blue'];
@@ -541,15 +676,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   var TYPES = {
     xxs:     { name: 'XXSmall', group: 'round', shape: 'round', w: 30, h: 30, seats: 2 },
-    xs:      { name: 'XSmall',  group: 'round', shape: 'round', w: 36, h: 36, seats: 3 },
-    s:       { name: 'Small',   group: 'round', shape: 'round', w: 48, h: 48, seats: 4 },
-    m:       { name: 'Medium',  group: 'round', shape: 'round', w: 60, h: 60, seats: 6 },
-    l:       { name: 'Large',   group: 'round', shape: 'round', w: 72, h: 72, seats: 8 },
+    xs:      { name: 'XSmall',  group: 'round', shape: 'round', w: 36, h: 36, seats: 2 },
+    s:       { name: 'Small',   group: 'round', shape: 'round', w: 48, h: 48, seats: 4, seatRot: 45 },
+    m:       { name: 'Medium',  group: 'round', shape: 'round', w: 60, h: 60, seats: 6, seatRot: 30 },
+    l:       { name: 'Large',   group: 'round', shape: 'round', w: 72, h: 72, seats: 8, seatRot: 22.5 },
     tavrect: { name: 'Tavern Rectangle',        group: 'dining', shape: 'rect', w: 60, h: 35.5,  seats: 4 },
-    bsq:     { name: 'Bistro Square',           group: 'dining', shape: 'rect', w: 36, h: 35,    seats: 4 },
+    bsq:     { name: 'Bistro Square',           group: 'dining', shape: 'rect', w: 36, h: 35,    seats: 4, rot: 45 },
     brect:   { name: 'Bistro Rectangle',        group: 'dining', shape: 'rect', w: 48, h: 29.25, seats: 4 },
-    bfam:    { name: 'Bistro Family Rectangle', group: 'dining', shape: 'rect', w: 72, h: 29.25, seats: 6 },
-    mgrill:  { name: "Men's Grill Rectangle",   group: 'dining', shape: 'rect', w: 36, h: 24,    seats: 2 },
+    bfam:    { name: 'Bistro Family Rectangle', group: 'dining', shape: 'rect', w: 72, h: 29.25, seats: 6, rot: 90 },
+    mgrill:  { name: "Men's Grill Rectangle",   group: 'dining', shape: 'rect', w: 36, h: 24,    seats: 2, endsFirst: true },
     skinny:  { name: "Skinny 6'",    group: 'service', shape: 'rect', w: 72, h: 18, seats: 0, short: "Skinny" },
     r6:      { name: "6' Rectangle", group: 'service', shape: 'rect', w: 72, h: 30, seats: 0, short: "6'" },
     r8:      { name: "8' Rectangle", group: 'service', shape: 'rect', w: 96, h: 30, seats: 0, short: "8'" },
@@ -591,8 +726,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function norm(d) { return ((Math.round(d * 10) / 10) % 360 + 360) % 360; }
   function aabb(a, b, deg) { var c = Math.abs(Math.cos(rad(deg))), s = Math.abs(Math.sin(rad(deg))); return { x: a * c + b * s, y: a * s + b * c }; }
 
-  function maxSeats(type) {
-    var T = TYPES[type];
+  /* Table info for an item. Merged tables synthesize one long rectangle from their parts. */
+  function tinfo(it) {
+    if (it.type === 'merged') return { name: 'Merged table', group: it.svc ? 'service' : 'dining', shape: 'rect', w: it.w, h: it.h, seats: 0, short: Math.round(it.w / 12) + "'", merged: true };
+    return TYPES[it.type];
+  }
+  function hide(n, on) { if (on) n.setAttribute('hidden', ''); else n.removeAttribute('hidden'); }
+
+  function maxSeats(a) {
+    var T = typeof a === 'string' ? TYPES[a] : a;
     if (isSvc(T)) return 0;
     if (isRound(T)) return Math.min(16, Math.floor(2 * Math.PI * (T.w / 2 + GAP) / 21));
     var L = Math.max(T.w, T.h), S = Math.min(T.w, T.h);
@@ -601,13 +743,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* Chair positions in the table's own frame. Rounds: evenly around the circle.
      Rectangles: long sides first, then ends, each side evenly spaced. */
-  function seatSlots(T, n) {
+  function seatSlots(T, n, seatRot) {
     var out = [], i;
     if (n <= 0) return out;
     if (isRound(T)) {
       var R = T.w / 2 + GAP;
       for (i = 0; i < n; i++) {
-        var a = -Math.PI / 2 + i * 2 * Math.PI / n;
+        var a = -Math.PI / 2 + i * 2 * Math.PI / n + rad(seatRot || 0);
         out.push({ x: R * Math.cos(a), y: R * Math.sin(a), rot: a * 180 / Math.PI + 90 });
       }
       return out;
@@ -615,7 +757,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var hw = T.w / 2, hh = T.h / 2, longH = T.w >= T.h;
     var caps = { top: Math.floor(T.w / CHAIR_PITCH), bottom: Math.floor(T.w / CHAIR_PITCH),
                  left: Math.floor(T.h / CHAIR_PITCH), right: Math.floor(T.h / CHAIR_PITCH) };
-    var order = longH ? [['top', 'bottom'], ['left', 'right']] : [['left', 'right'], ['top', 'bottom']];
+    var order = (longH && !T.endsFirst) ? [['top', 'bottom'], ['left', 'right']] : [['left', 'right'], ['top', 'bottom']];
     var c = { top: 0, bottom: 0, left: 0, right: 0 }, rem = n;
     order.forEach(function (pair) {
       var prog = true;
@@ -632,15 +774,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   /* ---------- state ---------- */
-  var S = { room: 'bistro', snap: true, grid: true, docs: {}, fix: {}, editFix: false };
+  var S = { room: 'bistro', snap: true, grid: false, dims: false, docs: {}, fix: {}, editFix: false };
   var hist = {};
-  var sel = null;
+  var sel = null, multi = [], curView = 'home';
   var drag = null;
   var scale = 1;
 
   function doc() { return S.docs[S.room]; }
   function items() { return doc().items; }
   function fix() { return S.fix[S.room]; }
+  function isSel(id) { return id === sel || multi.indexOf(id) >= 0; }
+  function currentIds() { return multi.length ? multi.slice() : (sel ? [sel] : []); }
   function allItems() { return items().concat(fix()); }
   function byId(id) { var a = allItems(); for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; }
   function isFix(it) { return fix().indexOf(it) >= 0; }
@@ -663,6 +807,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var rotInput = $('rotInput'), rotateBtn = $('rotateBtn'), dupBtn = $('dupBtn'), lockBtn = $('lockBtn'), delBtn = $('delBtn');
   var tplDlg = $('tplDlg'), openDlg = $('openDlg'), toastEl = $('toast');
   var notesPanel = $('notesPanel'), notesBtn = $('notesBtn'), notesInput = $('notesInput');
+  var inspMulti = $('inspMulti'), mergeBtn = $('mergeBtn'), unmergeBtn = $('unmergeBtn'), seatRotField = $('seatRotField'), seatRotInput = $('seatRotInput'), dateInput = $('dateInput');
 
   /* ---------- stats and text tokens ---------- */
   function stats(arr) {
@@ -670,7 +815,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     arr.forEach(function (it) {
       if (it.kind === 'chairs') { if (it.counts) seats += it.count; return; }
       if (it.kind !== 'table') return;
-      var T = TYPES[it.type];
+      var T = tinfo(it);
       if (isSvc(T)) return;
       tables++; seats += it.seats;
     });
@@ -698,17 +843,24 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function tableNode(t, live) {
-    var T = TYPES[t.type];
-    var g = el('g', { 'class': 'item table' + (isSvc(T) ? ' svc' : '') + (live && t.id === sel ? ' sel' : ''), transform: 'translate(' + t.x + ' ' + t.y + ') rotate(' + t.rot + ')' });
+    var T = tinfo(t);
+    var g = el('g', { 'class': 'item table' + (isSvc(T) ? ' svc' : '') + (live && isSel(t.id) ? ' sel' : ''), transform: 'translate(' + t.x + ' ' + t.y + ') rotate(' + t.rot + ')' });
     liveAttrs(g, t, live, (isSvc(T) ? '' : 'Table ' + (t.label || 'unlabeled') + ', ') + T.name + (t.seats ? ', ' + seatWord(t.seats) : ''));
-    seatSlots(T, t.seats).forEach(function (s) { addChair(g, s.x, s.y, s.rot); });
+    seatSlots(T, t.seats, t.seatRot).forEach(function (s) { addChair(g, s.x, s.y, s.rot); });
     if (isRound(T)) el('circle', { 'class': 'tbody', r: T.w / 2 }, g);
     else el('rect', { 'class': 'tbody', x: -T.w / 2, y: -T.h / 2, width: T.w, height: T.h, rx: 4 }, g);
+    if (T.merged) {
+      var cum = -T.w / 2;
+      t.parts.forEach(function (p, i) {
+        cum += p.ext;
+        if (i < t.parts.length - 1) el('line', { 'class': 'seam', x1: cum, y1: -T.h / 2 + 2, x2: cum, y2: T.h / 2 - 2 }, g);
+      });
+    }
     var minD = Math.min(T.w, T.h);
     var fs = clamp(minD * 0.34, 9, 14);
     var tg = el('g', { transform: 'rotate(' + (-t.rot) + ')' }, g);
     var showSub = !isSvc(T) && minD >= 40 && t.seats > 0;
-    var lab = el('text', { 'class': 'tlabel', 'font-size': fs, y: showSub ? -fs * 0.35 : 0 }, tg);
+    var lab = el('text', { 'class': 'tlabel' + (isSvc(T) ? '' : ' num'), 'font-size': fs, y: showSub ? -fs * 0.35 : 0 }, tg);
     lab.textContent = isSvc(T) ? (t.label || T.short) : t.label;
     if (showSub) {
       var sub = el('text', { 'class': 'tseats', 'font-size': fs * 0.62, y: fs * 0.75 }, tg);
@@ -718,7 +870,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function shapeNode(it, live) {
-    var g = el('g', { 'class': 'item shape' + (live && it.id === sel ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + (it.rot || 0) + ')' });
+    var g = el('g', { 'class': 'item shape' + (live && isSel(it.id) ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + (it.rot || 0) + ')' });
     liveAttrs(g, it, live, (it.kind === 'rect' ? 'Rectangle ' : 'Ellipse ') + inch(it.w) + ' by ' + inch(it.h));
     var cls = 'shp fill-' + it.fill;
     if (it.kind === 'rect') el('rect', { 'class': cls, x: -it.w / 2, y: -it.h / 2, width: it.w, height: it.h, rx: 2 }, g);
@@ -727,7 +879,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function lineNode(it, live) {
-    var g = el('g', { 'class': 'item line' + (live && it.id === sel ? ' sel' : '') });
+    var g = el('g', { 'class': 'item line' + (live && isSel(it.id) ? ' sel' : '') });
     liveAttrs(g, it, live, 'Line ' + inch(Math.hypot(it.x2 - it.x1, it.y2 - it.y1)) + ' long');
     var wt = WEIGHTS[it.weight] || 6;
     el('line', { 'class': 'lnhit', x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, 'stroke-width': Math.max(wt, 16), 'stroke-linecap': 'round' }, g);
@@ -736,7 +888,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function chairsNode(it, live) {
-    var g = el('g', { 'class': 'item chairs' + (live && it.id === sel ? ' sel' : '') });
+    var g = el('g', { 'class': 'item chairs' + (live && isSel(it.id) ? ' sel' : '') });
     liveAttrs(g, it, live, it.count + ' free chairs' + (it.counts ? ', counted as seats' : ''));
     var dx = it.x2 - it.x1, dy = it.y2 - it.y1, len = Math.hypot(dx, dy) || 1, f = it.flip ? -1 : 1;
     var nx = -dy / len * f, ny = dx / len * f;
@@ -752,7 +904,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function textNode(it, live, arr) {
     var b = textBox(it, arr);
-    var g = el('g', { 'class': 'item txt' + (live && it.id === sel ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + (it.rot || 0) + ')' });
+    var g = el('g', { 'class': 'item txt' + (live && isSel(it.id) ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + (it.rot || 0) + ')' });
     liveAttrs(g, it, live, 'Label: ' + b.lines.join(' '));
     el('rect', { 'class': 'thit', x: -b.w / 2, y: -b.h / 2, width: b.w, height: b.h, rx: b.fs * 0.2 }, g);
     b.lines.forEach(function (l, i) {
@@ -805,7 +957,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var s = stats(items());
     seatStat.innerHTML = '<b>' + s.seats + '</b> ' + (s.seats === 1 ? 'seat' : 'seats');
     tableStat.innerHTML = '<b>' + s.tables + '</b> ' + (s.tables === 1 ? 'table' : 'tables');
-    emptyMsg.hidden = items().length > 0 || fix().length > 0;
+    hide(emptyMsg, items().length > 0 || fix().length > 0);
     if (!skipTokens) refreshTokenTexts();
   }
 
@@ -831,13 +983,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var R = room();
     svg.setAttribute('viewBox', (-PAD) + ' ' + (-PAD) + ' ' + (R.w + 2 * PAD) + ' ' + (R.h + 2 * PAD));
     ['floor', 'gridA', 'gridB'].forEach(function (id) { $(id).setAttribute('width', R.w); $(id).setAttribute('height', R.h); });
-    var w = $('wall'); w.setAttribute('x', -3); w.setAttribute('y', -3); w.setAttribute('width', R.w + 6); w.setAttribute('height', R.h + 6); w.setAttribute('rx', 3);
+    var w = $('wall'); w.setAttribute('x', -1.5); w.setAttribute('y', -1.5); w.setAttribute('width', R.w + 3); w.setAttribute('height', R.h + 3); w.setAttribute('rx', 1.5);
     var dt = $('dimTop'); dt.setAttribute('x', R.w / 2); dt.setAttribute('y', -17); dt.textContent = ftin(R.w);
     var dl = $('dimLeft'); dl.setAttribute('x', -17); dl.setAttribute('y', R.h / 2); dl.setAttribute('transform', 'rotate(-90 -17 ' + (R.h / 2) + ')'); dl.textContent = ftin(R.h);
     emptyMsg.setAttribute('x', R.w / 2); emptyMsg.setAttribute('y', R.h / 2);
     dimsEl.textContent = ftin(R.w) + ' × ' + ftin(R.h);
-    $('gridA').hidden = !S.grid; $('gridB').hidden = !S.grid;
+    applyDisplay();
     fitSize();
+  }
+  function applyDisplay() {
+    hide($('gridA'), !S.grid); hide($('gridB'), !S.grid);
+    hide($('dimTop'), !S.dims); hide($('dimLeft'), !S.dims); hide(dimsEl, !S.dims);
+    setSwitch($('gridBtn'), S.grid); setSwitch($('dimsBtn'), S.dims); setSwitch($('snapBtn'), S.snap);
   }
 
   function fitSize() {
@@ -853,7 +1010,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- geometry for moving and placing ---------- */
   function half(it) {
     if (it.kind === 'table') {
-      var T = TYPES[it.type];
+      var T = tinfo(it);
       if (isRound(T)) return { x: T.w / 2, y: T.w / 2 };
       return aabb(T.w / 2, T.h / 2, it.rot || 0);
     }
@@ -983,7 +1140,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   /* ---------- history ---------- */
-  function snap() { var d = doc(); return JSON.stringify({ name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: fix() }); }
+  function snap() { var d = doc(); return JSON.stringify({ name: d.name, date: d.date, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: fix() }); }
   function H() { var h = hist[S.room]; if (!h) h = hist[S.room] = { undo: [], redo: [], last: snap() }; return h; }
   function syncUndo() { var h = H(); undoBtn.disabled = !h.undo.length; redoBtn.disabled = !h.redo.length; }
   function commit() {
@@ -996,8 +1153,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function restore(s) {
     var o = JSON.parse(s), d = doc();
-    d.name = o.name; d.showTitle = o.showTitle; d.notes = o.notes; d.showNotes = o.showNotes; d.items = o.items;
+    d.name = o.name; d.date = o.date || ''; d.showTitle = o.showTitle; d.notes = o.notes; d.showNotes = o.showNotes; d.items = o.items;
     S.fix[S.room] = o.fixtures || [];
+    multi = [];
     if (sel && !byId(sel)) sel = null;
     syncDocUI(); render(); syncInspector(); save(); syncUndo();
   }
@@ -1005,12 +1163,24 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function redo() { var h = H(); if (!h.redo.length) return; h.undo.push(snap()); h.last = h.redo.pop(); restore(h.last); }
 
   /* ---------- selection and inspector ---------- */
-  function select(id) {
-    sel = id;
+  function paintSel() {
     var nodes = svg.querySelectorAll('.item');
-    for (var i = 0; i < nodes.length; i++) nodes[i].classList.toggle('sel', nodes[i].getAttribute('data-id') === id);
-    renderHandles();
-    syncInspector();
+    for (var i = 0; i < nodes.length; i++) nodes[i].classList.toggle('sel', isSel(nodes[i].getAttribute('data-id')));
+  }
+  function select(id) {
+    sel = id; multi = [];
+    paintSel(); renderHandles(); syncInspector();
+  }
+  function selectMulti(ids) {
+    ids = ids.filter(function (id) { return !!byId(id); });
+    if (ids.length < 2) { select(ids[0] || null); return; }
+    multi = ids.slice(); sel = null;
+    paintSel(); renderHandles(); syncInspector();
+  }
+  function toggleSel(id) {
+    var cur = currentIds(), i = cur.indexOf(id);
+    if (i >= 0) cur.splice(i, 1); else cur.push(id);
+    selectMulti(cur);
   }
 
   function pressed(row, attr, val) {
@@ -1025,8 +1195,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function syncInspector() {
     var it = sel ? byId(sel) : null;
+    inspMulti.hidden = multi.length < 2;
+    if (multi.length >= 2) { inspEmpty.hidden = true; inspBody.hidden = true; syncMulti(); return; }
     inspEmpty.hidden = !!it; inspBody.hidden = !it;
     if (!it) return;
+    unmergeBtn.hidden = true; seatRotField.hidden = true;
     blkTable.hidden = it.kind !== 'table';
     blkChairs.hidden = it.kind !== 'chairs';
     blkShape.hidden = !(it.kind === 'rect' || it.kind === 'ellipse');
@@ -1037,9 +1210,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     lockBtn.textContent = isFix(it) ? 'Move back to this layout' : 'Lock as room fixture';
     if (document.activeElement !== rotInput) rotInput.value = r2(getAngle(it));
     if (it.kind === 'table') {
-      var T = TYPES[it.type], mx = maxSeats(it.type);
+      var T = tinfo(it), mx = maxSeats(T);
       inspTitle.textContent = T.name + (isRound(T) ? ' round' : '');
-      inspSub.textContent = isRound(T) ? inch(T.w) + ' diameter' : inch(T.h) + ' × ' + inch(T.w);
+      inspSub.textContent = T.merged ? it.parts.length + ' tables joined, ' + ftin(T.w) + ' × ' + inch(T.h)
+        : isRound(T) ? inch(T.w) + ' diameter' : inch(T.h) + ' × ' + inch(T.w);
+      unmergeBtn.hidden = !T.merged;
+      seatRotField.hidden = !(isRound(T) && mx > 0);
+      if (document.activeElement !== seatRotInput) seatRotInput.value = r2(it.seatRot || 0);
       if (document.activeElement !== labelInput) labelInput.value = it.label;
       labelInput.placeholder = isSvc(T) ? 'Optional' : 'Table number';
       seatField.hidden = mx === 0;
@@ -1086,31 +1263,44 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     select(it.id);
     commit();
   }
-  function addTable(type) {
+  function newTable(type) {
     var T = TYPES[type];
-    var t = { id: uid(), kind: 'table', type: type, x: 0, y: 0, rot: 0, seats: T.seats, label: isSvc(T) ? '' : nextLabel() };
-    var p = findFree(t); t.x = p.x; t.y = p.y; clampCenter(t);
+    return { id: uid(), kind: 'table', type: type, x: 0, y: 0, rot: T.rot || 0, seats: T.seats, seatRot: T.seatRot || 0, label: isSvc(T) ? '' : nextLabel() };
+  }
+  /* Put a new item's center at a dropped point (snapped, kept in the room). */
+  function placeAt(it, at) {
+    if (isSeg(it)) {
+      var mx = (it.x1 + it.x2) / 2, my = (it.y1 + it.y2) / 2, dx = snapV(at.x) - mx, dy = snapV(at.y) - my;
+      it.x1 += dx; it.x2 += dx; it.y1 += dy; it.y2 += dy; fitSeg(it);
+    } else { it.x = snapV(at.x); it.y = snapV(at.y); clampCenter(it); }
+  }
+  function addTable(type, at) {
+    var t = newTable(type), p;
+    if (at) {
+      placeAt(t, at);
+      if (blocked(t)) { p = findFree(t); t.x = p.x; t.y = p.y; }
+    } else { p = findFree(t); t.x = p.x; t.y = p.y; clampCenter(t); }
     addNode(t);
   }
-  function addChairs() {
-    var R = room(), off = stagger(), cx = R.w / 2 + off, cy = R.h / 2 + off;
-    var it = { id: uid(), kind: 'chairs', x1: cx - 48, y1: cy, x2: cx + 48, y2: cy, count: 4, flip: false, counts: false };
-    fitSeg(it);
+  function addChairs(at) {
+    var R = room(), off = at ? 0 : stagger(), cx = R.w / 2 + off, cy = R.h / 2 + off;
+    var it = { id: uid(), kind: 'chairs', x1: cx - 12, y1: cy, x2: cx + 12, y2: cy, count: 1, flip: false, counts: false };
+    if (at) placeAt(it, at); else fitSeg(it);
     addNode(it);
   }
-  function addDraw(k) {
-    var R = room(), off = stagger(), it;
+  function addDraw(k, at) {
+    var R = room(), off = at ? 0 : stagger(), it;
     if (k === 'rect') it = { id: uid(), kind: 'rect', x: R.w / 2 + off, y: R.h / 2 + off, w: 72, h: 48, rot: 0, fill: 'gray' };
     else if (k === 'ellipse') it = { id: uid(), kind: 'ellipse', x: R.w / 2 + off, y: R.h / 2 + off, w: 60, h: 60, rot: 0, fill: 'gray' };
     else if (k === 'line') it = { id: uid(), kind: 'line', x1: R.w / 2 - 48 + off, y1: R.h / 2 + off, x2: R.w / 2 + 48 + off, y2: R.h / 2 + off, weight: 2 };
     else it = { id: uid(), kind: 'text', x: R.w / 2 + off, y: R.h / 2 + off, rot: 0, text: 'Label', size: 'm', bold: false };
-    if (!isSeg(it)) clampCenter(it);
+    if (at) placeAt(it, at); else if (!isSeg(it)) clampCenter(it);
     addNode(it);
     if (k === 'text') { textInput.focus(); textInput.select(); }
   }
   function duplicate(it) {
     var c = clone(it); c.id = uid();
-    if (c.kind === 'table') { var T = TYPES[c.type]; c.label = isSvc(T) ? c.label : nextLabel(); }
+    if (c.kind === 'table') { var T = tinfo(c); c.label = isSvc(T) ? c.label : nextLabel(); }
     moveItem(c, it, 24, 24, false);
     if (blocked(c)) { var p = findFree(c); c.x = p.x; c.y = p.y; }
     addNode(c);
@@ -1119,14 +1309,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var a = isFix(it) ? fix() : items(), i = a.indexOf(it);
     if (i >= 0) a.splice(i, 1);
     var n = nodeFor(it.id); if (n) n.remove();
-    sel = null; renderHandles(); syncInspector(); updateStats(); commit();
+    sel = null; multi = []; renderHandles(); syncInspector(); updateStats(); commit();
   }
   function setSeats(t, n) {
-    t.seats = clamp(n, 0, maxSeats(t.type));
+    t.seats = clamp(n, 0, maxSeats(tinfo(t)));
     refreshItem(t); updateStats(); syncInspector(); commit();
   }
   function setEditFix(on) {
-    S.editFix = on; sel = null;
+    S.editFix = on; sel = null; multi = [];
     svg.classList.toggle('editfix', on);
     scroller.classList.toggle('editfix', on);
     $('fixPill').hidden = !on;
@@ -1144,10 +1334,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   seatInput.addEventListener('input', function () {
     var t = byId(sel), n = parseInt(seatInput.value, 10);
     if (!t || isNaN(n)) return;
-    t.seats = clamp(n, 0, maxSeats(t.type)); refreshItem(t); updateStats();
-    seatMinus.disabled = t.seats <= 0; seatPlus.disabled = t.seats >= maxSeats(t.type);
+    t.seats = clamp(n, 0, maxSeats(tinfo(t))); refreshItem(t); updateStats();
+    seatMinus.disabled = t.seats <= 0; seatPlus.disabled = t.seats >= maxSeats(tinfo(t));
   });
   seatInput.addEventListener('change', function () { var t = byId(sel); if (!t) return; seatInput.value = t.seats; commit(); });
+
+  seatRotInput.addEventListener('input', function () {
+    var t = byId(sel), v = parseFloat(seatRotInput.value);
+    if (!t || !isFinite(v)) return;
+    t.seatRot = norm(v); refreshItem(t);
+  });
+  seatRotInput.addEventListener('change', function () { var t = byId(sel); if (t) seatRotInput.value = r2(t.seatRot || 0); commit(); });
 
   function sizeField(input, prop) {
     input.addEventListener('input', function () {
@@ -1180,11 +1377,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* chair rows */
   function chairsChanged(it) { refreshItem(it); renderHandles(); updateStats(); syncInspector(); }
-  $('chMinus').addEventListener('click', function () { var it = byId(sel); if (!it) return; it.count = clamp(it.count - 1, 1, 40); chairsChanged(it); commit(); });
-  $('chPlus').addEventListener('click', function () { var it = byId(sel); if (!it) return; it.count = clamp(it.count + 1, 1, 40); chairsChanged(it); commit(); });
+  /* Changing the count keeps the spacing, so the row grows or shrinks around its middle. */
+  function setChairCount(it, n) {
+    var sp = Math.max(segLen(it) / it.count, 6);
+    it.count = clamp(n, 1, 40);
+    setSegLen(it, sp * it.count);
+  }
+  $('chMinus').addEventListener('click', function () { var it = byId(sel); if (!it) return; setChairCount(it, it.count - 1); chairsChanged(it); commit(); });
+  $('chPlus').addEventListener('click', function () { var it = byId(sel); if (!it) return; setChairCount(it, it.count + 1); chairsChanged(it); commit(); });
   chCount.addEventListener('input', function () {
     var it = byId(sel), n = parseInt(chCount.value, 10); if (!it || isNaN(n)) return;
-    it.count = clamp(n, 1, 40); chairsChanged(it);
+    setChairCount(it, n); chairsChanged(it);
   });
   chCount.addEventListener('change', function () { var it = byId(sel); if (it) chCount.value = it.count; commit(); });
   function setSegLen(it, len) {
@@ -1231,15 +1434,112 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       items().splice(items().indexOf(it), 1); fix().push(it);
       toast('Locked as a room fixture. Edit room fixtures in the menu to change it.');
     }
-    sel = null; render(); syncInspector(); commit();
+    sel = null; multi = []; render(); syncInspector(); commit();
   });
 
+  /* ---------- merge ---------- */
+  function mergePlan(ids) {
+    var ts = ids.map(byId).filter(Boolean), i;
+    if (ts.length < 2) return { ok: false, msg: 'Select two or more tables.' };
+    for (i = 0; i < ts.length; i++) {
+      var T0 = ts[i].kind === 'table' ? tinfo(ts[i]) : null;
+      if (!T0) return { ok: false, msg: 'Merge works on tables only. Deselect the other items.' };
+      if (T0.merged) return { ok: false, msg: 'Unmerge a joined table before merging it again.' };
+      if (isRound(T0)) return { ok: false, msg: 'Round tables cannot be merged. Select rectangles.' };
+    }
+    var th = ts[0].rot || 0;
+    for (i = 1; i < ts.length; i++) {
+      var d = (((ts[i].rot || 0) - th) % 90 + 90) % 90;
+      if (d > 1 && d < 89) return { ok: false, msg: 'Tables need to face the same way. Match their rotation first.' };
+    }
+    var best = null;
+    [th, th + 90].forEach(function (ax) {
+      var c = Math.cos(rad(ax)), sn = Math.sin(rad(ax));
+      var rows = ts.map(function (t) {
+        var T = tinfo(t);
+        var rel = (Math.round(((((t.rot || 0) - ax) % 360) + 360) % 360 / 90) % 4) * 90;
+        var along = rel % 180 === 0;
+        return { t: t, s: t.x * c + t.y * sn, p: -t.x * sn + t.y * c, ext: along ? T.w : T.h, wid: along ? T.h : T.w, rel: rel };
+      });
+      var ps = rows.map(function (r) { return r.p; });
+      var spread = Math.max.apply(null, ps) - Math.min.apply(null, ps);
+      if (!best || spread < best.spread - 0.01) best = { ax: ax, c: c, sn: sn, rows: rows, spread: spread };
+    });
+    var rows = best.rows;
+    if (best.spread > 14) return { ok: false, msg: 'Tables need to sit in a line, end to end.' };
+    var W = rows[0].wid;
+    for (i = 1; i < rows.length; i++) if (Math.abs(rows[i].wid - W) > 2) return { ok: false, msg: 'Tables need the same width to join.' };
+    rows.sort(function (a, b) { return a.s - b.s; });
+    for (i = 1; i < rows.length; i++) {
+      var gap = (rows[i].s - rows[i].ext / 2) - (rows[i - 1].s + rows[i - 1].ext / 2);
+      if (gap > 30) return { ok: false, msg: 'Move the tables closer together first (within 30 in).' };
+      if (gap < -4) return { ok: false, msg: 'Tables overlap. Spread them end to end first.' };
+    }
+    var L = 0, lo = Infinity, hi = -Infinity, pm = 0, seats = 0, allSvc = true;
+    rows.forEach(function (r) {
+      L += r.ext; lo = Math.min(lo, r.s - r.ext / 2); hi = Math.max(hi, r.s + r.ext / 2);
+      pm += r.p; seats += r.t.seats;
+      if (!isSvc(tinfo(r.t))) allSvc = false;
+    });
+    var sm = (lo + hi) / 2; pm /= rows.length;
+    var labs = rows.map(function (r) { return r.t.label; }).filter(Boolean);
+    var label = allSvc ? '' : labs.join('/');
+    if (label.length > 8) label = labs[0] + '+';
+    var m = { id: uid(), kind: 'table', type: 'merged', svc: allSvc,
+      x: r2(sm * best.c - pm * best.sn), y: r2(sm * best.sn + pm * best.c), rot: norm(best.ax), w: r2(L), h: r2(W),
+      seats: 0, seatRot: 0, label: label,
+      parts: rows.map(function (r) { return { type: r.t.type, label: r.t.label, seats: r.t.seats, seatRot: r.t.seatRot || 0, ext: r.ext, rel: r.rel }; }) };
+    m.seats = allSvc ? 0 : Math.min(seats, maxSeats(tinfo(m)));
+    return { ok: true, item: m, L: L, seats: m.seats, n: rows.length };
+  }
+  function syncMulti() {
+    var plan = mergePlan(multi);
+    $('mTitle').textContent = multi.length + ' items selected';
+    mergeBtn.disabled = !plan.ok;
+    $('mergeWhy').textContent = plan.ok ? 'Joins ' + plan.n + ' tables end to end into one ' + ftin(plan.L) + ' table' + (plan.seats ? ' with ' + seatWord(plan.seats) + ', spaced evenly.' : '.') : plan.msg;
+    $('mergeWhy').className = 'fine' + (plan.ok ? '' : ' warn');
+  }
+  function doMerge() {
+    var plan = mergePlan(multi);
+    if (!plan.ok) { toast(plan.msg); return; }
+    var m = plan.item; clampCenter(m);
+    if (blocked(m)) { toast('A room fixture is in the way.'); return; }
+    var ids = multi.slice();
+    doc().items = items().filter(function (x) { return ids.indexOf(x.id) < 0; });
+    doc().items.push(m);
+    sel = null; multi = []; render(); select(m.id); commit();
+    toast('Tables merged. Unmerge any time from the side panel.');
+  }
+  function unmerge(m) {
+    var cum = -m.w / 2, ids = [], arr = items();
+    m.parts.forEach(function (p) {
+      var c = cum + p.ext / 2, v = rotVec(c, 0, m.rot);
+      cum += p.ext;
+      var t = { id: uid(), kind: 'table', type: p.type, x: r2(m.x + v.x), y: r2(m.y + v.y), rot: norm(m.rot + p.rel), seats: p.seats, seatRot: p.seatRot || 0, label: p.label };
+      arr.push(t); ids.push(t.id);
+    });
+    arr.splice(arr.indexOf(m), 1);
+    sel = null; multi = []; render(); selectMulti(ids); commit();
+    toast('Unmerged into ' + ids.length + ' tables.');
+  }
+  function deleteMulti() {
+    var ids = multi.slice();
+    doc().items = items().filter(function (x) { return ids.indexOf(x.id) < 0; });
+    if (S.editFix) S.fix[S.room] = fix().filter(function (x) { return ids.indexOf(x.id) < 0; });
+    sel = null; multi = []; render(); syncInspector(); commit();
+  }
+  mergeBtn.addEventListener('click', doMerge);
+  unmergeBtn.addEventListener('click', function () { var m = byId(sel); if (m && m.type === 'merged') unmerge(m); });
+  $('mDelBtn').addEventListener('click', deleteMulti);
   /* ---------- pointer interaction ---------- */
   function toWorld(e) {
     var pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
     return pt.matrixTransform(svg.getScreenCTM().inverse());
   }
 
+  svg.addEventListener('mousedown', function (e) {
+    if (e.shiftKey || e.ctrlKey || e.metaKey) e.preventDefault();
+  });
   svg.addEventListener('pointerdown', function (e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     var hd = e.target.closest ? e.target.closest('.hdl') : null;
@@ -1250,23 +1550,45 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       return;
     }
     var g = e.target.closest ? e.target.closest('.item') : null;
-    if (!g) { select(null); return; }
+    if (!g) {
+      var p0 = toWorld(e), keep = e.shiftKey ? currentIds() : [];
+      if (!e.shiftKey) select(null);
+      drag = { mode: 'marquee', sx: p0.x, sy: p0.y, keep: keep, box: null };
+      try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+      return;
+    }
     var it = byId(g.getAttribute('data-id'));
     if (!it) return;
-    if (sel !== it.id) select(it.id);
-    var p = toWorld(e);
-    drag = { mode: 'move', id: it.id, sx: p.x, sy: p.y, o: clone(it) };
+    if (e.shiftKey || e.ctrlKey || e.metaKey) { toggleSel(it.id); return; }
+    var ids;
+    if (multi.indexOf(it.id) >= 0) ids = multi.slice();
+    else { if (sel !== it.id) select(it.id); ids = [it.id]; }
+    var p = toWorld(e), os = {};
+    ids.forEach(function (id) { os[id] = clone(byId(id)); });
+    drag = { mode: 'move', id: it.id, ids: ids, sx: p.x, sy: p.y, os: os, o: os[it.id] };
     try { svg.setPointerCapture(e.pointerId); } catch (err) {}
     svg.classList.add('dragging');
   });
 
   svg.addEventListener('pointermove', function (e) {
     if (!drag) return;
+    var p = toWorld(e);
+    if (drag.mode === 'marquee') {
+      var x0 = Math.min(drag.sx, p.x), y0 = Math.min(drag.sy, p.y), w0 = Math.abs(p.x - drag.sx), h0 = Math.abs(p.y - drag.sy);
+      if (!drag.box && (w0 > 3 || h0 > 3)) drag.box = el('rect', { 'class': 'marq' }, handlesL);
+      if (drag.box) { drag.box.setAttribute('x', x0); drag.box.setAttribute('y', y0); drag.box.setAttribute('width', w0); drag.box.setAttribute('height', h0); }
+      drag.r = { x0: x0, y0: y0, x1: x0 + w0, y1: y0 + h0 };
+      return;
+    }
     var it = byId(drag.id); if (!it) return;
-    var p = toWorld(e), o = drag.o;
+    var o = drag.o;
     if (drag.mode === 'move') {
-      tryMove(it, o, p.x - drag.sx, p.y - drag.sy, true);
-      refreshItem(it);
+      var dx = p.x - drag.sx, dy = p.y - drag.sy;
+      if (drag.ids.length === 1) { tryMove(it, o, dx, dy, true); refreshItem(it); }
+      else {
+        var sdx = snapV(dx), sdy = snapV(dy);
+        drag.ids.forEach(function (id) { var m = byId(id); if (m) { tryMove(m, drag.os[id], sdx, sdy, false); refreshItem(m); } });
+      }
       renderHandles();
       return;
     }
@@ -1275,8 +1597,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (isSeg(it)) {
       var other = drag.h === 'a' ? { x: o.x2, y: o.y2 } : { x: o.x1, y: o.y1 };
       if (e.shiftKey) {
-        var dx = q.x - other.x, dy = q.y - other.y, len = Math.hypot(dx, dy);
-        var ang = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4);
+        var ddx = q.x - other.x, ddy = q.y - other.y, len = Math.hypot(ddx, ddy);
+        var ang = Math.round(Math.atan2(ddy, ddx) / (Math.PI / 4)) * (Math.PI / 4);
         q = clampPt({ x: other.x + len * Math.cos(ang), y: other.y + len * Math.sin(ang) });
       }
       if (drag.h === 'a') { it.x1 = q.x; it.y1 = q.y; } else { it.x2 = q.x; it.y2 = q.y; }
@@ -1291,10 +1613,27 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     refreshItem(it); renderHandles(); syncInspector();
   });
 
+  function itemBox(it) {
+    if (isSeg(it)) return { x0: Math.min(it.x1, it.x2), x1: Math.max(it.x1, it.x2), y0: Math.min(it.y1, it.y2), y1: Math.max(it.y1, it.y2) };
+    var h = half(it);
+    return { x0: it.x - h.x, x1: it.x + h.x, y0: it.y - h.y, y1: it.y + h.y };
+  }
+  function finishMarquee(d) {
+    if (d.box) d.box.remove();
+    if (!d.r) return;
+    var ids = d.keep.slice();
+    (S.editFix ? fix() : items()).forEach(function (it) {
+      var b = itemBox(it);
+      if (b.x0 < d.r.x1 && b.x1 > d.r.x0 && b.y0 < d.r.y1 && b.y1 > d.r.y0 && ids.indexOf(it.id) < 0) ids.push(it.id);
+    });
+    if (ids.length) selectMulti(ids);
+  }
+
   function endDrag() {
     if (!drag) return;
-    drag = null;
+    var d = drag; drag = null;
     svg.classList.remove('dragging');
+    if (d.mode === 'marquee') { finishMarquee(d); return; }
     syncInspector();
     updateStats();
     commit();
@@ -1304,11 +1643,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   svg.addEventListener('focusin', function (e) {
     var g = e.target.closest ? e.target.closest('.item') : null;
-    if (g && g.getAttribute('data-id') !== sel) select(g.getAttribute('data-id'));
+    if (g && !isSel(g.getAttribute('data-id'))) select(g.getAttribute('data-id'));
   });
 
   /* ---------- keyboard ---------- */
+  function multiKeys(e) {
+    if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); deleteMulti(); return; }
+    var st = e.shiftKey ? 1 : SNAP, dx = 0, dy = 0;
+    if (e.key === 'ArrowLeft') dx = -st; else if (e.key === 'ArrowRight') dx = st;
+    else if (e.key === 'ArrowUp') dy = -st; else if (e.key === 'ArrowDown') dy = st; else return;
+    e.preventDefault();
+    multi.forEach(function (id) { var m = byId(id); if (m) { tryMove(m, clone(m), dx, dy, false); refreshItem(m); } });
+    renderHandles(); commit();
+  }
   document.addEventListener('keydown', function (e) {
+    if (curView !== 'editor') return;
     var tg = e.target, typing = tg.closest && tg.closest('input, textarea, select, dialog');
     var k = e.key.toLowerCase();
     if ((e.ctrlKey || e.metaKey) && !e.altKey) {
@@ -1325,7 +1674,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       else if (!typing) select(null);
       return;
     }
-    if (typing || !sel) return;
+    if (typing) return;
+    if (multi.length > 1) { multiKeys(e); return; }
+    if (!sel) return;
     var it = byId(sel); if (!it) return;
     if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); remove(it); return; }
     if (k === 'r') { rotateBy(it, 90); return; }
@@ -1338,6 +1689,41 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     tryMove(it, clone(it), dx, dy, false);
     refreshItem(it); renderHandles(); commit();
   });
+
+  /* ---------- drag from the palette ---------- */
+  var padDrag = null, suppressClick = false;
+  function overRoom(e) {
+    var r = scroller.getBoundingClientRect();
+    return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+  }
+  function endPadDrag() {
+    if (padDrag && padDrag.ghost) padDrag.ghost.remove();
+    document.body.classList.remove('padDragging'); scroller.classList.remove('dropok');
+    padDrag = null;
+  }
+  document.addEventListener('pointermove', function (e) {
+    if (!padDrag) return;
+    if (!padDrag.on) {
+      if (Math.hypot(e.clientX - padDrag.sx, e.clientY - padDrag.sy) < 6) return;
+      padDrag.on = true;
+      var gh = document.createElement('div'); gh.className = 'ghost'; gh.innerHTML = padDrag.icon;
+      document.body.appendChild(gh); padDrag.ghost = gh;
+      document.body.classList.add('padDragging');
+    }
+    padDrag.ghost.style.left = e.clientX + 'px'; padDrag.ghost.style.top = e.clientY + 'px';
+    scroller.classList.toggle('dropok', overRoom(e));
+  });
+  document.addEventListener('pointerup', function (e) {
+    if (!padDrag) return;
+    var d = padDrag, moved = d.on, inside = moved && overRoom(e);
+    var at = inside ? toWorld(e) : null;
+    endPadDrag();
+    if (!moved) return;
+    suppressClick = true; setTimeout(function () { suppressClick = false; }, 0);
+    if (at) { d.fn(at); }
+  });
+  document.addEventListener('pointercancel', endPadDrag);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && padDrag) endPadDrag(); });
 
   /* ---------- palette ---------- */
   function iconSvg(key, T) {
@@ -1369,17 +1755,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     function tile(wrap, iconHtml, name, sd, cls, fn) {
       var b = document.createElement('button'); b.type = 'button'; b.className = 'tile' + (cls ? ' ' + cls : '');
       b.innerHTML = iconHtml + '<span class="nm">' + name + '</span><span class="sd">' + sd + '</span>';
-      b.addEventListener('click', fn);
+      b.addEventListener('click', function () { if (suppressClick) return; fn(); });
+      b.addEventListener('pointerdown', function (e) {
+        if (e.pointerType === 'touch' || e.button !== 0 || b.disabled) return;
+        padDrag = { sx: e.clientX, sy: e.clientY, on: false, icon: b.querySelector('svg').outerHTML, fn: fn, ghost: null };
+      });
       wrap.appendChild(b);
     }
     GROUPS.forEach(function (g) {
       var wrap = group(g.cap);
-      g.keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function () { addTable(k); }); });
+      g.keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function (at) { addTable(k, at); }); });
     });
     var cw = group('Free chairs');
     tile(cw, iconSvg('chairs'), 'Chair row', 'bar, high-top', 'tbl', addChairs);
     var dw = group('Draw');
-    DRAW.forEach(function (d) { tile(dw, iconSvg(d.k), d.name, '', '', function () { addDraw(d.k); }); });
+    DRAW.forEach(function (d) { tile(dw, iconSvg(d.k), d.name, '', '', function (at) { addDraw(d.k, at); }); });
   })();
 
   /* ---------- menu ---------- */
@@ -1388,15 +1778,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   menuBtn.addEventListener('click', function (e) { e.stopPropagation(); if (menu.hidden) openMenu(); else closeMenu(); });
   document.addEventListener('click', function (e) { if (!menu.hidden && !menu.contains(e.target) && !menuBtn.contains(e.target)) closeMenu(); });
   function setSwitch(btn, on) { btn.setAttribute('aria-checked', on ? 'true' : 'false'); }
-  $('snapBtn').addEventListener('click', function () { S.snap = !S.snap; setSwitch($('snapBtn'), S.snap); save(); });
-  $('gridBtn').addEventListener('click', function () { S.grid = !S.grid; setSwitch($('gridBtn'), S.grid); $('gridA').hidden = !S.grid; $('gridB').hidden = !S.grid; save(); });
+  $('snapBtn').addEventListener('click', function () { S.snap = !S.snap; applyDisplay(); save(); });
+  $('gridBtn').addEventListener('click', function () { S.grid = !S.grid; applyDisplay(); save(); });
+  $('dimsBtn').addEventListener('click', function () { S.dims = !S.dims; applyDisplay(); save(); });
   $('fixBtn').addEventListener('click', function () {
     setEditFix(!S.editFix);
     toast(S.editFix ? 'Editing room fixtures. Add shapes, lines, or text; they show on every layout.' : 'Back to the layout.');
   });
   $('clearBtn').addEventListener('click', function () {
     closeMenu();
-    doc().items = []; sel = null; render(); syncInspector(); commit();
+    doc().items = []; sel = null; multi = []; render(); syncInspector(); commit();
     toast('Layout cleared. Room fixtures stay. Undo brings it back.');
   });
   undoBtn.addEventListener('click', undo);
@@ -1406,6 +1797,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function syncDocUI() {
     var d = doc();
     nameInput.value = d.name;
+    dateInput.value = d.date || '';
     setSwitch($('titlePrintBtn'), d.showTitle);
     notesInput.value = d.notes;
     setSwitch($('printNotesBtn'), d.showNotes);
@@ -1413,6 +1805,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   nameInput.addEventListener('input', function () { doc().name = nameInput.value.slice(0, 60); save(); });
   nameInput.addEventListener('change', commit);
+  dateInput.addEventListener('input', function () { doc().date = dateInput.value; save(); });
+  dateInput.addEventListener('change', commit);
   $('titlePrintBtn').addEventListener('click', function () { doc().showTitle = !doc().showTitle; setSwitch($('titlePrintBtn'), doc().showTitle); commit(); });
   function openNotes() { notesPanel.hidden = false; notesBtn.setAttribute('aria-expanded', 'true'); notesInput.focus(); }
   function closeNotes() { notesPanel.hidden = true; notesBtn.setAttribute('aria-expanded', 'false'); }
@@ -1437,10 +1831,23 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!o || typeof o !== 'object') return null;
     var id = String(o.id || uid());
     function num(v, d) { v = parseFloat(v); return isFinite(v) ? v : d; }
+    if (o.kind === 'table' && o.type === 'merged') {
+      var parts = (Array.isArray(o.parts) ? o.parts : []).map(function (p) {
+        if (!p || !TYPES[p.type]) return null;
+        return { type: p.type, label: String(p.label == null ? '' : p.label).slice(0, 8), seats: clamp(Math.round(num(p.seats, 0)), 0, 40),
+          seatRot: num(p.seatRot, 0), ext: clamp(num(p.ext, 36), 6, 1000), rel: [0, 90, 180, 270].indexOf(+p.rel) >= 0 ? +p.rel : 0 };
+      }).filter(Boolean);
+      if (parts.length < 2) return null;
+      var mt = { id: id, kind: 'table', type: 'merged', svc: !!o.svc, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)),
+        w: r2(parts.reduce(function (a, p) { return a + p.ext; }, 0)), h: clamp(num(o.h, 30), 6, 400), seats: 0, seatRot: 0,
+        label: String(o.label == null ? '' : o.label).slice(0, 8), parts: parts };
+      mt.seats = clamp(Math.round(num(o.seats, 0)), 0, maxSeats(tinfo(mt)));
+      return mt;
+    }
     if (o.kind === 'table') {
       var T = TYPES[o.type]; if (!T) return null;
       return { id: id, kind: 'table', type: o.type, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)),
-        seats: clamp(Math.round(num(o.seats, T.seats)), 0, maxSeats(o.type)),
+        seats: clamp(Math.round(num(o.seats, T.seats)), 0, maxSeats(o.type)), seatRot: norm(num(o.seatRot, T.seatRot || 0)),
         label: String(o.label == null ? '' : o.label).slice(0, 8) };
     }
     if (o.kind === 'rect' || o.kind === 'ellipse') {
@@ -1468,11 +1875,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return out;
   }
   function cleanDoc(d) {
-    return { name: String(d.name || '').slice(0, 60), showTitle: d.showTitle !== false, notes: String(d.notes || '').slice(0, 4000), showNotes: !!d.showNotes, items: cleanItems(d.items) };
+    return { name: String(d.name || '').slice(0, 60), date: /^\d{4}-\d{2}-\d{2}$/.test(d.date || '') ? d.date : '', showTitle: d.showTitle !== false, notes: String(d.notes || '').slice(0, 4000), showNotes: !!d.showNotes, items: cleanItems(d.items) };
   }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, grid: S.grid, docs: S.docs, fix: S.fix })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix })); } catch (e) {}
   }
   function loadSaved() {
     try {
@@ -1483,13 +1890,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         if (d.docs[k] && Array.isArray(d.docs[k].items)) docs[k] = cleanDoc(d.docs[k]);
         if (d.fix && Array.isArray(d.fix[k])) fx[k] = cleanItems(d.fix[k], true);
       });
-      return { room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.grid !== false, docs: docs, fix: fx };
+      return { room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx };
     } catch (e) { return null; }
   }
 
   function payload() {
     var d = doc();
-    return { app: 'applebrook-floorplan', version: 3, room: S.room, roomName: room().name, name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, savedAt: new Date().toISOString(), items: d.items, fixtures: fix() };
+    return { app: 'applebrook-floorplan', version: 4, room: S.room, roomName: room().name, name: d.name, date: d.date || '', showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, savedAt: new Date().toISOString(), items: d.items, fixtures: fix() };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
 
@@ -1526,7 +1933,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!ROOMS[o.room]) return 'That layout is for a room this app does not have.';
     if (o.room !== S.room) setRoom(o.room);
     var cd = cleanDoc(o), d = doc();
-    d.name = cd.name; d.showTitle = cd.showTitle; d.notes = cd.notes; d.showNotes = cd.showNotes; d.items = cd.items;
+    d.name = cd.name; d.date = cd.date; d.showTitle = cd.showTitle; d.notes = cd.notes; d.showNotes = cd.showNotes; d.items = cd.items;
     var adopted = false;
     if (Array.isArray(o.fixtures) && !fix().length) {
       var f = cleanItems(o.fixtures, true);
@@ -1540,17 +1947,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   $('saveBtn').addEventListener('click', function () { closeMenu(); saveFile(); });
   $('copyBtn').addEventListener('click', function () { closeMenu(); copyText(); });
-  $('openBtn').addEventListener('click', function () {
+  function openLoad() {
     closeMenu(); $('openErr').textContent = ''; $('pasteInput').value = ''; $('fileInput').value = '';
     openDlg.showModal();
-  });
+  }
+  $('openBtn').addEventListener('click', openLoad);
+  $('goLoad').addEventListener('click', openLoad);
   $('openCancel').addEventListener('click', function () { openDlg.close(); });
   $('openGo').addEventListener('click', function () {
     var t = $('pasteInput').value.trim();
     if (!t) { $('openErr').textContent = 'Paste layout text first, or choose a file above.'; return; }
     var err = applyLayout(t);
     if (err) { $('openErr').textContent = err; return; }
-    openDlg.close(); toast('Layout opened.');
+    openDlg.close(); showView('editor'); toast('Layout opened.');
   });
   $('fileInput').addEventListener('change', function () {
     var f = $('fileInput').files && $('fileInput').files[0];
@@ -1559,7 +1968,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     rd.onload = function () {
       var err = applyLayout(String(rd.result));
       if (err) { $('openErr').textContent = err; return; }
-      openDlg.close(); toast('Opened ' + f.name);
+      openDlg.close(); showView('editor'); toast('Opened ' + f.name);
     };
     rd.onerror = function () { $('openErr').textContent = 'Could not read that file.'; };
     rd.readAsText(f);
@@ -1567,24 +1976,59 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- printing ---------- */
   var pageStyle = document.createElement('style'); document.head.appendChild(pageStyle);
+  var PP = { title: true, date: true, notes: true, nums: true, seats: true };
+  (function () {
+    try { var o = JSON.parse(localStorage.getItem(PRINT_KEY)); if (o) Object.keys(PP).forEach(function (k) { if (typeof o[k] === 'boolean') PP[k] = o[k]; }); } catch (e) {}
+  })();
+  function applyPP() {
+    document.body.classList.toggle('no-nums', !PP.nums);
+    document.body.classList.toggle('no-seats', !PP.seats);
+  }
+  var PP_IDS = { title: 'ppTitle', date: 'ppDate', notes: 'ppNotes', nums: 'ppNums', seats: 'ppSeats' };
+  Object.keys(PP_IDS).forEach(function (k) {
+    $(PP_IDS[k]).addEventListener('change', function () {
+      PP[k] = $(PP_IDS[k]).checked; applyPP();
+      try { localStorage.setItem(PRINT_KEY, JSON.stringify(PP)); } catch (e) {}
+    });
+  });
+  $('printSetBtn').addEventListener('click', function () {
+    closeMenu();
+    Object.keys(PP_IDS).forEach(function (k) { $(PP_IDS[k]).checked = PP[k]; });
+    $('printDlg').showModal();
+  });
+  $('ppClose').addEventListener('click', function () { $('printDlg').close(); });
+  $('ppPrint').addEventListener('click', function () { $('printDlg').close(); doPrint(); });
+  function fmtDate(v) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v || '');
+    if (!m) return '';
+    return new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+  }
   function fillPrintHead() {
     var s = stats(items()), d = doc();
-    $('printHead').hidden = !d.showTitle;
-    $('ph1').textContent = d.name || room().name;
-    $('ph2').textContent = 'Applebrook • ' + room().name + ' • ' + seatWord(s.seats) + ' • ' + s.tables + (s.tables === 1 ? ' table' : ' tables') + ' • ' + new Date().toLocaleDateString();
-    var pn = d.showNotes && d.notes.trim();
+    var titleOn = PP.title && d.showTitle, dateOn = PP.date && !!d.date;
+    $('printHead').hidden = !(titleOn || dateOn);
+    $('ph1').textContent = titleOn ? (d.name || room().name) : room().name;
+    $('phd').textContent = dateOn ? fmtDate(d.date) : '';
+    var bits = ['Applebrook', room().name];
+    if (PP.seats) bits.push(seatWord(s.seats));
+    bits.push(s.tables + (s.tables === 1 ? ' table' : ' tables'));
+    bits.push('Printed ' + new Date().toLocaleDateString());
+    $('ph2').textContent = bits.join(' • ');
+    var pn = PP.notes && d.showNotes && d.notes.trim();
     document.body.classList.toggle('pn', !!pn);
     $('pnt').textContent = d.notes;
     return !!pn;
   }
   window.addEventListener('beforeprint', function () {
-    if (sel) select(null);
+    if (sel || multi.length) select(null);
     var pn = fillPrintHead();
+    var head = !$('printHead').hidden;
     var landscape = pn || room().w >= room().h;
     pageStyle.textContent = '@page { size: letter ' + (landscape ? 'landscape' : 'portrait') + '; margin: 0.5in; }';
-    svg.style.setProperty('--ph', landscape ? (doc().showTitle ? '6.2in' : '7in') : (doc().showTitle ? '8.7in' : '9.4in'));
+    svg.style.setProperty('--ph', landscape ? (head ? '6.2in' : '7in') : (head ? '8.7in' : '9.4in'));
   });
-  $('printBtn').addEventListener('click', function () { closeMenu(); try { window.print(); } catch (e) { toast('Printing is not available here.'); } });
+  function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
+  $('printBtn').addEventListener('click', function () { closeMenu(); doPrint(); });
 
   /* ---------- templates ---------- */
   function sampleItems(roomKey, typeKey) {
@@ -1595,7 +2039,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var totW = cols * T.w + (cols - 1) * gx, totH = rows * T.h + (rows - 1) * gy;
     var x0 = (R.w - totW) / 2 + T.w / 2, y0 = (R.h - totH) / 2 + T.h / 2, n = 1;
     for (var r = 0; r < rows; r++) for (var c = 0; c < cols; c++) {
-      out.push({ kind: 'table', type: typeKey, x: x0 + c * (T.w + gx), y: y0 + r * (T.h + gy), rot: 0, seats: T.seats, label: String(n++) });
+      out.push({ kind: 'table', type: typeKey, x: x0 + c * (T.w + gx), y: y0 + r * (T.h + gy), rot: 0, seats: T.seats, seatRot: T.seatRot || 0, label: String(n++) });
     }
     return out;
   }
@@ -1607,7 +2051,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function thumb(tpl) {
     var R = ROOMS[tpl.room], s = el('svg', { viewBox: (-PAD) + ' ' + (-PAD) + ' ' + (R.w + 2 * PAD) + ' ' + (R.h + 2 * PAD), 'aria-hidden': 'true' });
     el('rect', { 'class': 'floor', x: 0, y: 0, width: R.w, height: R.h }, s);
-    el('rect', { 'class': 'wall', x: -3, y: -3, width: R.w + 6, height: R.h + 6, rx: 3 }, s);
+    el('rect', { 'class': 'wall', x: -1.5, y: -1.5, width: R.w + 3, height: R.h + 3, rx: 1.5 }, s);
     var arr = (S.fix[tpl.room] || []).concat(tpl.items).map(function (o) { var c = clone(o); c.id = 'x'; return c; });
     arr.forEach(function (it) { s.appendChild(buildNode(it, false, arr)); });
     return s;
@@ -1626,7 +2070,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var mt = document.createElement('div'); mt.className = 'tm'; mt.textContent = seatWord(s.seats) + ' · ' + s.tables + ' tables'; card.appendChild(mt);
       var b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = 'Use this template';
       b.addEventListener('click', function () {
-        doc().name = tpl.name; doc().items = newItems(tpl.items); sel = null;
+        doc().name = tpl.name; doc().items = newItems(tpl.items); sel = null; multi = [];
         syncDocUI(); render(); syncInspector(); commit();
         tplDlg.close(); toast('Template opened as an editable copy.');
       });
@@ -1639,7 +2083,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- rooms ---------- */
   function setRoom(key) {
     if (S.editFix) setEditFix(false);
-    S.room = key; sel = null; drag = null; H();
+    S.room = key; sel = null; multi = []; drag = null; H();
     roomSel.value = key;
     syncDocUI();
     applyRoom(); render(); syncInspector(); syncUndo(); save();
@@ -1653,12 +2097,77 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- start ---------- */
   var saved = loadSaved();
   ROOM_ORDER.forEach(function (k) {
-    S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : { name: 'Sample layout', showTitle: true, notes: '', showNotes: false, items: newItems(sampleItems(k, SAMPLE_TYPE[k])) };
+    S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : { name: 'Sample layout', date: '', showTitle: true, notes: '', showNotes: false, items: newItems(sampleItems(k, SAMPLE_TYPE[k])) };
     S.fix[k] = saved && saved.fix[k] ? saved.fix[k] : newItems(BUILTIN_FIXTURES[k] || []);
   });
-  if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; }
-  setSwitch($('snapBtn'), S.snap); setSwitch($('gridBtn'), S.grid);
+  if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; S.dims = saved.dims; }
+  applyPP();
   setRoom(S.room);
+
+  /* ---------- pages, theme, settings lists ---------- */
+  var VIEWS = { home: 'viewHome', 'new': 'viewNew', settings: 'viewSettings', rooms: 'viewRooms', tables: 'viewTables', editor: 'viewEditor' };
+  function showView(name, fromHash) {
+    if (!VIEWS[name]) name = 'home';
+    Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== name; });
+    curView = name;
+    if (name === 'rooms') buildRoomSettings();
+    if (name === 'tables') buildTableSettings();
+    if (name === 'editor') { fitSize(); renderHandles(); } else { closeMenu(); }
+    if (!fromHash) { try { if (location.hash !== '#' + name) location.hash = name; } catch (e) {} }
+    window.scrollTo(0, 0);
+  }
+  var goEls = document.querySelectorAll('[data-go]');
+  for (var gi = 0; gi < goEls.length; gi++) goEls[gi].addEventListener('click', function (e) { showView(e.currentTarget.getAttribute('data-go')); });
+  window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (VIEWS[h] && h !== curView) showView(h, true); });
+
+  function buildRoomSettings() {
+    var h = '<thead><tr><th>Room</th><th>Size</th><th>Inches</th><th>Standard layouts</th></tr></thead><tbody>';
+    ROOM_ORDER.forEach(function (k) {
+      var R = ROOMS[k], n = TEMPLATES.filter(function (t) { return t.room === k; }).length;
+      h += '<tr><td>' + R.name + '</td><td class="num">' + ftin(R.w) + ' × ' + ftin(R.h) + '</td><td class="num">' + R.w + ' × ' + R.h + '</td><td class="num">' + n + '</td></tr>';
+    });
+    $('roomTab').innerHTML = h + '</tbody>';
+  }
+  function buildTableSettings() {
+    var h = '<thead><tr><th>Table</th><th>Size</th><th>Default seats</th><th>Defaults</th></tr></thead><tbody>';
+    GROUPS.forEach(function (g) {
+      h += '<tr class="grow"><td colspan="4">' + g.cap + '</td></tr>';
+      g.keys.forEach(function (k) {
+        var T = TYPES[k], notes = [];
+        if (T.seatRot) notes.push('Seat ring turned ' + T.seatRot + '°');
+        if (T.rot) notes.push('Placed turned ' + T.rot + '°');
+        if (T.endsFirst) notes.push('Seats on the short ends');
+        h += '<tr><td>' + T.name + '</td><td class="num">' + dimText(T) + '</td><td class="num">' + (isSvc(T) ? '-' : T.seats) + '</td><td>' + notes.join(', ') + '</td></tr>';
+      });
+    });
+    $('tableTab').innerHTML = h + '</tbody>';
+  }
+
+  var root = document.documentElement;
+  var MOON = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M15 10.4A6.4 6.4 0 017.6 3 6.4 6.4 0 1015 10.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
+  var SUN = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 1.8v2M9 14.2v2M1.8 9h2M14.2 9h2M3.9 3.9l1.4 1.4M12.7 12.7l1.4 1.4M3.9 14.1l1.4-1.4M12.7 5.3l1.4-1.4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>';
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function isDark() { var t = root.getAttribute('data-theme'); if (t) return t === 'dark'; return !!(mq && mq.matches); }
+  function syncTheme() {
+    var d = isDark(), btns = document.querySelectorAll('.themeBtn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].innerHTML = d ? SUN : MOON;
+      var lab = d ? 'Switch to light mode' : 'Switch to dark mode';
+      btns[i].setAttribute('aria-label', lab); btns[i].title = lab;
+    }
+  }
+  var themeBtns = document.querySelectorAll('.themeBtn');
+  for (var ti = 0; ti < themeBtns.length; ti++) themeBtns[ti].addEventListener('click', function () {
+    var next = isDark() ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+    syncTheme();
+  });
+  if (mq && mq.addEventListener) mq.addEventListener('change', syncTheme);
+  syncTheme();
+
+  var startHash = (location.hash || '').slice(1);
+  showView(VIEWS[startHash] ? startHash : 'home', true);
 
   if (window.ResizeObserver) new ResizeObserver(fitSize).observe(scroller);
   window.addEventListener('resize', fitSize);
