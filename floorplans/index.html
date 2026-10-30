@@ -2,8 +2,8 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-/* Layout: top bar (room, layout name, totals, undo, menu). Below: add-palette left,
-   room canvas center drawn in real inches, inspector right. Stacks under 900px. */
+/* Layout: slim top bar (name, totals, undo, menu). Heading row over the plan: room left,
+   layout title centered, toggles right. Below: add-palette, room canvas in real inches, inspector. */
 :root {
   --bg: #edf1ee;
   --panel: #f8faf8;
@@ -54,6 +54,7 @@
   color-scheme: dark;
 }
 
+[hidden] { display: none !important; }
 body {
   background: var(--bg);
   color: var(--ink);
@@ -66,23 +67,14 @@ body {
 }
 button, input, select, textarea { font-family: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-[hidden] { display: none !important; }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 .app { max-width: 1560px; margin: 0 auto; display: grid; gap: 14px; }
 
 /* top bar */
-.top { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; }
 .club { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
-.roomrow { display: flex; align-items: baseline; gap: 6px 14px; flex-wrap: wrap; }
-.selwrap { position: relative; display: inline-block; }
-.selwrap svg { position: absolute; right: 2px; top: 50%; width: 16px; height: 16px; margin-top: -8px; pointer-events: none; color: var(--muted); }
-.roomsel { appearance: none; -webkit-appearance: none; border: 0; border-bottom: 2px solid transparent; background: transparent; font-size: 26px; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; padding: 0 24px 0 0; cursor: pointer; border-radius: 0; }
-.roomsel:hover { border-bottom-color: var(--line); }
-.dims { font: 400 13px var(--font-num); color: var(--muted); }
-.lname { display: block; width: min(420px, 100%); box-sizing: border-box; margin-top: 2px; padding: 3px 6px; margin-left: -6px; font-size: 15px; font-weight: 500; background: transparent; border: 1px solid transparent; border-radius: 6px; }
-.lname:hover { border-color: var(--line); }
-.lname:focus { border-color: var(--accent); background: var(--panel); }
+.brand { margin: 0; font-size: 20px; line-height: 1.15; font-weight: 700; letter-spacing: -.01em; }
 .top-right { display: flex; align-items: center; gap: 10px; }
 .stats { display: flex; gap: 14px; font-size: 14px; color: var(--muted); margin-right: 4px; }
 .stats b { font: 500 18px var(--font-num); color: var(--ink); font-variant-numeric: tabular-nums; margin-right: 2px; }
@@ -100,7 +92,25 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 [aria-checked="true"] .sw { background: var(--accent); }
 [aria-checked="true"] .sw::after { transform: translateX(14px); }
 
-.printhead { display: none; }
+/* heading row over the plan */
+.heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); align-items: center; gap: 10px 16px; margin-bottom: 10px; }
+.hl { display: flex; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; min-width: 0; }
+.selwrap { position: relative; display: inline-block; }
+.selwrap svg { position: absolute; right: 2px; top: 50%; width: 16px; height: 16px; margin-top: -8px; pointer-events: none; color: var(--muted); }
+.roomsel { appearance: none; -webkit-appearance: none; border: 0; border-bottom: 2px solid transparent; background: transparent; font-size: 22px; line-height: 1.25; font-weight: 700; letter-spacing: -.01em; padding: 0 24px 0 0; cursor: pointer; border-radius: 0; }
+.roomsel:hover { border-bottom-color: var(--line); }
+.dims { font: 400 13px var(--font-num); color: var(--muted); }
+.title { width: 100%; box-sizing: border-box; padding: 6px 10px; text-align: center; font-size: 22px; font-weight: 700; letter-spacing: -.01em; background: transparent; border: 1px solid transparent; border-radius: 8px; }
+.title::placeholder { color: var(--muted); font-weight: 500; }
+.title:hover { border-color: var(--line); }
+.title:focus { border-color: var(--accent); background: var(--panel); }
+.hr { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 11px; font-size: 13px; font-weight: 600; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.pill:hover, .pill[aria-expanded="true"] { border-color: var(--accent); }
+.pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.fixpill { padding: 7px 11px; font-size: 13px; font-weight: 600; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent); white-space: nowrap; }
+
+.printhead, .printnotes { display: none; }
 
 /* three columns */
 .work { display: grid; grid-template-columns: 200px minmax(0, 1fr) 270px; gap: 16px; align-items: start; }
@@ -109,11 +119,13 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .grp { display: flex; flex-direction: column; gap: 5px; }
 .cap { margin: 0; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .tile { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 9px 6px 7px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; text-align: left; }
-.tile:hover { border-color: var(--accent); }
+.tile:hover:not(:disabled) { border-color: var(--accent); }
+.tile:disabled { opacity: .4; cursor: default; }
 .tile svg { width: 28px; height: 28px; }
 .tile .ic { fill: var(--table); stroke: var(--table-edge); stroke-width: 1.5; }
 .tile .ic.svc { fill: var(--svc); stroke: var(--svc-edge); }
 .tile .ic.dr { fill: var(--f-gray); stroke: var(--shape-edge); }
+.tile .ic.ch { fill: var(--chair); stroke: var(--chair-back); stroke-width: 1.2; }
 .tile .ln { stroke: var(--line-ink); stroke-width: 3; stroke-linecap: round; fill: none; }
 .tile .aa { font: 700 13px var(--font-ui); fill: var(--ink); }
 .tile .nm { font-weight: 600; font-size: 13px; line-height: 1.2; min-width: 0; }
@@ -121,7 +133,10 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 
 .stage { min-width: 0; }
 .scroller { overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--outside); }
+.scroller.editfix { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
 #room { display: block; margin: 0 auto; user-select: none; -webkit-user-select: none; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+#room.editfix #itemsG { pointer-events: none; opacity: .35; }
+#room:not(.editfix) #fixL { pointer-events: none; }
 .floor { fill: var(--floor); }
 .gl { stroke: var(--grid); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
 .gl2 { stroke: var(--grid2); stroke-width: 1; fill: none; vector-effect: non-scaling-stroke; }
@@ -149,9 +164,13 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .fill-blue { fill: var(--f-blue); }
 .shape.sel .shp, .item:hover .shp { stroke: var(--accent); }
 .shape.sel .shp { stroke-width: 3; }
+.fixture .shp { stroke: var(--wall); stroke-width: 3; }
+.fixture .lnvis { stroke: var(--wall); }
 .lnvis { stroke: var(--line-ink); fill: none; }
 .lnhit { stroke: transparent; fill: none; pointer-events: stroke; }
 .line.sel .lnvis, .line:hover .lnvis { stroke: var(--accent); }
+.chguide { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 5 4; fill: none; opacity: 0; pointer-events: none; }
+.chairs.sel .chguide, .chairs:hover .chguide { opacity: .8; }
 .thit { fill: transparent; stroke: transparent; }
 .tx { font-family: var(--font-ui); font-weight: 500; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .tx.b { font-weight: 700; }
@@ -162,7 +181,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .hdl[data-h="ne"], .hdl[data-h="sw"] { cursor: nesw-resize; }
 
 /* inspector */
-.inspector { position: sticky; top: 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; }
+.inspector { position: sticky; top: 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; max-height: calc(100vh - 24px); overflow-y: auto; }
 .inspector h2 { margin: 0; font-size: 16px; font-weight: 700; }
 .inspector p { margin: 0; color: var(--muted); font-size: 14px; }
 .inspector .sub { margin: 2px 0 14px; font-size: 13px; }
@@ -171,11 +190,12 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .field input[type="text"], .field input[type="number"], .field textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; font-size: 15px; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; }
 .field textarea { resize: vertical; min-height: 64px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.stepper { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 6px; }
+.stepper { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; gap: 6px; }
 .stepper input { text-align: center; font: 500 18px var(--font-num); appearance: textfield; -moz-appearance: textfield; }
 .stepper input::-webkit-outer-spin-button, .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.stepper .btn { padding: 0; font-size: 20px; line-height: 1; }
+.stepper .btn { padding: 0; font-size: 16px; line-height: 1; }
 .fine { font-size: 12px; color: var(--muted); }
+.fine.warn { color: var(--danger); }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { min-width: 44px; padding: 8px 10px; font-size: 13px; font-weight: 600; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .seg button:hover { border-color: var(--accent); }
@@ -192,6 +212,13 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--panel); }
 .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
 .actions .full { grid-column: 1 / -1; }
+
+/* notes drawer */
+.drawer { position: fixed; top: 0; right: 0; bottom: 0; z-index: 40; width: min(380px, 100vw); box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; background: var(--panel); border-left: 1px solid var(--line); box-shadow: -8px 0 24px rgb(0 0 0 / .16); padding-block: calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)); padding-left: 16px; padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.drawer-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.drawer h2 { margin: 0; font-size: 18px; }
+.drawer textarea { flex: 1; min-height: 180px; box-sizing: border-box; width: 100%; padding: 10px 12px; font-size: 15px; line-height: 1.5; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; resize: none; }
+.drawer .mi { border: 1px solid var(--line); }
 
 /* dialogs */
 dialog { width: min(640px, calc(100vw - 32px)); max-height: calc(100vh - 48px); padding: 20px; background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 16px 48px rgb(0 0 0 / .3); }
@@ -212,13 +239,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(16px + env(safe-area-inset-bottom, 0px)); z-index: 60; max-width: calc(100vw - 32px); padding: 10px 16px; background: var(--ink); color: var(--bg); border-radius: 10px; font-size: 14px; font-weight: 500; box-shadow: 0 6px 20px rgb(0 0 0 / .25); }
 
 @media (max-width: 900px) {
+  .heading { grid-template-columns: minmax(0, 1fr); }
+  .hr { justify-content: flex-start; }
   .work { grid-template-columns: minmax(0, 1fr); }
   .palette { position: static; max-height: none; overflow: visible; gap: 10px; }
   .grp { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: stretch; gap: 8px; padding-bottom: 4px; }
-  .grp .cap { align-self: center; flex: 0 0 auto; writing-mode: horizontal-tb; }
+  .grp .cap { align-self: center; flex: 0 0 auto; }
   .tile { flex: 0 0 auto; min-width: 150px; }
-  .inspector { position: static; }
-  .roomsel { font-size: 22px; }
+  .inspector { position: static; max-height: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
@@ -231,32 +259,30 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     color-scheme: light;
   }
   body { padding: 0; background: #fff; }
-  .top, .palette, .inspector, .status, .toast, dialog, .hdl { display: none !important; }
+  .top, .heading, .palette, .inspector, .status, .toast, dialog, .drawer, .hdl { display: none !important; }
   .work { display: block; }
-  .scroller { border: 0; overflow: visible; background: #fff; }
+  .scroller { border: 0; box-shadow: none; overflow: visible; background: #fff; }
   #room { width: 100% !important; height: auto !important; max-height: var(--ph, 6.4in); }
+  #room.editfix #itemsG { opacity: 1; }
   .printhead { display: block; margin: 0 0 10px; }
-  .printhead .ph1 { font-size: 20px; font-weight: 700; }
+  .printhead .ph1 { font-size: 22px; font-weight: 700; }
   .printhead .ph2 { font: 400 12px var(--font-num); color: #444; margin-top: 2px; }
+  body.pn .plan { display: grid; grid-template-columns: minmax(0, 1fr) 2.6in; gap: 0.25in; align-items: start; }
+  body.pn .printnotes { display: block; border-left: 1px solid #bbb; padding-left: 0.2in; }
+  .printnotes .pnh { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #444; margin-bottom: 6px; }
+  .printnotes .pnt { font-size: 12pt; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
   .table.sel .tbody, .shape.sel .shp { stroke-width: 1.6; fill: var(--table); }
   .shape.sel .shp { fill: inherit; }
   .txt.sel .thit { stroke: transparent; fill: transparent; }
+  .chguide { opacity: 0 !important; }
 }
 </style>
 
 <div class="app">
   <header class="top">
-    <div class="ident">
+    <div>
       <div class="club">Applebrook</div>
-      <div class="roomrow">
-        <div class="selwrap">
-          <label class="sr" for="roomSel">Room</label>
-          <select id="roomSel" class="roomsel"></select>
-          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </div>
-        <span class="dims" id="dims"></span>
-      </div>
-      <input id="nameInput" class="lname" type="text" maxlength="60" placeholder="Untitled layout" aria-label="Layout name" autocomplete="off">
+      <h1 class="brand">Floor Plans</h1>
     </div>
     <div class="top-right">
       <div class="stats" aria-live="polite">
@@ -280,10 +306,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="copyBtn" type="button"><span>Copy layout text</span></button>
           <button class="mi" id="printBtn" type="button"><span>Print or save PDF</span></button>
           <hr>
+          <button class="mi" id="fixBtn" type="button" role="switch" aria-checked="false"><span>Edit room fixtures</span><span class="sw"></span></button>
           <button class="mi" id="snapBtn" type="button" role="switch" aria-checked="true"><span>Snap to 6 in</span><span class="sw"></span></button>
           <button class="mi" id="gridBtn" type="button" role="switch" aria-checked="true"><span>Show grid</span><span class="sw"></span></button>
           <hr>
-          <button class="mi" id="clearBtn" type="button"><span>Clear room</span></button>
+          <button class="mi" id="clearBtn" type="button"><span>Clear layout</span></button>
         </div>
       </div>
     </div>
@@ -295,26 +322,51 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <nav class="palette" id="palette" aria-label="Add to room"></nav>
 
     <section class="stage" aria-label="Floor plan">
-      <div class="scroller" id="scroller">
-        <svg id="room" role="application" aria-label="Floor plan canvas">
-          <defs>
-            <pattern id="gMinor" width="12" height="12" patternUnits="userSpaceOnUse"><path class="gl" d="M12 0H0V12"/></pattern>
-            <pattern id="gMajor" width="60" height="60" patternUnits="userSpaceOnUse"><path class="gl2" d="M60 0H0V60"/></pattern>
-          </defs>
-          <rect id="floor" class="floor" x="0" y="0"/>
-          <rect id="gridA" x="0" y="0" fill="url(#gMinor)"/>
-          <rect id="gridB" x="0" y="0" fill="url(#gMajor)"/>
-          <rect id="wall" class="wall"/>
-          <text id="dimTop" class="dim"></text>
-          <text id="dimLeft" class="dim"></text>
-          <text id="emptyMsg" class="empty" hidden>Add a table from the left to start</text>
-          <g id="shapesL"></g>
-          <g id="tablesL"></g>
-          <g id="textL"></g>
-          <g id="handlesL"></g>
-        </svg>
+      <div class="heading">
+        <div class="hl">
+          <div class="selwrap">
+            <label class="sr" for="roomSel">Room</label>
+            <select id="roomSel" class="roomsel"></select>
+            <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 6l4.5 4.5L12.5 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <span class="dims" id="dims"></span>
+        </div>
+        <div>
+          <label class="sr" for="nameInput">Layout title</label>
+          <input id="nameInput" class="title" type="text" maxlength="60" placeholder="Layout title" autocomplete="off">
+        </div>
+        <div class="hr">
+          <span class="fixpill" id="fixPill" hidden>Editing fixtures</span>
+          <button class="pill" id="titlePrintBtn" type="button" role="switch" aria-checked="true"><span>Title on print</span><span class="sw"></span></button>
+          <button class="pill" id="notesBtn" type="button" aria-expanded="false" aria-controls="notesPanel"><span>Notes</span><span class="dot" id="notesDot" hidden></span></button>
+        </div>
       </div>
-      <p class="status">Drag to move. Arrow keys nudge 6 in, Shift nudges 1 in. R rotates. Ctrl+Z undoes. Grid squares are 1 ft, heavy lines every 5 ft.</p>
+      <div class="plan">
+        <div class="scroller" id="scroller">
+          <svg id="room" role="application" aria-label="Floor plan canvas">
+            <defs>
+              <pattern id="gMinor" width="12" height="12" patternUnits="userSpaceOnUse"><path class="gl" d="M12 0H0V12"/></pattern>
+              <pattern id="gMajor" width="60" height="60" patternUnits="userSpaceOnUse"><path class="gl2" d="M60 0H0V60"/></pattern>
+            </defs>
+            <rect id="floor" class="floor" x="0" y="0"/>
+            <rect id="gridA" x="0" y="0" fill="url(#gMinor)"/>
+            <rect id="gridB" x="0" y="0" fill="url(#gMajor)"/>
+            <rect id="wall" class="wall"/>
+            <text id="dimTop" class="dim"></text>
+            <text id="dimLeft" class="dim"></text>
+            <text id="emptyMsg" class="empty" hidden>Add a table from the left to start</text>
+            <g id="fixL"></g>
+            <g id="itemsG">
+              <g id="shapesL"></g>
+              <g id="tablesL"></g>
+              <g id="textL"></g>
+            </g>
+            <g id="handlesL"></g>
+          </svg>
+        </div>
+        <div class="printnotes" id="printNotes"><div class="pnh">Setup notes</div><div class="pnt" id="pnt"></div></div>
+      </div>
+      <p class="status">Drag to move. Arrow keys nudge 6 in (Shift 1 in). [ and ] rotate 5 degrees, R rotates 90. Ctrl+Z undoes. Grid squares are 1 ft, heavy lines every 5 ft.</p>
     </section>
 
     <aside class="inspector" aria-label="Selected item">
@@ -339,6 +391,28 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
               <button class="btn" id="seatPlus" type="button" aria-label="More seats">+</button>
             </div>
             <span class="fine" id="seatMax"></span>
+          </div>
+        </div>
+
+        <div id="blkChairs">
+          <div class="field">
+            <label for="chCount">Chairs</label>
+            <div class="stepper">
+              <button class="btn" id="chMinus" type="button" aria-label="Fewer chairs">&minus;</button>
+              <input id="chCount" type="number" min="1" max="40" step="1" inputmode="numeric">
+              <button class="btn" id="chPlus" type="button" aria-label="More chairs">+</button>
+            </div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="chLen">Length (in)</label><input id="chLen" type="number" min="12" step="1" inputmode="decimal"></div>
+            <div class="field"><label for="chSpace">Spacing (in)</label><input id="chSpace" type="number" min="6" step="1" inputmode="decimal"></div>
+          </div>
+          <p class="fine" id="chWarn" style="margin:-6px 0 12px"></p>
+          <div class="field">
+            <div class="seg">
+              <button type="button" id="chFlip">Flip side</button>
+              <button type="button" id="chCounts" aria-pressed="false">Counts toward seats</button>
+            </div>
           </div>
         </div>
 
@@ -368,7 +442,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
               <button type="button" data-w="3">Thick</button>
             </div>
           </div>
-          <p class="fine" style="margin-bottom:14px">Hold Shift while dragging an end to lock to 45 degree angles.</p>
         </div>
 
         <div id="blkText">
@@ -389,15 +462,35 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           </div>
         </div>
 
+        <div class="field">
+          <label for="rotInput">Rotation (degrees)</label>
+          <div class="stepper">
+            <button class="btn" id="rotMinus" type="button" aria-label="Rotate 5 degrees counterclockwise">&minus;5&deg;</button>
+            <input id="rotInput" type="number" step="5" inputmode="decimal">
+            <button class="btn" id="rotPlus" type="button" aria-label="Rotate 5 degrees clockwise">+5&deg;</button>
+          </div>
+        </div>
+
         <div class="actions">
           <button class="btn" id="rotateBtn" type="button">Rotate 90&deg;</button>
           <button class="btn" id="dupBtn" type="button">Duplicate</button>
+          <button class="btn full" id="lockBtn" type="button">Lock as room fixture</button>
           <button class="btn danger full" id="delBtn" type="button">Delete</button>
         </div>
       </div>
     </aside>
   </div>
 </div>
+
+<aside class="drawer" id="notesPanel" aria-labelledby="notesTitle" hidden>
+  <div class="drawer-h">
+    <h2 id="notesTitle">Setup notes</h2>
+    <button class="btn" id="notesClose" type="button">Close</button>
+  </div>
+  <label class="sr" for="notesInput">Setup notes for this layout</label>
+  <textarea id="notesInput" maxlength="4000" placeholder="Linens, napkins, tablecloths, table specifics for the servers..."></textarea>
+  <button class="mi" id="printNotesBtn" type="button" role="switch" aria-checked="false"><span>Print notes with layout</span><span class="sw"></span></button>
+</aside>
 
 <dialog id="tplDlg" aria-labelledby="tplTitle">
   <h2 id="tplTitle">Templates</h2>
@@ -442,6 +535,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     hunt:        { name: 'Hunt Room',    w: 312, h: 288 }
   };
   var ROOM_ORDER = ['bistro', 'tavern', 'patio', 'bistropatio', 'hunt'];
+
+  /* Fixtures that ship with the app for each room (bar, pillars). Empty until Kyle's are baked in. */
+  var BUILTIN_FIXTURES = {};
 
   var TYPES = {
     xxs:     { name: 'XXSmall', group: 'round', shape: 'round', w: 30, h: 30, seats: 2 },
@@ -489,6 +585,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function isRound(T) { return T.shape === 'round'; }
   function isSvc(T) { return T.group === 'service'; }
+  function isSeg(it) { return it.kind === 'line' || it.kind === 'chairs'; }
+  function rad(d) { return d * Math.PI / 180; }
+  function rotVec(x, y, deg) { var c = Math.cos(rad(deg)), s = Math.sin(rad(deg)); return { x: x * c - y * s, y: x * s + y * c }; }
+  function norm(d) { return ((Math.round(d * 10) / 10) % 360 + 360) % 360; }
+  function aabb(a, b, deg) { var c = Math.abs(Math.cos(rad(deg))), s = Math.abs(Math.sin(rad(deg))); return { x: a * c + b * s, y: a * s + b * c }; }
 
   function maxSeats(type) {
     var T = TYPES[type];
@@ -531,7 +632,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   /* ---------- state ---------- */
-  var S = { room: 'bistro', snap: true, grid: true, docs: {} };
+  var S = { room: 'bistro', snap: true, grid: true, docs: {}, fix: {}, editFix: false };
   var hist = {};
   var sel = null;
   var drag = null;
@@ -539,29 +640,35 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function doc() { return S.docs[S.room]; }
   function items() { return doc().items; }
-  function byId(id) { var a = items(); for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; }
+  function fix() { return S.fix[S.room]; }
+  function allItems() { return items().concat(fix()); }
+  function byId(id) { var a = allItems(); for (var i = 0; i < a.length; i++) if (a[i].id === id) return a[i]; return null; }
+  function isFix(it) { return fix().indexOf(it) >= 0; }
   function room() { return ROOMS[S.room]; }
 
   /* ---------- dom refs ---------- */
-  var svg = $('room'), shapesL = $('shapesL'), tablesL = $('tablesL'), textL = $('textL'), handlesL = $('handlesL');
+  var svg = $('room'), fixL = $('fixL'), shapesL = $('shapesL'), tablesL = $('tablesL'), textL = $('textL'), handlesL = $('handlesL');
   var scroller = $('scroller'), emptyMsg = $('emptyMsg');
   var roomSel = $('roomSel'), dimsEl = $('dims'), nameInput = $('nameInput');
   var seatStat = $('seatStat'), tableStat = $('tableStat');
   var undoBtn = $('undoBtn'), redoBtn = $('redoBtn');
   var menuBtn = $('menuBtn'), menu = $('menu');
   var inspEmpty = $('inspEmpty'), inspBody = $('inspBody'), inspTitle = $('inspTitle'), inspSub = $('inspSub');
-  var blkTable = $('blkTable'), blkShape = $('blkShape'), blkLine = $('blkLine'), blkText = $('blkText');
+  var blkTable = $('blkTable'), blkChairs = $('blkChairs'), blkShape = $('blkShape'), blkLine = $('blkLine'), blkText = $('blkText');
   var labelInput = $('labelInput'), seatField = $('seatField'), seatInput = $('seatInput'), seatMax = $('seatMax');
   var seatMinus = $('seatMinus'), seatPlus = $('seatPlus');
+  var chCount = $('chCount'), chLen = $('chLen'), chSpace = $('chSpace'), chWarn = $('chWarn'), chFlip = $('chFlip'), chCounts = $('chCounts');
   var wInput = $('wInput'), hInput = $('hInput'), fillRow = $('fillRow'), wtRow = $('wtRow');
   var textInput = $('textInput'), sizeRow = $('sizeRow'), boldBtn = $('boldBtn');
-  var rotateBtn = $('rotateBtn'), dupBtn = $('dupBtn'), delBtn = $('delBtn');
+  var rotInput = $('rotInput'), rotateBtn = $('rotateBtn'), dupBtn = $('dupBtn'), lockBtn = $('lockBtn'), delBtn = $('delBtn');
   var tplDlg = $('tplDlg'), openDlg = $('openDlg'), toastEl = $('toast');
+  var notesPanel = $('notesPanel'), notesBtn = $('notesBtn'), notesInput = $('notesInput');
 
   /* ---------- stats and text tokens ---------- */
   function stats(arr) {
     var seats = 0, tables = 0;
     arr.forEach(function (it) {
+      if (it.kind === 'chairs') { if (it.counts) seats += it.count; return; }
       if (it.kind !== 'table') return;
       var T = TYPES[it.type];
       if (isSvc(T)) return;
@@ -580,18 +687,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   /* ---------- node builders ---------- */
+  function addChair(parent, x, y, rot) {
+    var c = el('g', { transform: 'translate(' + x.toFixed(2) + ' ' + y.toFixed(2) + ') rotate(' + rot.toFixed(2) + ')' }, parent);
+    el('rect', { 'class': 'chair', x: -CHAIR_W / 2, y: -CHAIR_D / 2, width: CHAIR_W, height: CHAIR_D, rx: 3 }, c);
+    el('rect', { 'class': 'chairback', x: -CHAIR_W / 2, y: -CHAIR_D / 2 - 1.5, width: CHAIR_W, height: 4, rx: 2 }, c);
+  }
+  function liveAttrs(g, it, live, label) {
+    if (!live) return;
+    g.setAttribute('data-id', it.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label);
+  }
+
   function tableNode(t, live) {
     var T = TYPES[t.type];
     var g = el('g', { 'class': 'item table' + (isSvc(T) ? ' svc' : '') + (live && t.id === sel ? ' sel' : ''), transform: 'translate(' + t.x + ' ' + t.y + ') rotate(' + t.rot + ')' });
-    if (live) {
-      g.setAttribute('data-id', t.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button');
-      g.setAttribute('aria-label', (isSvc(T) ? '' : 'Table ' + (t.label || 'unlabeled') + ', ') + T.name + (t.seats ? ', ' + seatWord(t.seats) : ''));
-    }
-    seatSlots(T, t.seats).forEach(function (s) {
-      var c = el('g', { transform: 'translate(' + s.x.toFixed(2) + ' ' + s.y.toFixed(2) + ') rotate(' + s.rot.toFixed(2) + ')' }, g);
-      el('rect', { 'class': 'chair', x: -CHAIR_W / 2, y: -CHAIR_D / 2, width: CHAIR_W, height: CHAIR_D, rx: 3 }, c);
-      el('rect', { 'class': 'chairback', x: -CHAIR_W / 2, y: -CHAIR_D / 2 - 1.5, width: CHAIR_W, height: 4, rx: 2 }, c);
-    });
+    liveAttrs(g, t, live, (isSvc(T) ? '' : 'Table ' + (t.label || 'unlabeled') + ', ') + T.name + (t.seats ? ', ' + seatWord(t.seats) : ''));
+    seatSlots(T, t.seats).forEach(function (s) { addChair(g, s.x, s.y, s.rot); });
     if (isRound(T)) el('circle', { 'class': 'tbody', r: T.w / 2 }, g);
     else el('rect', { 'class': 'tbody', x: -T.w / 2, y: -T.h / 2, width: T.w, height: T.h, rx: 4 }, g);
     var minD = Math.min(T.w, T.h);
@@ -608,27 +718,42 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function shapeNode(it, live) {
-    var g = el('g', { 'class': 'item shape' + (live && it.id === sel ? ' sel' : '') });
-    if (live) { g.setAttribute('data-id', it.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', (it.kind === 'rect' ? 'Rectangle ' : 'Ellipse ') + inch(it.w) + ' by ' + inch(it.h)); }
+    var g = el('g', { 'class': 'item shape' + (live && it.id === sel ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + (it.rot || 0) + ')' });
+    liveAttrs(g, it, live, (it.kind === 'rect' ? 'Rectangle ' : 'Ellipse ') + inch(it.w) + ' by ' + inch(it.h));
     var cls = 'shp fill-' + it.fill;
-    if (it.kind === 'rect') el('rect', { 'class': cls, x: it.x - it.w / 2, y: it.y - it.h / 2, width: it.w, height: it.h, rx: 2 }, g);
-    else el('ellipse', { 'class': cls, cx: it.x, cy: it.y, rx: it.w / 2, ry: it.h / 2 }, g);
+    if (it.kind === 'rect') el('rect', { 'class': cls, x: -it.w / 2, y: -it.h / 2, width: it.w, height: it.h, rx: 2 }, g);
+    else el('ellipse', { 'class': cls, cx: 0, cy: 0, rx: it.w / 2, ry: it.h / 2 }, g);
     return g;
   }
 
   function lineNode(it, live) {
     var g = el('g', { 'class': 'item line' + (live && it.id === sel ? ' sel' : '') });
-    if (live) { g.setAttribute('data-id', it.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', 'Line ' + inch(Math.hypot(it.x2 - it.x1, it.y2 - it.y1)) + ' long'); }
+    liveAttrs(g, it, live, 'Line ' + inch(Math.hypot(it.x2 - it.x1, it.y2 - it.y1)) + ' long');
     var wt = WEIGHTS[it.weight] || 6;
     el('line', { 'class': 'lnhit', x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, 'stroke-width': Math.max(wt, 16), 'stroke-linecap': 'round' }, g);
     el('line', { 'class': 'lnvis', x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, 'stroke-width': wt, 'stroke-linecap': 'round' }, g);
     return g;
   }
 
+  function chairsNode(it, live) {
+    var g = el('g', { 'class': 'item chairs' + (live && it.id === sel ? ' sel' : '') });
+    liveAttrs(g, it, live, it.count + ' free chairs' + (it.counts ? ', counted as seats' : ''));
+    var dx = it.x2 - it.x1, dy = it.y2 - it.y1, len = Math.hypot(dx, dy) || 1, f = it.flip ? -1 : 1;
+    var nx = -dy / len * f, ny = dx / len * f;
+    var rot = Math.atan2(ny, nx) * 180 / Math.PI + 90;
+    el('line', { 'class': 'lnhit', x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2, 'stroke-width': 24, 'stroke-linecap': 'round' }, g);
+    el('line', { 'class': 'chguide', x1: it.x1, y1: it.y1, x2: it.x2, y2: it.y2 }, g);
+    for (var i = 0; i < it.count; i++) {
+      var t = (i + 0.5) / it.count;
+      addChair(g, it.x1 + dx * t, it.y1 + dy * t, rot);
+    }
+    return g;
+  }
+
   function textNode(it, live, arr) {
     var b = textBox(it, arr);
-    var g = el('g', { 'class': 'item txt' + (live && it.id === sel ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ')' });
-    if (live) { g.setAttribute('data-id', it.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', 'Label: ' + b.lines.join(' ')); }
+    var g = el('g', { 'class': 'item txt' + (live && it.id === sel ? ' sel' : ''), transform: 'translate(' + it.x + ' ' + it.y + ') rotate(' + (it.rot || 0) + ')' });
+    liveAttrs(g, it, live, 'Label: ' + b.lines.join(' '));
     el('rect', { 'class': 'thit', x: -b.w / 2, y: -b.h / 2, width: b.w, height: b.h, rx: b.fs * 0.2 }, g);
     b.lines.forEach(function (l, i) {
       var t = el('text', { 'class': 'tx' + (it.bold ? ' b' : ''), 'font-size': b.fs, y: ((i - (b.lines.length - 1) / 2) * b.fs * 1.25).toFixed(2) }, g);
@@ -640,28 +765,38 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function buildNode(it, live, arr) {
     if (it.kind === 'table') return tableNode(it, live);
     if (it.kind === 'line') return lineNode(it, live);
+    if (it.kind === 'chairs') return chairsNode(it, live);
     if (it.kind === 'text') return textNode(it, live, arr);
     return shapeNode(it, live);
   }
-  function layerFor(it) { return it.kind === 'table' ? tablesL : it.kind === 'text' ? textL : shapesL; }
+  function mk(it) {
+    var g = buildNode(it, true, items());
+    if (isFix(it)) g.classList.add('fixture');
+    return g;
+  }
+  function layerFor(it) {
+    if (isFix(it)) return fixL;
+    return it.kind === 'table' || it.kind === 'chairs' ? tablesL : it.kind === 'text' ? textL : shapesL;
+  }
   function nodeFor(id) { return svg.querySelector('.item[data-id="' + id + '"]'); }
 
   function refreshItem(it) {
     var old = nodeFor(it.id), had = old && document.activeElement === old;
-    var g = buildNode(it, true, items());
+    var g = mk(it);
     if (old) old.replaceWith(g); else layerFor(it).appendChild(g);
     if (had) g.focus({ preventScroll: true });
   }
 
   function refreshTokenTexts() {
-    items().forEach(function (it) {
+    allItems().forEach(function (it) {
       if (it.kind === 'text' && /\{(seats|tables)\}/.test(it.text)) refreshItem(it);
     });
   }
 
   function render() {
-    shapesL.replaceChildren(); tablesL.replaceChildren(); textL.replaceChildren();
-    items().forEach(function (it) { layerFor(it).appendChild(buildNode(it, true, items())); });
+    fixL.replaceChildren(); shapesL.replaceChildren(); tablesL.replaceChildren(); textL.replaceChildren();
+    fix().forEach(function (it) { fixL.appendChild(mk(it)); });
+    items().forEach(function (it) { layerFor(it).appendChild(mk(it)); });
     renderHandles();
     updateStats(true);
   }
@@ -670,7 +805,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var s = stats(items());
     seatStat.innerHTML = '<b>' + s.seats + '</b> ' + (s.seats === 1 ? 'seat' : 'seats');
     tableStat.innerHTML = '<b>' + s.tables + '</b> ' + (s.tables === 1 ? 'table' : 'tables');
-    emptyMsg.hidden = items().length > 0;
+    emptyMsg.hidden = items().length > 0 || fix().length > 0;
     if (!skipTokens) refreshTokenTexts();
   }
 
@@ -682,9 +817,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var r = 7 / scale;
     if (it.kind === 'rect' || it.kind === 'ellipse') {
       [['nw', -1, -1], ['ne', 1, -1], ['sw', -1, 1], ['se', 1, 1]].forEach(function (h) {
-        el('circle', { 'class': 'hdl', 'data-h': h[0], cx: it.x + h[1] * it.w / 2, cy: it.y + h[2] * it.h / 2, r: r }, handlesL);
+        var v = rotVec(h[1] * it.w / 2, h[2] * it.h / 2, it.rot || 0);
+        el('circle', { 'class': 'hdl', 'data-h': h[0], cx: it.x + v.x, cy: it.y + v.y, r: r }, handlesL);
       });
-    } else if (it.kind === 'line') {
+    } else if (isSeg(it)) {
       el('circle', { 'class': 'hdl pt', 'data-h': 'a', cx: it.x1, cy: it.y1, r: r }, handlesL);
       el('circle', { 'class': 'hdl pt', 'data-h': 'b', cx: it.x2, cy: it.y2, r: r }, handlesL);
     }
@@ -707,7 +843,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function fitSize() {
     var R = room(), vw = R.w + 2 * PAD, vh = R.h + 2 * PAD;
     var avail = Math.max(280, scroller.clientWidth - 2);
-    var byW = avail / vw, byH = Math.max(1, (window.innerHeight - 200) / vh);
+    var byW = avail / vw, byH = Math.max(1, (window.innerHeight - 230) / vh);
     scale = Math.max(0.9, Math.min(byW, byH, 3));
     svg.style.width = Math.round(vw * scale) + 'px';
     svg.style.height = Math.round(vh * scale) + 'px';
@@ -717,11 +853,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- geometry for moving and placing ---------- */
   function half(it) {
     if (it.kind === 'table') {
-      var T = TYPES[it.type], sw = it.rot % 180 !== 0;
-      return { x: (sw ? T.h : T.w) / 2, y: (sw ? T.w : T.h) / 2 };
+      var T = TYPES[it.type];
+      if (isRound(T)) return { x: T.w / 2, y: T.w / 2 };
+      return aabb(T.w / 2, T.h / 2, it.rot || 0);
     }
-    if (it.kind === 'text') { var b = textBox(it, items()); return { x: b.w / 2, y: b.h / 2 }; }
-    return { x: it.w / 2, y: it.h / 2 };
+    if (it.kind === 'text') { var b = textBox(it, items()); return aabb(b.w / 2, b.h / 2, it.rot || 0); }
+    return aabb(it.w / 2, it.h / 2, it.rot || 0);
   }
   function snapV(v) { return S.snap ? Math.round(v / SNAP) * SNAP : Math.round(v * 2) / 2; }
   function clampCenter(it) {
@@ -730,10 +867,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     it.y = h.y * 2 >= R.h ? R.h / 2 : clamp(it.y, h.y, R.h - h.y);
   }
   function clampPt(p) { var R = room(); return { x: clamp(p.x, 0, R.w), y: clamp(p.y, 0, R.h) }; }
+  function fitSeg(it) {
+    var R = room(), dx = 0, dy = 0;
+    var minx = Math.min(it.x1, it.x2), maxx = Math.max(it.x1, it.x2), miny = Math.min(it.y1, it.y2), maxy = Math.max(it.y1, it.y2);
+    if (minx < 0) dx = -minx; else if (maxx > R.w) dx = R.w - maxx;
+    if (miny < 0) dy = -miny; else if (maxy > R.h) dy = R.h - maxy;
+    it.x1 += dx; it.x2 += dx; it.y1 += dy; it.y2 += dy;
+    var a = clampPt({ x: it.x1, y: it.y1 }), b = clampPt({ x: it.x2, y: it.y2 });
+    it.x1 = r2(a.x); it.y1 = r2(a.y); it.x2 = r2(b.x); it.y2 = r2(b.y);
+  }
 
   function moveItem(it, o, dx, dy, snapIt) {
     var R = room();
-    if (it.kind === 'line') {
+    if (isSeg(it)) {
       if (snapIt) { dx = snapV(dx); dy = snapV(dy); }
       dx = clamp(dx, -Math.min(o.x1, o.x2), R.w - Math.max(o.x1, o.x2));
       dy = clamp(dy, -Math.min(o.y1, o.y2), R.h - Math.max(o.y1, o.y2));
@@ -743,6 +889,43 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     it.x = snapIt ? snapV(o.x + dx) : o.x + dx;
     it.y = snapIt ? snapV(o.y + dy) : o.y + dy;
     clampCenter(it);
+  }
+
+  /* Tables cannot sit on room fixtures. */
+  function fixBox(f) {
+    if (f.kind === 'text') return null;
+    if (f.kind === 'line') {
+      var t = (WEIGHTS[f.weight] || 6) / 2;
+      return { seg: f, pad: t };
+    }
+    var h = half(f);
+    return { x0: f.x - h.x, x1: f.x + h.x, y0: f.y - h.y, y1: f.y + h.y };
+  }
+  function segHits(f, a, pad) {
+    var len = Math.hypot(f.x2 - f.x1, f.y2 - f.y1), n = Math.max(2, Math.ceil(len / 4));
+    for (var i = 0; i <= n; i++) {
+      var x = f.x1 + (f.x2 - f.x1) * i / n, y = f.y1 + (f.y2 - f.y1) * i / n;
+      if (x > a.x0 - pad && x < a.x1 + pad && y > a.y0 - pad && y < a.y1 + pad) return true;
+    }
+    return false;
+  }
+  function blocked(it) {
+    if (it.kind !== 'table' || S.editFix) return false;
+    var h = half(it), a = { x0: it.x - h.x, x1: it.x + h.x, y0: it.y - h.y, y1: it.y + h.y };
+    return fix().some(function (f) {
+      var b = fixBox(f);
+      if (!b) return false;
+      if (b.seg) return segHits(b.seg, a, b.pad);
+      return a.x0 < b.x1 && a.x1 > b.x0 && a.y0 < b.y1 && a.y1 > b.y0;
+    });
+  }
+  function tryMove(it, o, dx, dy, snapIt) {
+    moveItem(it, o, dx, dy, snapIt);
+    if (!blocked(it)) return;
+    var nx = it.x, ny = it.y;
+    it.x = nx; it.y = o.y; if (!blocked(it)) return;
+    it.x = o.x; it.y = ny; if (!blocked(it)) return;
+    it.x = o.x; it.y = o.y;
   }
 
   function foot(it) {
@@ -760,7 +943,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         var fo = foot(o);
         return Math.abs(c.x - o.x) >= f.x + fo.x || Math.abs(c.y - o.y) >= f.y + fo.y;
       });
-      if (ok) return c;
+      if (!ok) continue;
+      if (blocked({ kind: 'table', type: t.type, x: c.x, y: c.y, rot: t.rot, seats: t.seats })) continue;
+      return c;
     }
     return { x: R.w / 2, y: R.h / 2 };
   }
@@ -769,10 +954,36 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     items().forEach(function (t) { if (t.kind === 'table' && /^\d+$/.test(t.label)) m = Math.max(m, parseInt(t.label, 10)); });
     return String(m + 1);
   }
-  function stagger() { var n = items().length % 5; return n * 14; }
+  function stagger() { var n = allItems().length % 5; return n * 14; }
+
+  /* ---------- rotation ---------- */
+  function segAngle(it) { return norm(Math.atan2(it.y2 - it.y1, it.x2 - it.x1) * 180 / Math.PI); }
+  function setAngle(it, deg) {
+    if (isSeg(it)) {
+      var mx = (it.x1 + it.x2) / 2, my = (it.y1 + it.y2) / 2, h = Math.hypot(it.x2 - it.x1, it.y2 - it.y1) / 2;
+      it.x1 = r2(mx - h * Math.cos(rad(deg))); it.y1 = r2(my - h * Math.sin(rad(deg)));
+      it.x2 = r2(mx + h * Math.cos(rad(deg))); it.y2 = r2(my + h * Math.sin(rad(deg)));
+      fitSeg(it);
+    } else {
+      it.rot = norm(deg); clampCenter(it);
+    }
+  }
+  function getAngle(it) { return isSeg(it) ? segAngle(it) : (it.rot || 0); }
+  function rotateBy(it, d, silent) {
+    var before = clone(it);
+    setAngle(it, getAngle(it) + d);
+    if (blocked(it)) {
+      for (var k in before) it[k] = before[k];
+      toast('A room fixture is in the way.');
+      return false;
+    }
+    refreshItem(it); renderHandles(); syncInspector();
+    if (!silent) commit();
+    return true;
+  }
 
   /* ---------- history ---------- */
-  function snap() { var d = doc(); return JSON.stringify({ name: d.name, items: d.items }); }
+  function snap() { var d = doc(); return JSON.stringify({ name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: fix() }); }
   function H() { var h = hist[S.room]; if (!h) h = hist[S.room] = { undo: [], redo: [], last: snap() }; return h; }
   function syncUndo() { var h = H(); undoBtn.disabled = !h.undo.length; redoBtn.disabled = !h.redo.length; }
   function commit() {
@@ -784,11 +995,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     save(); syncUndo();
   }
   function restore(s) {
-    var o = JSON.parse(s);
-    doc().name = o.name; doc().items = o.items;
+    var o = JSON.parse(s), d = doc();
+    d.name = o.name; d.showTitle = o.showTitle; d.notes = o.notes; d.showNotes = o.showNotes; d.items = o.items;
+    S.fix[S.room] = o.fixtures || [];
     if (sel && !byId(sel)) sel = null;
-    nameInput.value = o.name;
-    render(); syncInspector(); save(); syncUndo();
+    syncDocUI(); render(); syncInspector(); save(); syncUndo();
   }
   function undo() { var h = H(); if (!h.undo.length) return; h.redo.push(snap()); h.last = h.undo.pop(); restore(h.last); }
   function redo() { var h = H(); if (!h.redo.length) return; h.undo.push(snap()); h.last = h.redo.pop(); restore(h.last); }
@@ -810,15 +1021,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
   }
 
+  function segLen(it) { return Math.hypot(it.x2 - it.x1, it.y2 - it.y1); }
+
   function syncInspector() {
     var it = sel ? byId(sel) : null;
     inspEmpty.hidden = !!it; inspBody.hidden = !it;
     if (!it) return;
     blkTable.hidden = it.kind !== 'table';
+    blkChairs.hidden = it.kind !== 'chairs';
     blkShape.hidden = !(it.kind === 'rect' || it.kind === 'ellipse');
     blkLine.hidden = it.kind !== 'line';
     blkText.hidden = it.kind !== 'text';
-    rotateBtn.hidden = true;
+    var canLock = it.kind === 'rect' || it.kind === 'ellipse' || it.kind === 'line' || it.kind === 'text';
+    lockBtn.hidden = !canLock;
+    lockBtn.textContent = isFix(it) ? 'Move back to this layout' : 'Lock as room fixture';
+    if (document.activeElement !== rotInput) rotInput.value = r2(getAngle(it));
     if (it.kind === 'table') {
       var T = TYPES[it.type], mx = maxSeats(it.type);
       inspTitle.textContent = T.name + (isRound(T) ? ' round' : '');
@@ -830,29 +1047,40 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (document.activeElement !== seatInput) seatInput.value = it.seats;
       seatMax.textContent = 'Fits up to ' + mx + ' seats';
       seatMinus.disabled = it.seats <= 0; seatPlus.disabled = it.seats >= mx;
-      rotateBtn.hidden = isRound(T);
+    } else if (it.kind === 'chairs') {
+      var len = segLen(it), sp = len / it.count;
+      inspTitle.textContent = 'Free chairs';
+      inspSub.textContent = it.count + ' chairs spread evenly along the line.';
+      if (document.activeElement !== chCount) chCount.value = it.count;
+      if (document.activeElement !== chLen) chLen.value = r2(len);
+      if (document.activeElement !== chSpace) chSpace.value = r2(sp);
+      chMinusUpdate(it);
+      chWarn.textContent = sp < CHAIR_W ? 'Chairs overlap at this spacing.' : '';
+      chWarn.className = 'fine' + (sp < CHAIR_W ? ' warn' : '');
+      chCounts.setAttribute('aria-pressed', it.counts ? 'true' : 'false');
     } else if (it.kind === 'rect' || it.kind === 'ellipse') {
       inspTitle.textContent = it.kind === 'rect' ? 'Rectangle' : 'Ellipse';
-      inspSub.textContent = 'Drag the corner handles or type a size.';
+      inspSub.textContent = isFix(it) ? 'Room fixture. Shows on every layout in this room.' : 'Drag the corner handles or type a size.';
       if (document.activeElement !== wInput) wInput.value = r2(it.w);
       if (document.activeElement !== hInput) hInput.value = r2(it.h);
       pressed(fillRow, 'data-fill', it.fill);
     } else if (it.kind === 'line') {
       inspTitle.textContent = 'Line';
-      inspSub.textContent = ftin(Math.hypot(it.x2 - it.x1, it.y2 - it.y1)) + ' long';
+      inspSub.textContent = ftin(segLen(it)) + ' long' + (isFix(it) ? '. Room fixture.' : '');
       pressed(wtRow, 'data-w', it.weight);
     } else {
       inspTitle.textContent = 'Text label';
-      inspSub.textContent = 'Drag to place it anywhere in the room.';
+      inspSub.textContent = isFix(it) ? 'Room fixture. Shows on every layout in this room.' : 'Drag to place it anywhere in the room.';
       if (document.activeElement !== textInput) textInput.value = it.text;
       pressed(sizeRow, 'data-s', it.size);
       boldBtn.setAttribute('aria-pressed', it.bold ? 'true' : 'false');
     }
   }
+  function chMinusUpdate(it) { $('chMinus').disabled = it.count <= 1; $('chPlus').disabled = it.count >= 40; }
 
   /* ---------- actions ---------- */
   function addNode(it) {
-    items().push(it);
+    (S.editFix ? fix() : items()).push(it);
     refreshItem(it);
     updateStats();
     select(it.id);
@@ -864,13 +1092,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var p = findFree(t); t.x = p.x; t.y = p.y; clampCenter(t);
     addNode(t);
   }
+  function addChairs() {
+    var R = room(), off = stagger(), cx = R.w / 2 + off, cy = R.h / 2 + off;
+    var it = { id: uid(), kind: 'chairs', x1: cx - 48, y1: cy, x2: cx + 48, y2: cy, count: 4, flip: false, counts: false };
+    fitSeg(it);
+    addNode(it);
+  }
   function addDraw(k) {
     var R = room(), off = stagger(), it;
-    if (k === 'rect') it = { id: uid(), kind: 'rect', x: R.w / 2 + off, y: R.h / 2 + off, w: 72, h: 48, fill: 'gray' };
-    else if (k === 'ellipse') it = { id: uid(), kind: 'ellipse', x: R.w / 2 + off, y: R.h / 2 + off, w: 60, h: 60, fill: 'gray' };
+    if (k === 'rect') it = { id: uid(), kind: 'rect', x: R.w / 2 + off, y: R.h / 2 + off, w: 72, h: 48, rot: 0, fill: 'gray' };
+    else if (k === 'ellipse') it = { id: uid(), kind: 'ellipse', x: R.w / 2 + off, y: R.h / 2 + off, w: 60, h: 60, rot: 0, fill: 'gray' };
     else if (k === 'line') it = { id: uid(), kind: 'line', x1: R.w / 2 - 48 + off, y1: R.h / 2 + off, x2: R.w / 2 + 48 + off, y2: R.h / 2 + off, weight: 2 };
-    else it = { id: uid(), kind: 'text', x: R.w / 2 + off, y: R.h / 2 + off, text: 'Label', size: 'm', bold: false };
-    if (it.kind !== 'line') clampCenter(it);
+    else it = { id: uid(), kind: 'text', x: R.w / 2 + off, y: R.h / 2 + off, rot: 0, text: 'Label', size: 'm', bold: false };
+    if (!isSeg(it)) clampCenter(it);
     addNode(it);
     if (k === 'text') { textInput.focus(); textInput.select(); }
   }
@@ -878,10 +1112,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var c = clone(it); c.id = uid();
     if (c.kind === 'table') { var T = TYPES[c.type]; c.label = isSvc(T) ? c.label : nextLabel(); }
     moveItem(c, it, 24, 24, false);
+    if (blocked(c)) { var p = findFree(c); c.x = p.x; c.y = p.y; }
     addNode(c);
   }
   function remove(it) {
-    var a = items(), i = a.indexOf(it);
+    var a = isFix(it) ? fix() : items(), i = a.indexOf(it);
     if (i >= 0) a.splice(i, 1);
     var n = nodeFor(it.id); if (n) n.remove();
     sel = null; renderHandles(); syncInspector(); updateStats(); commit();
@@ -890,9 +1125,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     t.seats = clamp(n, 0, maxSeats(t.type));
     refreshItem(t); updateStats(); syncInspector(); commit();
   }
-  function rotate(t) {
-    t.rot = (t.rot + 90) % 360;
-    clampCenter(t); refreshItem(t); commit();
+  function setEditFix(on) {
+    S.editFix = on; sel = null;
+    svg.classList.toggle('editfix', on);
+    scroller.classList.toggle('editfix', on);
+    $('fixPill').hidden = !on;
+    $('fixBtn').setAttribute('aria-checked', on ? 'true' : 'false');
+    var tiles = document.querySelectorAll('.tile.tbl');
+    for (var i = 0; i < tiles.length; i++) tiles[i].disabled = on;
+    renderHandles(); syncInspector();
   }
 
   /* ---------- inspector wiring ---------- */
@@ -928,10 +1169,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!b || !it) return;
     it.weight = parseInt(b.getAttribute('data-w'), 10); refreshItem(it); syncInspector(); commit();
   });
-  textInput.addEventListener('input', function () {
-    var it = byId(sel); if (!it) return;
-    it.text = textInput.value; refreshItem(it);
-  });
+  textInput.addEventListener('input', function () { var it = byId(sel); if (!it) return; it.text = textInput.value; refreshItem(it); });
   textInput.addEventListener('change', function () { var it = byId(sel); if (it) clampCenter(it); commit(); });
   sizeRow.addEventListener('click', function (e) {
     var b = e.target.closest('button[data-s]'), it = byId(sel);
@@ -939,9 +1177,62 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     it.size = b.getAttribute('data-s'); clampCenter(it); refreshItem(it); syncInspector(); commit();
   });
   boldBtn.addEventListener('click', function () { var it = byId(sel); if (!it) return; it.bold = !it.bold; refreshItem(it); syncInspector(); commit(); });
-  rotateBtn.addEventListener('click', function () { var t = byId(sel); if (t && t.kind === 'table') rotate(t); });
+
+  /* chair rows */
+  function chairsChanged(it) { refreshItem(it); renderHandles(); updateStats(); syncInspector(); }
+  $('chMinus').addEventListener('click', function () { var it = byId(sel); if (!it) return; it.count = clamp(it.count - 1, 1, 40); chairsChanged(it); commit(); });
+  $('chPlus').addEventListener('click', function () { var it = byId(sel); if (!it) return; it.count = clamp(it.count + 1, 1, 40); chairsChanged(it); commit(); });
+  chCount.addEventListener('input', function () {
+    var it = byId(sel), n = parseInt(chCount.value, 10); if (!it || isNaN(n)) return;
+    it.count = clamp(n, 1, 40); chairsChanged(it);
+  });
+  chCount.addEventListener('change', function () { var it = byId(sel); if (it) chCount.value = it.count; commit(); });
+  function setSegLen(it, len) {
+    var mx = (it.x1 + it.x2) / 2, my = (it.y1 + it.y2) / 2, a = segAngle(it);
+    var h = clamp(len, 12, 1200) / 2;
+    it.x1 = r2(mx - h * Math.cos(rad(a))); it.y1 = r2(my - h * Math.sin(rad(a)));
+    it.x2 = r2(mx + h * Math.cos(rad(a))); it.y2 = r2(my + h * Math.sin(rad(a)));
+    fitSeg(it);
+  }
+  chLen.addEventListener('input', function () {
+    var it = byId(sel), v = parseFloat(chLen.value); if (!it || !isFinite(v)) return;
+    setSegLen(it, v); chairsChanged(it);
+  });
+  chLen.addEventListener('change', function () { var it = byId(sel); if (it) chLen.value = r2(segLen(it)); commit(); });
+  chSpace.addEventListener('input', function () {
+    var it = byId(sel), v = parseFloat(chSpace.value); if (!it || !isFinite(v)) return;
+    setSegLen(it, clamp(v, 6, 200) * it.count); chairsChanged(it);
+  });
+  chSpace.addEventListener('change', function () { var it = byId(sel); if (it) chSpace.value = r2(segLen(it) / it.count); commit(); });
+  chFlip.addEventListener('click', function () { var it = byId(sel); if (!it) return; it.flip = !it.flip; refreshItem(it); commit(); });
+  chCounts.addEventListener('click', function () { var it = byId(sel); if (!it) return; it.counts = !it.counts; refreshItem(it); updateStats(); syncInspector(); commit(); });
+
+  /* rotation */
+  $('rotMinus').addEventListener('click', function () { var it = byId(sel); if (it) rotateBy(it, -5); });
+  $('rotPlus').addEventListener('click', function () { var it = byId(sel); if (it) rotateBy(it, 5); });
+  rotateBtn.addEventListener('click', function () { var it = byId(sel); if (it) rotateBy(it, 90); });
+  rotInput.addEventListener('input', function () {
+    var it = byId(sel), v = parseFloat(rotInput.value); if (!it || !isFinite(v)) return;
+    var before = clone(it);
+    setAngle(it, v);
+    if (blocked(it)) { for (var k in before) it[k] = before[k]; return; }
+    refreshItem(it); renderHandles();
+  });
+  rotInput.addEventListener('change', function () { var it = byId(sel); if (it) rotInput.value = r2(getAngle(it)); syncInspector(); commit(); });
+
   dupBtn.addEventListener('click', function () { var t = byId(sel); if (t) duplicate(t); });
   delBtn.addEventListener('click', function () { var t = byId(sel); if (t) remove(t); });
+  lockBtn.addEventListener('click', function () {
+    var it = byId(sel); if (!it) return;
+    if (isFix(it)) {
+      fix().splice(fix().indexOf(it), 1); items().push(it);
+      toast('Moved back to this layout.');
+    } else {
+      items().splice(items().indexOf(it), 1); fix().push(it);
+      toast('Locked as a room fixture. Edit room fixtures in the menu to change it.');
+    }
+    sel = null; render(); syncInspector(); commit();
+  });
 
   /* ---------- pointer interaction ---------- */
   function toWorld(e) {
@@ -974,13 +1265,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var it = byId(drag.id); if (!it) return;
     var p = toWorld(e), o = drag.o;
     if (drag.mode === 'move') {
-      moveItem(it, o, p.x - drag.sx, p.y - drag.sy, true);
+      tryMove(it, o, p.x - drag.sx, p.y - drag.sy, true);
       refreshItem(it);
       renderHandles();
       return;
     }
-    var q = clampPt({ x: snapV(p.x), y: snapV(p.y) });
-    if (it.kind === 'line') {
+    var rd = o.rot || 0;
+    var q = clampPt(isSeg(it) || rd === 0 ? { x: snapV(p.x), y: snapV(p.y) } : { x: Math.round(p.x * 2) / 2, y: Math.round(p.y * 2) / 2 });
+    if (isSeg(it)) {
       var other = drag.h === 'a' ? { x: o.x2, y: o.y2 } : { x: o.x1, y: o.y1 };
       if (e.shiftKey) {
         var dx = q.x - other.x, dy = q.y - other.y, len = Math.hypot(dx, dy);
@@ -990,12 +1282,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (drag.h === 'a') { it.x1 = q.x; it.y1 = q.y; } else { it.x2 = q.x; it.y2 = q.y; }
     } else {
       var sx = drag.h.indexOf('e') >= 0 ? 1 : -1, sy = drag.h.indexOf('s') >= 0 ? 1 : -1;
-      var fx = o.x - sx * o.w / 2, fy = o.y - sy * o.h / 2;
-      var nx = q.x, ny = q.y;
-      if (Math.abs(nx - fx) < 6) nx = fx + sx * 6;
-      if (Math.abs(ny - fy) < 6) ny = fy + sy * 6;
-      it.w = Math.abs(nx - fx); it.h = Math.abs(ny - fy);
-      it.x = (fx + nx) / 2; it.y = (fy + ny) / 2;
+      var fo = rotVec(-sx * o.w / 2, -sy * o.h / 2, rd), F = { x: o.x + fo.x, y: o.y + fo.y };
+      var dl = rotVec(q.x - F.x, q.y - F.y, -rd);
+      var nw = Math.max(6, sx * dl.x), nh = Math.max(6, sy * dl.y);
+      var c = rotVec(sx * nw / 2, sy * nh / 2, rd);
+      it.w = nw; it.h = nh; it.x = F.x + c.x; it.y = F.y + c.y;
     }
     refreshItem(it); renderHandles(); syncInspector();
   });
@@ -1005,6 +1296,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     drag = null;
     svg.classList.remove('dragging');
     syncInspector();
+    updateStats();
     commit();
   }
   svg.addEventListener('pointerup', endDrag);
@@ -1027,16 +1319,23 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (k === 'd' && sel) { e.preventDefault(); var d = byId(sel); if (d) duplicate(d); return; }
       return;
     }
-    if (e.key === 'Escape') { if (!menu.hidden) closeMenu(); else if (!typing) select(null); return; }
+    if (e.key === 'Escape') {
+      if (!menu.hidden) closeMenu();
+      else if (!notesPanel.hidden) closeNotes();
+      else if (!typing) select(null);
+      return;
+    }
     if (typing || !sel) return;
     var it = byId(sel); if (!it) return;
     if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); remove(it); return; }
-    if (k === 'r' && it.kind === 'table' && !isRound(TYPES[it.type])) { rotate(it); return; }
+    if (k === 'r') { rotateBy(it, 90); return; }
+    if (e.key === '[') { rotateBy(it, -5); return; }
+    if (e.key === ']') { rotateBy(it, 5); return; }
     var st = e.shiftKey ? 1 : SNAP, dx = 0, dy = 0;
     if (e.key === 'ArrowLeft') dx = -st; else if (e.key === 'ArrowRight') dx = st;
     else if (e.key === 'ArrowUp') dy = -st; else if (e.key === 'ArrowDown') dy = st; else return;
     e.preventDefault();
-    moveItem(it, clone(it), dx, dy, false);
+    tryMove(it, clone(it), dx, dy, false);
     refreshItem(it); renderHandles(); commit();
   });
 
@@ -1050,7 +1349,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         var L = Math.max(T.w, T.h), w = 24 * T.w / L, h = 24 * T.h / L;
         inner = '<rect class="ic' + svc + '" x="' + ((28 - w) / 2).toFixed(1) + '" y="' + ((28 - h) / 2).toFixed(1) + '" width="' + w.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2"/>';
       }
-    } else if (key === 'rect') inner = '<rect class="ic dr" x="4" y="8" width="20" height="12" rx="2"/>';
+    } else if (key === 'chairs') inner = '<rect class="ic ch" x="2.5" y="9" width="6.5" height="10" rx="2"/><rect class="ic ch" x="10.7" y="9" width="6.5" height="10" rx="2"/><rect class="ic ch" x="19" y="9" width="6.5" height="10" rx="2"/>';
+    else if (key === 'rect') inner = '<rect class="ic dr" x="4" y="8" width="20" height="12" rx="2"/>';
     else if (key === 'ellipse') inner = '<ellipse class="ic dr" cx="14" cy="14" rx="10" ry="7"/>';
     else if (key === 'line') inner = '<path class="ln" d="M5 21L23 7"/>';
     else inner = '<text class="aa" x="14" y="19" text-anchor="middle">Aa</text>';
@@ -1060,31 +1360,29 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   (function buildPalette() {
     var nav = $('palette');
-    GROUPS.forEach(function (g) {
-      var wrap = document.createElement('div'); wrap.className = 'grp'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', g.cap);
-      var cap = document.createElement('p'); cap.className = 'cap'; cap.textContent = g.cap; wrap.appendChild(cap);
-      g.keys.forEach(function (k) {
-        var T = TYPES[k], b = document.createElement('button');
-        b.type = 'button'; b.className = 'tile';
-        b.innerHTML = iconSvg(k, T) + '<span class="nm">' + T.name + '</span><span class="sd">' + dimText(T) + '</span>';
-        b.addEventListener('click', function () { addTable(k); });
-        wrap.appendChild(b);
-      });
+    function group(cap) {
+      var wrap = document.createElement('div'); wrap.className = 'grp'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', cap);
+      var c = document.createElement('p'); c.className = 'cap'; c.textContent = cap; wrap.appendChild(c);
       nav.appendChild(wrap);
-    });
-    var wrap = document.createElement('div'); wrap.className = 'grp'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', 'Draw');
-    var cap = document.createElement('p'); cap.className = 'cap'; cap.textContent = 'Draw'; wrap.appendChild(cap);
-    DRAW.forEach(function (d) {
-      var b = document.createElement('button'); b.type = 'button'; b.className = 'tile';
-      b.innerHTML = iconSvg(d.k) + '<span class="nm">' + d.name + '</span><span class="sd"></span>';
-      b.addEventListener('click', function () { addDraw(d.k); });
+      return wrap;
+    }
+    function tile(wrap, iconHtml, name, sd, cls, fn) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'tile' + (cls ? ' ' + cls : '');
+      b.innerHTML = iconHtml + '<span class="nm">' + name + '</span><span class="sd">' + sd + '</span>';
+      b.addEventListener('click', fn);
       wrap.appendChild(b);
+    }
+    GROUPS.forEach(function (g) {
+      var wrap = group(g.cap);
+      g.keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function () { addTable(k); }); });
     });
-    nav.appendChild(wrap);
+    var cw = group('Free chairs');
+    tile(cw, iconSvg('chairs'), 'Chair row', 'bar, high-top', 'tbl', addChairs);
+    var dw = group('Draw');
+    DRAW.forEach(function (d) { tile(dw, iconSvg(d.k), d.name, '', '', function () { addDraw(d.k); }); });
   })();
 
   /* ---------- menu ---------- */
-  var clearArmed = false, clearTimer = null;
   function openMenu() { menu.hidden = false; menuBtn.setAttribute('aria-expanded', 'true'); }
   function closeMenu() { menu.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }
   menuBtn.addEventListener('click', function (e) { e.stopPropagation(); if (menu.hidden) openMenu(); else closeMenu(); });
@@ -1092,20 +1390,44 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function setSwitch(btn, on) { btn.setAttribute('aria-checked', on ? 'true' : 'false'); }
   $('snapBtn').addEventListener('click', function () { S.snap = !S.snap; setSwitch($('snapBtn'), S.snap); save(); });
   $('gridBtn').addEventListener('click', function () { S.grid = !S.grid; setSwitch($('gridBtn'), S.grid); $('gridA').hidden = !S.grid; $('gridB').hidden = !S.grid; save(); });
+  $('fixBtn').addEventListener('click', function () {
+    setEditFix(!S.editFix);
+    toast(S.editFix ? 'Editing room fixtures. Add shapes, lines, or text; they show on every layout.' : 'Back to the layout.');
+  });
   $('clearBtn').addEventListener('click', function () {
     closeMenu();
     doc().items = []; sel = null; render(); syncInspector(); commit();
-    toast('Room cleared. Undo brings it back.');
+    toast('Layout cleared. Room fixtures stay. Undo brings it back.');
   });
   undoBtn.addEventListener('click', undo);
   redoBtn.addEventListener('click', redo);
+
+  /* ---------- title, notes ---------- */
+  function syncDocUI() {
+    var d = doc();
+    nameInput.value = d.name;
+    setSwitch($('titlePrintBtn'), d.showTitle);
+    notesInput.value = d.notes;
+    setSwitch($('printNotesBtn'), d.showNotes);
+    $('notesDot').hidden = !d.notes.trim();
+  }
+  nameInput.addEventListener('input', function () { doc().name = nameInput.value.slice(0, 60); save(); });
+  nameInput.addEventListener('change', commit);
+  $('titlePrintBtn').addEventListener('click', function () { doc().showTitle = !doc().showTitle; setSwitch($('titlePrintBtn'), doc().showTitle); commit(); });
+  function openNotes() { notesPanel.hidden = false; notesBtn.setAttribute('aria-expanded', 'true'); notesInput.focus(); }
+  function closeNotes() { notesPanel.hidden = true; notesBtn.setAttribute('aria-expanded', 'false'); }
+  notesBtn.addEventListener('click', function () { if (notesPanel.hidden) openNotes(); else closeNotes(); });
+  $('notesClose').addEventListener('click', closeNotes);
+  notesInput.addEventListener('input', function () { doc().notes = notesInput.value; $('notesDot').hidden = !notesInput.value.trim(); save(); });
+  notesInput.addEventListener('change', commit);
+  $('printNotesBtn').addEventListener('click', function () { doc().showNotes = !doc().showNotes; setSwitch($('printNotesBtn'), doc().showNotes); commit(); });
 
   /* ---------- toast ---------- */
   var toastTimer = null;
   function toast(msg) {
     toastEl.textContent = msg; toastEl.hidden = false;
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 2600);
+    toastTimer = setTimeout(function () { toastEl.hidden = true; }, 2800);
   }
 
   /* ---------- storage and files ---------- */
@@ -1117,50 +1439,57 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     function num(v, d) { v = parseFloat(v); return isFinite(v) ? v : d; }
     if (o.kind === 'table') {
       var T = TYPES[o.type]; if (!T) return null;
-      return { id: id, kind: 'table', type: o.type, x: num(o.x, 0), y: num(o.y, 0),
-        rot: [0, 90, 180, 270].indexOf(+o.rot) >= 0 ? +o.rot : 0,
+      return { id: id, kind: 'table', type: o.type, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)),
         seats: clamp(Math.round(num(o.seats, T.seats)), 0, maxSeats(o.type)),
         label: String(o.label == null ? '' : o.label).slice(0, 8) };
     }
     if (o.kind === 'rect' || o.kind === 'ellipse') {
-      return { id: id, kind: o.kind, x: num(o.x, 0), y: num(o.y, 0), w: clamp(num(o.w, 60), 6, 2000), h: clamp(num(o.h, 40), 6, 2000), fill: FILLS.indexOf(o.fill) >= 0 ? o.fill : 'none' };
+      return { id: id, kind: o.kind, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)), w: clamp(num(o.w, 60), 6, 2000), h: clamp(num(o.h, 40), 6, 2000), fill: FILLS.indexOf(o.fill) >= 0 ? o.fill : 'none' };
     }
     if (o.kind === 'line') {
       return { id: id, kind: 'line', x1: num(o.x1, 0), y1: num(o.y1, 0), x2: num(o.x2, 50), y2: num(o.y2, 0), weight: [1, 2, 3].indexOf(+o.weight) >= 0 ? +o.weight : 2 };
     }
+    if (o.kind === 'chairs') {
+      return { id: id, kind: 'chairs', x1: num(o.x1, 0), y1: num(o.y1, 0), x2: num(o.x2, 96), y2: num(o.y2, 0), count: clamp(Math.round(num(o.count, 4)), 1, 40), flip: !!o.flip, counts: !!o.counts };
+    }
     if (o.kind === 'text') {
-      return { id: id, kind: 'text', x: num(o.x, 0), y: num(o.y, 0), text: String(o.text == null ? '' : o.text).slice(0, 400), size: TSIZE[o.size] ? o.size : 'm', bold: !!o.bold };
+      return { id: id, kind: 'text', x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)), text: String(o.text == null ? '' : o.text).slice(0, 400), size: TSIZE[o.size] ? o.size : 'm', bold: !!o.bold };
     }
     return null;
   }
-  function cleanItems(arr) {
+  function cleanItems(arr, fixturesOnly) {
     var seen = {}, out = [];
     (Array.isArray(arr) ? arr : []).forEach(function (o) {
       var c = cleanItem(o); if (!c) return;
+      if (fixturesOnly && (c.kind === 'table' || c.kind === 'chairs')) return;
       if (seen[c.id]) c.id = uid();
       seen[c.id] = 1; out.push(c);
     });
     return out;
   }
+  function cleanDoc(d) {
+    return { name: String(d.name || '').slice(0, 60), showTitle: d.showTitle !== false, notes: String(d.notes || '').slice(0, 4000), showNotes: !!d.showNotes, items: cleanItems(d.items) };
+  }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, grid: S.grid, docs: S.docs })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, grid: S.grid, docs: S.docs, fix: S.fix })); } catch (e) {}
   }
   function loadSaved() {
     try {
       var d = JSON.parse(localStorage.getItem(KEY));
       if (!d || !d.docs) return null;
-      var docs = {};
+      var docs = {}, fx = {};
       ROOM_ORDER.forEach(function (k) {
-        if (d.docs[k] && Array.isArray(d.docs[k].items)) docs[k] = { name: String(d.docs[k].name || '').slice(0, 60), items: cleanItems(d.docs[k].items) };
+        if (d.docs[k] && Array.isArray(d.docs[k].items)) docs[k] = cleanDoc(d.docs[k]);
+        if (d.fix && Array.isArray(d.fix[k])) fx[k] = cleanItems(d.fix[k], true);
       });
-      return { room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.grid !== false, docs: docs };
+      return { room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.grid !== false, docs: docs, fix: fx };
     } catch (e) { return null; }
   }
 
   function payload() {
     var d = doc();
-    return { app: 'applebrook-floorplan', version: 2, room: S.room, roomName: room().name, name: d.name, savedAt: new Date().toISOString(), items: d.items };
+    return { app: 'applebrook-floorplan', version: 3, room: S.room, roomName: room().name, name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, savedAt: new Date().toISOString(), items: d.items, fixtures: fix() };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
 
@@ -1196,10 +1525,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!o || o.app !== 'applebrook-floorplan' || !Array.isArray(o.items)) return 'That file is not an Applebrook floor plan layout.';
     if (!ROOMS[o.room]) return 'That layout is for a room this app does not have.';
     if (o.room !== S.room) setRoom(o.room);
-    doc().name = String(o.name || '').slice(0, 60);
-    doc().items = cleanItems(o.items);
-    sel = null; nameInput.value = doc().name;
+    var cd = cleanDoc(o), d = doc();
+    d.name = cd.name; d.showTitle = cd.showTitle; d.notes = cd.notes; d.showNotes = cd.showNotes; d.items = cd.items;
+    var adopted = false;
+    if (Array.isArray(o.fixtures) && !fix().length) {
+      var f = cleanItems(o.fixtures, true);
+      if (f.length) { S.fix[S.room] = f; adopted = true; }
+    }
+    sel = null; syncDocUI();
     render(); syncInspector(); commit();
+    if (adopted) toast('Room fixtures loaded from the file.');
     return '';
   }
 
@@ -1234,22 +1569,27 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var pageStyle = document.createElement('style'); document.head.appendChild(pageStyle);
   function fillPrintHead() {
     var s = stats(items()), d = doc();
-    $('ph1').textContent = 'Applebrook • ' + room().name + (d.name ? ' • ' + d.name : '');
-    $('ph2').textContent = seatWord(s.seats) + ' • ' + s.tables + (s.tables === 1 ? ' table' : ' tables') + ' • ' + ftin(room().w) + ' × ' + ftin(room().h) + ' • ' + new Date().toLocaleDateString();
+    $('printHead').hidden = !d.showTitle;
+    $('ph1').textContent = d.name || room().name;
+    $('ph2').textContent = 'Applebrook • ' + room().name + ' • ' + seatWord(s.seats) + ' • ' + s.tables + (s.tables === 1 ? ' table' : ' tables') + ' • ' + new Date().toLocaleDateString();
+    var pn = d.showNotes && d.notes.trim();
+    document.body.classList.toggle('pn', !!pn);
+    $('pnt').textContent = d.notes;
+    return !!pn;
   }
   window.addEventListener('beforeprint', function () {
-    var landscape = room().w >= room().h;
-    pageStyle.textContent = '@page { size: letter ' + (landscape ? 'landscape' : 'portrait') + '; margin: 0.5in; }';
-    svg.style.setProperty('--ph', landscape ? '6.3in' : '8.8in');
     if (sel) select(null);
-    fillPrintHead();
+    var pn = fillPrintHead();
+    var landscape = pn || room().w >= room().h;
+    pageStyle.textContent = '@page { size: letter ' + (landscape ? 'landscape' : 'portrait') + '; margin: 0.5in; }';
+    svg.style.setProperty('--ph', landscape ? (doc().showTitle ? '6.2in' : '7in') : (doc().showTitle ? '8.7in' : '9.4in'));
   });
   $('printBtn').addEventListener('click', function () { closeMenu(); try { window.print(); } catch (e) { toast('Printing is not available here.'); } });
 
   /* ---------- templates ---------- */
   function sampleItems(roomKey, typeKey) {
     var R = ROOMS[roomKey], T = TYPES[typeKey], out = [];
-    var gx = isRound(T) ? 56 : 48, gy = isRound(T) ? 56 : 56, m = 40;
+    var gx = isRound(T) ? 56 : 48, gy = 56, m = 40;
     var cols = Math.max(1, Math.floor((R.w - 2 * m + gx) / (T.w + gx)));
     var rows = Math.max(1, Math.floor((R.h - 2 * m + gy) / (T.h + gy)));
     var totW = cols * T.w + (cols - 1) * gx, totH = rows * T.h + (rows - 1) * gy;
@@ -1268,7 +1608,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var R = ROOMS[tpl.room], s = el('svg', { viewBox: (-PAD) + ' ' + (-PAD) + ' ' + (R.w + 2 * PAD) + ' ' + (R.h + 2 * PAD), 'aria-hidden': 'true' });
     el('rect', { 'class': 'floor', x: 0, y: 0, width: R.w, height: R.h }, s);
     el('rect', { 'class': 'wall', x: -3, y: -3, width: R.w + 6, height: R.h + 6, rx: 3 }, s);
-    var arr = tpl.items.map(function (o) { var c = clone(o); c.id = 'x'; return c; });
+    var arr = (S.fix[tpl.room] || []).concat(tpl.items).map(function (o) { var c = clone(o); c.id = 'x'; return c; });
     arr.forEach(function (it) { s.appendChild(buildNode(it, false, arr)); });
     return s;
   }
@@ -1287,7 +1627,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var b = document.createElement('button'); b.type = 'button'; b.className = 'btn primary'; b.textContent = 'Use this template';
       b.addEventListener('click', function () {
         doc().name = tpl.name; doc().items = newItems(tpl.items); sel = null;
-        nameInput.value = doc().name; render(); syncInspector(); commit();
+        syncDocUI(); render(); syncInspector(); commit();
         tplDlg.close(); toast('Template opened as an editable copy.');
       });
       card.appendChild(b);
@@ -1296,16 +1636,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     tplDlg.showModal();
   });
 
-  /* ---------- rooms and name ---------- */
+  /* ---------- rooms ---------- */
   function setRoom(key) {
+    if (S.editFix) setEditFix(false);
     S.room = key; sel = null; drag = null; H();
     roomSel.value = key;
-    nameInput.value = doc().name;
+    syncDocUI();
     applyRoom(); render(); syncInspector(); syncUndo(); save();
   }
   roomSel.addEventListener('change', function () { setRoom(roomSel.value); });
-  nameInput.addEventListener('input', function () { doc().name = nameInput.value.slice(0, 60); save(); });
-  nameInput.addEventListener('change', commit);
 
   ROOM_ORDER.forEach(function (k) {
     var o = document.createElement('option'); o.value = k; o.textContent = ROOMS[k].name; roomSel.appendChild(o);
@@ -1314,7 +1653,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- start ---------- */
   var saved = loadSaved();
   ROOM_ORDER.forEach(function (k) {
-    S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : { name: 'Sample layout', items: newItems(sampleItems(k, SAMPLE_TYPE[k])) };
+    S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : { name: 'Sample layout', showTitle: true, notes: '', showNotes: false, items: newItems(sampleItems(k, SAMPLE_TYPE[k])) };
+    S.fix[k] = saved && saved.fix[k] ? saved.fix[k] : newItems(BUILTIN_FIXTURES[k] || []);
   });
   if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; }
   setSwitch($('snapBtn'), S.snap); setSwitch($('gridBtn'), S.grid);
