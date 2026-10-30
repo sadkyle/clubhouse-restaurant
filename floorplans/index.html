@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1d6a45">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Applebrook Floor Plans</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -349,7 +353,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 <script>try{var __t=localStorage.getItem('applebrook-theme');if(__t==='light'||__t==='dark')document.documentElement.setAttribute('data-theme',__t)}catch(e){}</script>
 
 <main class="page" id="viewHome">
-  <header class="phead"><div class="club">Applebrook Golf Club</div><button class="iconbtn themeBtn" type="button"></button></header>
+  <header class="phead"><div class="club">Applebrook Golf Club</div><div style="display:flex;gap:8px;align-items:center"><button class="btn installBtn" type="button" hidden>Install app</button><button class="iconbtn themeBtn" type="button"></button></div></header>
   <div class="hero"><h1>Floor Plans</h1></div>
   <div class="cards">
     <button class="card" type="button" data-go="new"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 4v14M4 11h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New</h2><p>Start a floor plan or an event.</p></button>
@@ -417,6 +421,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="defaultBtn" type="button"><span>Load room default</span></button>
           <button class="mi" id="openBtn" type="button"><span>Open file or pasted text</span></button>
           <button class="mi" id="saveBtn" type="button"><span>Save to file</span><kbd>Ctrl+S</kbd></button>
+          <button class="mi installBtn" type="button" hidden><span>Install app</span></button>
           <button class="mi" id="cloudSaveBtn" type="button"><span>Save to cloud</span></button>
           <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
           <button class="mi" id="copyBtn" type="button"><span>Copy layout text</span></button>
@@ -631,7 +636,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <h2 id="openTitle">Open a layout</h2>
   <p class="lead">Choose a saved layout file, or paste layout text copied from this app.</p>
   <div class="openbox">
-    <div class="field" style="margin:0"><label for="fileInput">Layout file</label><input id="fileInput" type="file" accept=".json,application/json"></div>
+    <div class="field" style="margin:0"><label for="fileInput">Layout file</label><input id="fileInput" type="file" accept=".floorplan,.json,application/json"></div>
     <div class="field" style="margin:0"><label for="pasteInput">Or paste layout text</label><textarea id="pasteInput" spellcheck="false" placeholder='{"app":"applebrook-floorplan", ...}'></textarea></div>
     <div class="err" id="openErr" role="alert"></div>
   </div>
@@ -1940,17 +1945,27 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
 
-  function saveFile() {
+  var FILE_TYPES = [{ description: 'Floor plan layout', accept: { 'application/x-applebrook-floorplan': ['.floorplan'] } }];
+  function downloadFile(text, name) {
     try {
-      var d = doc(), text = JSON.stringify(payload(), null, 2);
       var blob = new Blob([text], { type: 'application/json' });
       var a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = slug(room().name) + '-' + slug(d.name || 'layout') + '.json';
+      a.href = URL.createObjectURL(blob); a.download = name;
       document.body.appendChild(a); a.click(); a.remove();
       setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
       toast('Layout file sent to your downloads.');
     } catch (e) { toast('Could not create the file. Try Copy layout text.'); }
+  }
+  function saveFile() {
+    var d = doc(), text = JSON.stringify(payload(), null, 2);
+    var name = slug(room().name) + '-' + slug(d.name || 'layout') + '.floorplan';
+    if (window.showSaveFilePicker) {
+      window.showSaveFilePicker({ suggestedName: name, types: FILE_TYPES }).then(function (h) {
+        return h.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); }).then(function () { toast('Saved ' + h.name); });
+      }).catch(function (e) { if (e && e.name === 'AbortError') return; downloadFile(text, name); });
+      return;
+    }
+    downloadFile(text, name);
   }
   function copyText() {
     var text = JSON.stringify(payload());
@@ -2320,6 +2335,28 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   seedDefaults();
   var startHash = (location.hash || '').slice(1);
   showView(VIEWS[startHash] ? startHash : 'home', true);
+
+  /* Installed app: double-clicking a .floorplan file opens it here. */
+  if (window.launchQueue && window.launchQueue.setConsumer) {
+    window.launchQueue.setConsumer(function (params) {
+      if (!params || !params.files || !params.files.length) return;
+      params.files[0].getFile().then(function (f) {
+        return f.text().then(function (t) {
+          var err = applyLayout(t);
+          showView('editor');
+          toast(err || ('Opened ' + f.name));
+        });
+      });
+    });
+  }
+  var installEv = null, instBtns = document.querySelectorAll('.installBtn');
+  function showInstall(on) { for (var i = 0; i < instBtns.length; i++) instBtns[i].hidden = !on; }
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); installEv = e; showInstall(true); });
+  window.addEventListener('appinstalled', function () { installEv = null; showInstall(false); });
+  for (var ii = 0; ii < instBtns.length; ii++) instBtns[ii].addEventListener('click', function () {
+    closeMenu();
+    if (installEv) { installEv.prompt(); installEv = null; showInstall(false); }
+  });
 
   if (window.ResizeObserver) new ResizeObserver(fitSize).observe(scroller);
   window.addEventListener('resize', fitSize);
