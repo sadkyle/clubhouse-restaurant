@@ -1919,7 +1919,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix, cloud: cloudRef })); } catch (e) {}
   }
   function loadSaved() {
     try {
@@ -1930,7 +1930,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         if (d.docs[k] && Array.isArray(d.docs[k].items)) docs[k] = cleanDoc(d.docs[k]);
         if (d.fix && Array.isArray(d.fix[k])) fx[k] = cleanItems(d.fix[k], true);
       });
-      return { room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx };
+      return { room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
 
@@ -2108,8 +2108,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     $('csAuthor').value = a;
     document.querySelector('input[name="csKind"][value="' + (ref && ref.kind === 'standard' ? 'standard' : 'layout') + '"]').checked = true;
     $('csReplaceRow').hidden = !ref;
-    $('csReplace').checked = !!ref && ref.kind !== 'standard';
-    $('csReplaceTxt').textContent = ref ? 'Replace the cloud copy I opened (' + (ref.name || 'saved') + ')' : '';
+    $('csReplace').checked = !!ref;
+    if (ref && ref.name) $('csName').value = ref.name;
+    $('csReplaceTxt').textContent = ref ? 'Update the cloud copy (' + (ref.name || 'saved') + ')' : '';
     $('csErr').textContent = '';
     csDlg.showModal();
   });
@@ -2127,6 +2128,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       : Promise.resolve();
     pre.then(function () {
       return replace ? sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation') : sb('POST', '', row, 'return=representation');
+    }).then(function (rows) {
+      if (replace && (!rows || !rows[0])) { delete cloudRef[S.room]; row.is_default = false; return sb('POST', '', row, 'return=representation'); }
+      return rows;
     }).then(function (rows) {
       $('csGo').disabled = false;
       if (!rows || !rows[0]) { $('csErr').textContent = 'The save did not go through.'; return; }
@@ -2241,6 +2245,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     S.fix[k] = saved && saved.fix[k] ? saved.fix[k] : newItems(BUILTIN_FIXTURES[k] || []);
   });
   if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; S.dims = saved.dims; }
+  if (saved && saved.cloud) Object.keys(saved.cloud).forEach(function (k) { var c = saved.cloud[k]; if (ROOMS[k] && c && typeof c.id === 'string') cloudRef[k] = { id: c.id, kind: c.kind === 'standard' ? 'standard' : 'layout', name: String(c.name || '') }; });
   applyPP();
   setRoom(S.room);
 
