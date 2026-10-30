@@ -98,11 +98,12 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 [aria-checked="true"] .sw::after { transform: translateX(14px); }
 
 /* heading row over the plan */
-.heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr); align-items: center; gap: 10px 16px; margin-bottom: 10px; }
+.heading { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px 16px; margin-bottom: 10px; }
 .hl { display: flex; align-items: baseline; gap: 4px 12px; flex-wrap: wrap; min-width: 0; }
 .selwrap { position: relative; display: inline-block; }
 .selwrap svg { position: absolute; right: 2px; top: 50%; width: 16px; height: 16px; margin-top: -8px; pointer-events: none; color: var(--muted); }
-.roomsel { appearance: none; -webkit-appearance: none; border: 0; border-bottom: 2px solid transparent; background: transparent; font-size: 22px; line-height: 1.25; font-weight: 700; letter-spacing: -.01em; padding: 0 24px 0 0; cursor: pointer; border-radius: 0; }
+.roomsel { appearance: none; -webkit-appearance: none; border: 0; border-bottom: 2px solid transparent; background: transparent; font-size: 22px; line-height: 1.25; font-weight: 700; letter-spacing: -.01em; padding: 0 24px 0 0; cursor: pointer; border-radius: 0; background-color: var(--bg); color: var(--ink); }
+.roomsel option { background: var(--panel); color: var(--ink); font-size: 16px; font-weight: 500; }
 .roomsel:hover { border-bottom-color: var(--line); }
 .dims { font: 400 13px var(--font-num); color: var(--muted); }
 .title { width: 100%; box-sizing: border-box; padding: 6px 10px; text-align: center; font-size: 22px; font-weight: 700; letter-spacing: -.01em; background: transparent; border: 1px solid transparent; border-radius: 8px; }
@@ -111,7 +112,7 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 .title:focus { border-color: var(--accent); background: var(--panel); }
 .titlerow { display: flex; align-items: center; gap: 8px; }
 .titlerow .title { flex: 1; min-width: 0; }
-.datein { flex: none; width: 150px; padding: 7px 8px; font: 500 14px var(--font-ui); background: transparent; border: 1px solid var(--line); border-radius: 8px; }
+.datein { flex: none; width: 124px; margin-left: 10px; padding: 4px 6px; font: 500 12.5px var(--font-ui); background: transparent; border: 1px solid var(--line); border-radius: 8px; }
 .datein:hover { border-color: var(--muted); }
 .datein:focus { border-color: var(--accent); background: var(--panel); }
 .hr { display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
@@ -155,6 +156,17 @@ button, input, select, textarea { font-family: inherit; color: inherit; }
 body.padDragging { user-select: none; -webkit-user-select: none; cursor: grabbing; }
 .scroller.dropok { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
 .mcap { margin: 6px 10px 2px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.cloudlist { display: grid; gap: 6px; max-height: 52vh; overflow-y: auto; margin-bottom: 4px; }
+.crow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--floor); }
+.crow .cn { font-weight: 600; overflow-wrap: anywhere; }
+.crow .cm { grid-column: 1; font: 400 12px var(--font-num); color: var(--muted); }
+.crow .cb { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 6px; }
+.crow .btn { padding: 6px 10px; font-size: 13px; }
+.chead { margin: 10px 0 2px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.radios { display: flex; gap: 14px; flex-wrap: wrap; }
+.radios label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
+.radios input, .chk2 input { accent-color: var(--accent); }
+.chk2 { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .checks { display: grid; gap: 4px; margin-bottom: 4px; }
 .chk { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; font-size: 15px; cursor: pointer; }
 .chk:hover { background: var(--accent-soft); }
@@ -403,6 +415,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="tplBtn" type="button"><span>Templates</span></button>
           <button class="mi" id="openBtn" type="button"><span>Open file or pasted text</span></button>
           <button class="mi" id="saveBtn" type="button"><span>Save to file</span><kbd>Ctrl+S</kbd></button>
+          <button class="mi" id="cloudSaveBtn" type="button"><span>Save to cloud</span></button>
+          <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
           <button class="mi" id="copyBtn" type="button"><span>Copy layout text</span></button>
           <button class="mi" id="printBtn" type="button"><span>Print or save PDF</span></button>
           <button class="mi" id="printSetBtn" type="button"><span>Print settings</span></button>
@@ -628,8 +642,38 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   </div>
   <div class="dlgfoot">
     <button class="btn" id="openCancel" type="button">Cancel</button>
+    <button class="btn" id="openCloud" type="button">Open from cloud</button>
     <button class="btn primary" id="openGo" type="button">Open pasted text</button>
   </div>
+</dialog>
+
+<dialog id="cloudSaveDlg" aria-labelledby="csTitle">
+  <h2 id="csTitle">Save to cloud</h2>
+  <p class="lead" id="csLead"></p>
+  <div class="openbox">
+    <div class="field" style="margin:0"><label for="csName">Name</label><input id="csName" type="text" maxlength="60" autocomplete="off"></div>
+    <div class="field" style="margin:0"><label for="csAuthor">Your name</label><input id="csAuthor" type="text" maxlength="40" autocomplete="off"></div>
+    <div class="field" style="margin:0"><span class="lbl">Save as</span>
+      <div class="radios">
+        <label><input type="radio" name="csKind" value="layout" checked> Saved layout</label>
+        <label><input type="radio" name="csKind" value="standard"> Standard layout for this room</label>
+      </div>
+    </div>
+    <label class="chk2" id="csReplaceRow" hidden><input type="checkbox" id="csReplace"><span id="csReplaceTxt">Replace the saved copy</span></label>
+    <div class="err" id="csErr" role="alert"></div>
+  </div>
+  <div class="dlgfoot">
+    <button class="btn" id="csCancel" type="button">Cancel</button>
+    <button class="btn primary" id="csGo" type="button">Save</button>
+  </div>
+</dialog>
+
+<dialog id="cloudOpenDlg" aria-labelledby="coTitle">
+  <h2 id="coTitle">Open from cloud</h2>
+  <p class="lead">Standard layouts and saved layouts shared by everyone using this tool.</p>
+  <div class="cloudlist" id="coList"></div>
+  <div class="err" id="coErr" role="alert"></div>
+  <div class="dlgfoot"><button class="btn" id="coClose" type="button">Close</button></div>
 </dialog>
 
 <dialog id="printDlg" aria-labelledby="printTitle">
@@ -2030,6 +2074,110 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
   $('printBtn').addEventListener('click', function () { closeMenu(); doPrint(); });
 
+  /* ---------- cloud (Supabase REST, open access for now) ---------- */
+  var SB_URL = 'https://ucfiplykbardbbtvyvgh.supabase.co', SB_KEY = 'sb_publishable_KwqmJ4Gr9clERJzKYnC0Ng_vvoQrl8y';
+  var AUTHOR_KEY = 'applebrook-author', cloudRef = {};
+  function sb(method, query, body, prefer) {
+    var h = { apikey: SB_KEY };
+    if (body) h['Content-Type'] = 'application/json';
+    if (prefer) h.Prefer = prefer;
+    return fetch(SB_URL + '/rest/v1/layouts' + query, { method: method, headers: h, body: body ? JSON.stringify(body) : undefined }).then(function (r) {
+      return r.text().then(function (t) {
+        var j = null; try { j = t ? JSON.parse(t) : null; } catch (e) {}
+        if (!r.ok) throw new Error(j && j.code === 'PGRST205' || r.status === 404 ? 'setup' : (j && j.message) || ('Error ' + r.status));
+        return j;
+      });
+    });
+  }
+  function cloudMsg(e) {
+    if (e && e.message === 'setup') return 'The cloud table is not set up yet. Run the SQL in Supabase first.';
+    if (e instanceof TypeError) return 'Could not reach the cloud. Check the connection.';
+    return 'Cloud error: ' + (e && e.message);
+  }
+  var csDlg = $('cloudSaveDlg'), coDlg = $('cloudOpenDlg');
+  function csKind() { return document.querySelector('input[name="csKind"]:checked').value; }
+  $('cloudSaveBtn').addEventListener('click', function () {
+    closeMenu();
+    var ref = cloudRef[S.room];
+    $('csLead').textContent = 'Saves ' + room().name + ' for everyone to open. Fixtures go with it.';
+    $('csName').value = doc().name || '';
+    var a = ''; try { a = localStorage.getItem(AUTHOR_KEY) || ''; } catch (e) {}
+    $('csAuthor').value = a;
+    document.querySelector('input[name="csKind"][value="' + (ref && ref.kind === 'standard' ? 'standard' : 'layout') + '"]').checked = true;
+    $('csReplaceRow').hidden = !ref;
+    $('csReplace').checked = !!ref && ref.kind !== 'standard';
+    $('csReplaceTxt').textContent = ref ? 'Replace the cloud copy I opened (' + (ref.name || 'saved') + ')' : '';
+    $('csErr').textContent = '';
+    csDlg.showModal();
+  });
+  $('csCancel').addEventListener('click', function () { csDlg.close(); });
+  $('csGo').addEventListener('click', function () {
+    var name = $('csName').value.trim(), author = $('csAuthor').value.trim();
+    if (!name) { $('csErr').textContent = 'Give it a name.'; return; }
+    try { localStorage.setItem(AUTHOR_KEY, author); } catch (e) {}
+    var kind = csKind(), ref = cloudRef[S.room];
+    var row = { kind: kind, room: S.room, name: name, author: author, data: payload(), updated_at: new Date().toISOString() };
+    var replace = ref && !$('csReplaceRow').hidden && $('csReplace').checked;
+    $('csGo').disabled = true; $('csErr').textContent = 'Saving...';
+    var req = replace ? sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation') : sb('POST', '', row, 'return=representation');
+    req.then(function (rows) {
+      $('csGo').disabled = false;
+      if (!rows || !rows[0]) { $('csErr').textContent = 'The save did not go through.'; return; }
+      cloudRef[S.room] = { id: rows[0].id, kind: kind, name: name };
+      csDlg.close(); toast(kind === 'standard' ? 'Saved as a standard layout for ' + room().name + '.' : 'Saved to the cloud.');
+    }, function (e) { $('csGo').disabled = false; $('csErr').textContent = cloudMsg(e); });
+  });
+
+  function fmtShort(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+  function cloudRow(r) {
+    var row = document.createElement('div'); row.className = 'crow';
+    var n = document.createElement('div'); n.className = 'cn'; n.textContent = r.name || 'Untitled'; row.appendChild(n);
+    var m = document.createElement('div'); m.className = 'cm';
+    m.textContent = [(ROOMS[r.room] || {}).name || r.room, r.author, fmtShort(r.updated_at)].filter(Boolean).join(' · '); row.appendChild(m);
+    var bs = document.createElement('div'); bs.className = 'cb';
+    var open = document.createElement('button'); open.type = 'button'; open.className = 'btn primary'; open.textContent = 'Open';
+    open.addEventListener('click', function () {
+      $('coErr').textContent = 'Opening...';
+      sb('GET', '?id=eq.' + encodeURIComponent(r.id) + '&select=data').then(function (rows) {
+        if (!rows || !rows[0]) { $('coErr').textContent = 'That layout is gone.'; return; }
+        var err = applyLayout(JSON.stringify(rows[0].data));
+        if (err) { $('coErr').textContent = err; return; }
+        cloudRef[S.room] = { id: r.id, kind: r.kind, name: r.name };
+        coDlg.close(); if (openDlg.open) openDlg.close(); showView('editor'); toast('Opened ' + (r.name || 'layout') + '.');
+      }, function (e) { $('coErr').textContent = cloudMsg(e); });
+    });
+    var del = document.createElement('button'); del.type = 'button'; del.className = 'btn danger'; del.textContent = 'Delete';
+    del.addEventListener('click', function () {
+      if (del.getAttribute('data-sure') !== '1') { del.setAttribute('data-sure', '1'); del.textContent = 'Sure?'; return; }
+      sb('DELETE', '?id=eq.' + encodeURIComponent(r.id)).then(function () {
+        if (cloudRef[S.room] && cloudRef[S.room].id === r.id) delete cloudRef[S.room];
+        row.remove(); toast('Deleted from the cloud.');
+      }, function (e) { $('coErr').textContent = cloudMsg(e); });
+    });
+    bs.appendChild(open); bs.appendChild(del); row.appendChild(bs);
+    return row;
+  }
+  function openCloud() {
+    closeMenu();
+    var list = $('coList'); list.replaceChildren(); $('coErr').textContent = 'Loading...';
+    coDlg.showModal();
+    sb('GET', '?select=id,kind,room,name,author,updated_at&order=updated_at.desc&limit=200').then(function (rows) {
+      $('coErr').textContent = '';
+      var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard'; });
+      function sect(title, arr, empty) {
+        var h = document.createElement('div'); h.className = 'chead'; h.textContent = title; list.appendChild(h);
+        if (!arr.length) { var e = document.createElement('p'); e.className = 'fine'; e.textContent = empty; list.appendChild(e); }
+        arr.forEach(function (r) { list.appendChild(cloudRow(r)); });
+      }
+      std.sort(function (a, b) { return (b.room === S.room) - (a.room === S.room); });
+      sect('Standard layouts', std, 'None yet. Use Save to cloud and pick standard layout.');
+      sect('Saved layouts', lay, 'None yet.');
+    }, function (e) { $('coErr').textContent = cloudMsg(e); });
+  }
+  $('cloudOpenBtn').addEventListener('click', openCloud);
+  $('openCloud').addEventListener('click', openCloud);
+  $('coClose').addEventListener('click', function () { coDlg.close(); });
+
   /* ---------- templates ---------- */
   function sampleItems(roomKey, typeKey) {
     var R = ROOMS[roomKey], T = TYPES[typeKey], out = [];
@@ -2121,12 +2269,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (VIEWS[h] && h !== curView) showView(h, true); });
 
   function buildRoomSettings() {
-    var h = '<thead><tr><th>Room</th><th>Size</th><th>Inches</th><th>Standard layouts</th></tr></thead><tbody>';
+    var h = '<thead><tr><th>Room</th><th>Size</th><th>Inches</th><th>Cloud standard layouts</th></tr></thead><tbody>';
     ROOM_ORDER.forEach(function (k) {
-      var R = ROOMS[k], n = TEMPLATES.filter(function (t) { return t.room === k; }).length;
-      h += '<tr><td>' + R.name + '</td><td class="num">' + ftin(R.w) + ' × ' + ftin(R.h) + '</td><td class="num">' + R.w + ' × ' + R.h + '</td><td class="num">' + n + '</td></tr>';
+      var R = ROOMS[k];
+      h += '<tr><td>' + R.name + '</td><td class="num">' + ftin(R.w) + ' × ' + ftin(R.h) + '</td><td class="num">' + R.w + ' × ' + R.h + '</td><td class="num" data-room="' + k + '">...</td></tr>';
     });
     $('roomTab').innerHTML = h + '</tbody>';
+    sb('GET', '?select=room&kind=eq.standard').then(function (rows) {
+      var c = {}; rows.forEach(function (r) { c[r.room] = (c[r.room] || 0) + 1; });
+      ROOM_ORDER.forEach(function (k) { var td = $('roomTab').querySelector('[data-room="' + k + '"]'); if (td) td.textContent = c[k] || 0; });
+    }, function () {
+      ROOM_ORDER.forEach(function (k) { var td = $('roomTab').querySelector('[data-room="' + k + '"]'); if (td) td.textContent = '-'; });
+    });
   }
   function buildTableSettings() {
     var h = '<thead><tr><th>Table</th><th>Size</th><th>Default seats</th><th>Defaults</th></tr></thead><tbody>';
