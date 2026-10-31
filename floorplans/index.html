@@ -266,7 +266,7 @@ body.allv .palette, body.allv .inspector, body.allv #titlePrintBtn, body.allv #n
 .inspector .sub { margin: 2px 0 14px; font-size: 13px; }
 .field { display: grid; gap: 6px; margin-bottom: 14px; }
 .field > label, .field > .lbl { font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
-.field input[type="text"], .field input[type="number"], .field textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; font-size: 15px; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; }
+.field input[type="text"], .field input[type="number"], .field input[type="date"], .field textarea { width: 100%; box-sizing: border-box; padding: 9px 10px; font-size: 15px; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; }
 .field textarea { resize: vertical; min-height: 64px; }
 .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stepper { display: grid; grid-template-columns: 52px minmax(0, 1fr) 52px; gap: 6px; }
@@ -275,6 +275,44 @@ body.allv .palette, body.allv .inspector, body.allv #titlePrintBtn, body.allv #n
 .stepper .btn { padding: 0; font-size: 16px; line-height: 1; }
 .fine { font-size: 12px; color: var(--muted); }
 .fine.warn { color: var(--danger); }
+.toolrow { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
+.toolrow .lead2 { flex: 1; }
+.slist { display: grid; gap: 8px; margin-top: 8px; }
+.srow { display: flex; align-items: center; gap: 12px; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; flex-wrap: wrap; }
+.srow.dim { opacity: .6; }
+.sdot { width: 14px; height: 14px; border-radius: 50%; background: var(--line); flex: none; }
+.sdot.ticon { width: 30px; height: 30px; border-radius: 8px; background: var(--accent-soft); display: grid; place-items: center; }
+.sdot.ticon svg { width: 24px; height: 24px; }
+.sinfo { flex: 1 1 180px; min-width: 0; }
+.sinfo .sn { font-weight: 600; overflow-wrap: anywhere; }
+.sinfo .sm { font: 400 12px var(--font-num); color: var(--muted); }
+.sb { display: flex; gap: 6px; flex-wrap: wrap; }
+.sb .btn { padding: 6px 10px; font-size: 13px; }
+.sb .btn:disabled { opacity: .4; cursor: default; }
+dialog.wide { width: min(780px, calc(100vw - 32px)); }
+.rdgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+@media (max-width: 700px) { .rdgrid { grid-template-columns: minmax(0, 1fr); } }
+.ftin { display: flex; align-items: center; gap: 6px; }
+.ftin input { width: 80px; box-sizing: border-box; padding: 9px 10px; font-size: 15px; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; }
+.ftin span { color: var(--muted); font-size: 13px; }
+.swrow { display: flex; gap: 8px; flex-wrap: wrap; }
+.swatch { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--line); background: var(--panel); color: var(--muted); font-size: 14px; cursor: pointer; padding: 0; }
+.swatch[aria-pressed="true"] { border-color: var(--ink); box-shadow: 0 0 0 2px var(--panel) inset; }
+#rdShape summary { cursor: pointer; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.cutrow { display: grid; grid-template-columns: 90px 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 13px; }
+.cutrow input { width: 100%; box-sizing: border-box; padding: 7px 8px; font-size: 14px; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; }
+.rdprev { width: 100%; height: 200px; background: var(--outside); border-radius: 10px; border: 1px solid var(--line); }
+.rdprev .wall { stroke-width: 2.5; }
+.rdfix { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.stdlist { display: grid; gap: 6px; max-height: 220px; overflow: auto; }
+.stdlist .crow { padding: 7px 8px; }
+.rn { width: 100%; box-sizing: border-box; padding: 6px 8px; font-size: 14px; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; }
+.ttprev { width: 120px; height: 120px; display: grid; place-items: center; background: var(--accent-soft); border-radius: 12px; }
+.ttprev svg { width: 96px; height: 96px; }
+.cap-near { color: #b7791f; }
+.cap-over { color: var(--danger); }
+#printAll { display: none; }
+.wall { stroke-linejoin: round; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { min-width: 44px; padding: 8px 10px; font-size: 13px; font-weight: 600; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .seg button:hover { border-color: var(--accent); }
@@ -347,6 +385,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   #room, #allRoom { width: var(--pw, 10in) !important; height: var(--ph, 7in) !important; margin: 0; }
   .allroom:hover .wall { stroke: var(--wall); stroke-width: 3; }
   #room.editfix #itemsG { opacity: 1; }
+  body.pall .page, body.pall .app, body.pall .toast { display: none !important; }
+  body.pall #printAll { display: block; }
+  .psec { width: 10.5in; height: 7.9in; page-break-after: always; break-after: page; overflow: hidden; }
+  .psec:last-child { page-break-after: auto; break-after: auto; }
+  .pshead { height: 0.62in; }
+  .pshrow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; }
+  .pshrow .ps1 { grid-column: 2; text-align: center; font-size: 24px; font-weight: 700; }
+  .pshrow .psd { grid-column: 3; text-align: right; font-size: 16px; font-weight: 600; }
+  .pshead .ps2 { font: 400 12px var(--font-num); color: #444; margin-top: 2px; text-align: center; }
+  .psbody { display: flex; align-items: center; justify-content: center; gap: 0.12in; height: 7.2in; }
+  .psnotes { width: 2.4in; flex: none; align-self: stretch; border-left: 1px solid #bbb; padding-left: 0.12in; overflow: hidden; }
+  .psnotes .pnh { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #444; margin-bottom: 6px; }
+  .psnotes .pnt { font-size: 12pt; line-height: 1.4; white-space: pre-wrap; overflow-wrap: anywhere; }
   .printhead { display: block; height: 0.6in; margin: 0; }
   .printhead .phrow { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; }
   .printhead .phd { grid-column: 3; text-align: right; font-size: 16px; font-weight: 600; }
@@ -379,21 +430,23 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 <main class="page" id="viewSettings" hidden>
   <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Settings</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
   <div class="cards">
-    <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Room sizes and standard layouts.</p></button>
-    <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Available table sizes and shapes.</p></button>
+    <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Add, edit and arrange rooms, and manage standard layouts.</p></button>
+    <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Add and edit table sizes, shapes and defaults.</p></button>
   </div>
 </main>
 
 <main class="page" id="viewRooms" hidden>
   <header class="phead"><div class="l"><button class="btn" type="button" data-go="settings">&larr; Back</button><h1 class="ptitle">Room Settings</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
-  <p class="lead2">Current rooms and their sizes. Adding, deleting, and arranging rooms, and managing standard layouts, comes in a later build.</p>
-  <div class="tabwrap"><table class="dtab" id="roomTab"></table></div>
+  <div class="toolrow"><p class="lead2">Rooms are shared with everyone using this tool. Changes save to the cloud as you make them.</p><button class="btn primary" id="roomAdd" type="button">Add room</button></div>
+  <p class="fine" id="cfgStatusR" role="status"></p>
+  <div class="slist" id="roomList"></div>
 </main>
 
 <main class="page" id="viewTables" hidden>
   <header class="phead"><div class="l"><button class="btn" type="button" data-go="settings">&larr; Back</button><h1 class="ptitle">Table Settings</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
-  <p class="lead2">Current table catalog and defaults. Adding and editing table sizes and shapes comes in a later build.</p>
-  <div class="tabwrap"><table class="dtab" id="tableTab"></table></div>
+  <div class="toolrow"><p class="lead2">The table catalog is shared with everyone using this tool. Editing a table changes it in every layout that uses it.</p><button class="btn primary" id="tableAdd" type="button">Add table</button></div>
+  <p class="fine" id="cfgStatusT" role="status"></p>
+  <div class="slist" id="tableList"></div>
 </main>
 
 <div class="app" id="viewEditor" hidden>
@@ -433,6 +486,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
           <button class="mi" id="copyBtn" type="button"><span>Copy layout text</span></button>
           <button class="mi" id="printBtn" type="button"><span>Print or save PDF</span></button>
+          <button class="mi" id="printAllBtn" type="button" hidden><span>Print every room (page each)</span></button>
           <button class="mi" id="printSetBtn" type="button"><span>Print settings</span></button>
           <hr>
           <button class="mi" id="fixBtn" type="button" role="switch" aria-checked="false"><span>Edit room fixtures</span><span class="sw"></span></button>
@@ -472,6 +526,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <input id="endInput" class="datein" type="date" title="Last day of the event" hidden>
           <button class="pill allonly" id="arrLock" type="button" role="switch" aria-checked="false" title="Lock the room arrangement"><span>Lock layout</span><span class="sw"></span></button>
           <button class="pill allonly" id="autoBtn" type="button" title="Go back to the automatic arrangement"><span>Auto-arrange</span></button>
+          <button class="pill" id="evSetBtn" type="button" title="Event title, host, date and rooms"><span>Event settings</span></button>
         </div>
         <div class="hr">
           <span class="fixpill" id="fixPill" hidden>Editing fixtures</span>
@@ -483,13 +538,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         <div class="scroller" id="scroller">
           <svg id="room" role="application" aria-label="Floor plan canvas">
             <defs>
+              <clipPath id="roomClip"><path id="clipP"/></clipPath>
               <pattern id="gMinor" width="12" height="12" patternUnits="userSpaceOnUse"><path class="gl" d="M12 0H0V12"/></pattern>
               <pattern id="gMajor" width="60" height="60" patternUnits="userSpaceOnUse"><path class="gl2" d="M60 0H0V60"/></pattern>
             </defs>
-            <rect id="floor" class="floor" x="0" y="0"/>
-            <rect id="gridA" x="0" y="0" fill="url(#gMinor)"/>
-            <rect id="gridB" x="0" y="0" fill="url(#gMajor)"/>
-            <rect id="wall" class="wall"/>
+            <path id="floor" class="floor"/>
+            <rect id="gridA" x="0" y="0" fill="url(#gMinor)" clip-path="url(#roomClip)"/>
+            <rect id="gridB" x="0" y="0" fill="url(#gMajor)" clip-path="url(#roomClip)"/>
+            <path id="wall" class="wall"/>
             <text id="dimTop" class="dim"></text>
             <text id="dimLeft" class="dim"></text>
             <text id="emptyMsg" class="empty" hidden>Add a table from the left to start</text>
@@ -689,9 +745,89 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="dlgfoot"><button class="btn" id="coClose" type="button">Close</button></div>
 </dialog>
 
+<dialog id="roomDlg" aria-labelledby="rdTitle" class="wide">
+  <h2 id="rdTitle">Room</h2>
+  <div class="rdgrid">
+    <div class="rdform">
+      <div class="field"><label for="rdName">Name</label><input id="rdName" type="text" maxlength="40" autocomplete="off"></div>
+      <div class="field"><span class="lbl">Width</span><div class="ftin"><input id="rdWf" type="number" min="0" step="1" inputmode="numeric" aria-label="Width feet"><span>ft</span><input id="rdWi" type="number" min="0" step="0.5" inputmode="decimal" aria-label="Width inches"><span>in</span></div></div>
+      <div class="field"><span class="lbl">Depth</span><div class="ftin"><input id="rdHf" type="number" min="0" step="1" inputmode="numeric" aria-label="Depth feet"><span>ft</span><input id="rdHi" type="number" min="0" step="0.5" inputmode="decimal" aria-label="Depth inches"><span>in</span></div></div>
+      <div class="field"><label for="rdCap">Max seats (blank for no limit)</label><input id="rdCap" type="number" min="0" step="1" inputmode="numeric"></div>
+      <div class="field"><span class="lbl">Color</span><div class="swrow" id="rdColors"></div></div>
+      <details id="rdShape"><summary>Shape: cut corners</summary>
+        <p class="fine">Cut a rectangle out of a corner for an L or notched room. Sizes in inches. Leave blank for none.</p>
+        <div class="cutrow"><span>Top left</span><input id="cut_nw_w" type="number" min="0" placeholder="width" aria-label="Top left cut width"><input id="cut_nw_h" type="number" min="0" placeholder="depth" aria-label="Top left cut depth"></div>
+        <div class="cutrow"><span>Top right</span><input id="cut_ne_w" type="number" min="0" placeholder="width" aria-label="Top right cut width"><input id="cut_ne_h" type="number" min="0" placeholder="depth" aria-label="Top right cut depth"></div>
+        <div class="cutrow"><span>Bottom left</span><input id="cut_sw_w" type="number" min="0" placeholder="width" aria-label="Bottom left cut width"><input id="cut_sw_h" type="number" min="0" placeholder="depth" aria-label="Bottom left cut depth"></div>
+        <div class="cutrow"><span>Bottom right</span><input id="cut_se_w" type="number" min="0" placeholder="width" aria-label="Bottom right cut width"><input id="cut_se_h" type="number" min="0" placeholder="depth" aria-label="Bottom right cut depth"></div>
+      </details>
+    </div>
+    <div class="rdside">
+      <svg id="rdPrev" class="rdprev" role="img" aria-label="Room preview"></svg>
+      <p class="fine" id="rdPrevTxt"></p>
+      <div class="field" id="rdFixRow"><span class="lbl">Fixtures</span><div class="rdfix"><span id="rdFixTxt" class="fine"></span><button class="btn" id="rdFixBtn" type="button">Edit fixtures</button></div></div>
+      <div class="field" id="rdStdRow"><span class="lbl">Standard layouts</span><div class="stdlist" id="rdStd"></div></div>
+    </div>
+  </div>
+  <div class="err" id="rdErr" role="alert"></div>
+  <div class="dlgfoot"><button class="btn" id="rdCancel" type="button">Cancel</button><button class="btn primary" id="rdGo" type="button">Save</button></div>
+</dialog>
+
+<dialog id="ttDlg" aria-labelledby="ttTitle" class="wide">
+  <h2 id="ttTitle">Table</h2>
+  <div class="rdgrid">
+    <div class="rdform">
+      <div class="field"><label for="ttName">Name</label><input id="ttName" type="text" maxlength="40" autocomplete="off"></div>
+      <div class="field"><span class="lbl">Kind</span>
+        <div class="radios">
+          <label><input type="radio" name="ttKind" value="round"> Round</label>
+          <label><input type="radio" name="ttKind" value="rect" checked> Rectangle or square</label>
+          <label><input type="radio" name="ttKind" value="svc"> Service table</label>
+        </div>
+      </div>
+      <div class="field"><label for="ttW" id="ttWl">Long side (in)</label><input id="ttW" type="number" min="12" max="240" step="0.25" inputmode="decimal"></div>
+      <div class="field" id="ttHrow"><label for="ttH">Short side (in)</label><input id="ttH" type="number" min="12" max="240" step="0.25" inputmode="decimal"></div>
+      <div class="field" id="ttSeatsRow"><label for="ttSeats">Default seats</label><input id="ttSeats" type="number" min="0" max="40" step="1" inputmode="numeric"></div>
+      <div class="field" id="ttSeatRotRow"><label for="ttSeatRot">Seat ring turned (degrees)</label><input id="ttSeatRot" type="number" min="0" max="359" step="0.5" inputmode="decimal"></div>
+      <div class="field" id="ttRotRow"><label for="ttRot">Placed turned (degrees)</label><input id="ttRot" type="number" min="0" max="359" step="0.5" inputmode="decimal"></div>
+      <label class="chk2" id="ttEndsRow"><input type="checkbox" id="ttEnds"><span>Seats go on the short ends first</span></label>
+      <div class="field" id="ttShortRow"><label for="ttShort">Short label on the table</label><input id="ttShort" type="text" maxlength="10" autocomplete="off"></div>
+    </div>
+    <div class="rdside">
+      <div class="ttprev" id="ttPrev"></div>
+      <p class="fine" id="ttPrevTxt"></p>
+    </div>
+  </div>
+  <div class="err" id="ttErr" role="alert"></div>
+  <div class="dlgfoot"><button class="btn" id="ttCancel" type="button">Cancel</button><button class="btn primary" id="ttGo" type="button">Save</button></div>
+</dialog>
+
+<dialog id="evDlg" aria-labelledby="evTitleH">
+  <h2 id="evTitleH">Event settings</h2>
+  <p class="lead">Title, host, date and rooms for this floorplan.</p>
+  <div class="field"><label for="evTitle">Event title</label><input id="evTitle" type="text" maxlength="60" autocomplete="off"></div>
+  <div class="field"><label for="evHost">Host</label><input id="evHost" type="text" maxlength="60" autocomplete="off"></div>
+  <div class="field"><label for="evDate">Date</label><input id="evDate" type="date"></div>
+  <label class="chk2"><input type="checkbox" id="evMulti"><span>Multi-day event</span></label>
+  <div class="field" id="evEndRow" hidden><label for="evEnd">End date</label><input id="evEnd" type="date"></div>
+  <div class="field"><span class="lbl">Rooms</span><div class="checks" id="evRooms"></div></div>
+  <p class="fine warn" id="evWarn"></p>
+  <div class="dlgfoot"><button class="btn" id="evCancel" type="button">Cancel</button><button class="btn primary" id="evGo" type="button">Save</button></div>
+</dialog>
+
+<dialog id="unsDlg" aria-labelledby="unsTitle">
+  <h2 id="unsTitle">Unsaved changes</h2>
+  <p class="lead">This floorplan has changes that are not saved to a file or the cloud.</p>
+  <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Discard changes</button><button class="btn primary" id="unsSave" type="button">Save to file first</button></div>
+</dialog>
+
 <dialog id="newDlg" aria-labelledby="newTitle">
   <h2 id="newTitle">New floorplan</h2>
   <p class="lead">Pick the rooms for this event. One file holds all of them.</p>
+  <div class="field"><label for="nwTitle">Event title (optional)</label><input id="nwTitle" type="text" maxlength="60" autocomplete="off"></div>
+  <div class="field"><label for="nwHost">Host (optional)</label><input id="nwHost" type="text" maxlength="60" autocomplete="off"></div>
+  <div class="field"><label for="nwDate">Date (optional)</label><input id="nwDate" type="date"></div>
+  <span class="lbl" style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Rooms</span>
   <div class="checks" id="newRooms"></div>
   <p class="fine" id="newWarn" style="margin:6px 10px 0"></p>
   <div class="dlgfoot">
@@ -717,6 +853,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 </dialog>
 
 <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<div id="printAll" aria-hidden="true"></div>
 
 <script>
 (function () {
@@ -758,11 +896,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     r8:      { name: "8' Rectangle", group: 'service', shape: 'rect', w: 96, h: 30, seats: 0, short: "8'" },
     card:    { name: 'Card Table',   group: 'service', shape: 'rect', w: 36, h: 36, seats: 0, short: 'Card' }
   };
-  var GROUPS = [
-    { cap: 'Round tables', keys: ['xxs', 'xs', 's', 'm', 'l'] },
-    { cap: 'Rectangle and square', keys: ['tavrect', 'bsq', 'brect', 'bfam', 'mgrill'] },
-    { cap: 'Service tables', keys: ['skinny', 'r6', 'r8', 'card'] }
-  ];
+  var TYPE_ORDER = Object.keys(TYPES);
+  var GROUP_CAPS = { round: 'Round tables', dining: 'Rectangle and square', service: 'Service tables' };
+  var COLORS = { green: '#3d8b63', blue: '#3b7bbf', amber: '#d19a2a', red: '#c4524a', purple: '#8160b8', teal: '#2a9aa0' };
+  var DEF = { rooms: JSON.parse(JSON.stringify(ROOMS)), roomOrder: ROOM_ORDER.slice(), types: JSON.parse(JSON.stringify(TYPES)), typeOrder: TYPE_ORDER.slice() };
   var DRAW = [
     { k: 'rect', name: 'Rectangle' }, { k: 'ellipse', name: 'Ellipse' },
     { k: 'line', name: 'Line' }, { k: 'text', name: 'Text label' }
@@ -855,7 +992,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- state ---------- */
   var S = { room: 'bistro', snap: true, grid: false, dims: false, docs: {}, fix: {}, editFix: false, all: false, allVB: null,
-    event: { rooms: ROOM_ORDER.slice(), name: '', date: '', multi: false, endDate: '', pos: null, locked: false } };
+    event: { rooms: ROOM_ORDER.slice(), name: '', host: '', date: '', multi: false, endDate: '', pos: null, locked: false }, dirty: false };
   var hist = {};
   var sel = null, multi = [], curView = 'home';
   var drag = null;
@@ -1042,7 +1179,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function updateStats(skipTokens) {
     var s = S.all ? eventStats() : stats(items());
-    seatStat.innerHTML = '<b>' + s.seats + '</b> ' + (s.seats === 1 ? 'seat' : 'seats');
+    var cap = S.all ? 0 : (room().cap || 0);
+    seatStat.innerHTML = '<b>' + s.seats + '</b>' + (cap ? ' / ' + cap : '') + ' ' + (s.seats === 1 && !cap ? 'seat' : 'seats');
+    seatStat.className = cap && s.seats > cap ? 'cap-over' : (cap && s.seats >= cap * 0.9 ? 'cap-near' : '');
     tableStat.innerHTML = '<b>' + s.tables + '</b> ' + (s.tables === 1 ? 'table' : 'tables');
     hide(emptyMsg, items().length > 0 || fix().length > 0);
     if (!skipTokens) refreshTokenTexts();
@@ -1069,8 +1208,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function applyRoom() {
     var R = room();
     svg.setAttribute('viewBox', (-PAD) + ' ' + (-PAD) + ' ' + (R.w + 2 * PAD) + ' ' + (R.h + 2 * PAD));
-    ['floor', 'gridA', 'gridB'].forEach(function (id) { $(id).setAttribute('width', R.w); $(id).setAttribute('height', R.h); });
-    var w = $('wall'); w.setAttribute('x', -1.5); w.setAttribute('y', -1.5); w.setAttribute('width', R.w + 3); w.setAttribute('height', R.h + 3); w.setAttribute('rx', 1.5);
+    ['gridA', 'gridB'].forEach(function (id) { $(id).setAttribute('width', R.w); $(id).setAttribute('height', R.h); });
+    var pd = roomPath(R); $('floor').setAttribute('d', pd); $('wall').setAttribute('d', pd); $('clipP').setAttribute('d', pd);
     var dt = $('dimTop'); dt.setAttribute('x', R.w / 2); dt.setAttribute('y', -17); dt.textContent = ftin(R.w);
     var dl = $('dimLeft'); dl.setAttribute('x', -17); dl.setAttribute('y', R.h / 2); dl.setAttribute('transform', 'rotate(-90 -17 ' + (R.h / 2) + ')'); dl.textContent = ftin(R.h);
     emptyMsg.setAttribute('x', R.w / 2); emptyMsg.setAttribute('y', R.h / 2);
@@ -1236,7 +1375,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var h = H(), now = snap();
     if (now !== h.last) {
       h.undo.push(h.last); if (h.undo.length > 100) h.undo.shift();
-      h.redo = []; h.last = now;
+      h.redo = []; h.last = now; S.dirty = true;
     }
     doc().fresh = false;
     save(); syncUndo();
@@ -1247,6 +1386,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     S.fix[S.room] = o.fixtures || [];
     multi = [];
     if (sel && !byId(sel)) sel = null;
+    S.dirty = true;
     syncDocUI(); render(); syncInspector(); save(); syncUndo();
   }
   function undo() { var h = H(); if (!h.undo.length) return; h.redo.push(snap()); h.last = h.undo.pop(); restore(h.last); }
@@ -1834,8 +1974,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function dimText(T) { return isRound(T) ? inch(T.w) : r2(T.h) + ' × ' + inch(T.w); }
 
-  (function buildPalette() {
-    var nav = $('palette');
+  function buildPalette() {
+    var nav = $('palette'); nav.replaceChildren();
     function group(cap) {
       var wrap = document.createElement('div'); wrap.className = 'grp'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', cap);
       var c = document.createElement('p'); c.className = 'cap'; c.textContent = cap; wrap.appendChild(c);
@@ -1852,15 +1992,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       });
       wrap.appendChild(b);
     }
-    GROUPS.forEach(function (g) {
-      var wrap = group(g.cap);
-      g.keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function (at) { addTable(k, at); }); });
+    ['round', 'dining', 'service'].forEach(function (g) {
+      var keys = TYPE_ORDER.filter(function (k) { return TYPES[k].group === g && !TYPES[k].hidden; });
+      if (!keys.length) return;
+      var wrap = group(GROUP_CAPS[g]);
+      keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function (at) { addTable(k, at); }); });
     });
     var cw = group('Free chairs');
     tile(cw, iconSvg('chairs'), 'Chair row', 'bar, high-top', 'tbl', addChairs);
     var dw = group('Draw');
     DRAW.forEach(function (d) { tile(dw, iconSvg(d.k), d.name, '', '', function (at) { addDraw(d.k, at); }); });
-  })();
+  }
+  buildPalette();
 
   /* ---------- menu ---------- */
   function openMenu() { menu.hidden = false; menuBtn.setAttribute('aria-expanded', 'true'); }
@@ -1898,11 +2041,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     dateInput.value = e.date; endInput.value = e.endDate; endInput.min = e.date || '';
     setSwitch($('multiBtn'), e.multi); endInput.hidden = !e.multi;
   }
-  nameInput.addEventListener('input', function () { if (S.all) S.event.name = nameInput.value.slice(0, 60); else doc().name = nameInput.value.slice(0, 60); save(); });
+  nameInput.addEventListener('input', function () { if (S.all) S.event.name = nameInput.value.slice(0, 60); else doc().name = nameInput.value.slice(0, 60); S.dirty = true; save(); });
   nameInput.addEventListener('change', commit);
-  dateInput.addEventListener('input', function () { S.event.date = dateInput.value; endInput.min = dateInput.value || ''; save(); });
-  endInput.addEventListener('input', function () { S.event.endDate = endInput.value; save(); });
-  $('multiBtn').addEventListener('click', function () { S.event.multi = !S.event.multi; syncEventUI(); save(); });
+  dateInput.addEventListener('input', function () { S.event.date = dateInput.value; endInput.min = dateInput.value || ''; S.dirty = true; save(); });
+  endInput.addEventListener('input', function () { S.event.endDate = endInput.value; S.dirty = true; save(); });
+  $('multiBtn').addEventListener('click', function () { S.event.multi = !S.event.multi; S.dirty = true; syncEventUI(); save(); });
   $('titlePrintBtn').addEventListener('click', function () { doc().showTitle = !doc().showTitle; setSwitch($('titlePrintBtn'), doc().showTitle); commit(); });
   function openNotes() { notesPanel.hidden = false; notesBtn.setAttribute('aria-expanded', 'true'); notesInput.focus(); }
   function closeNotes() { notesPanel.hidden = true; notesBtn.setAttribute('aria-expanded', 'false'); }
@@ -1975,24 +2118,24 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix, cloud: cloudRef, event: S.event })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix, cloud: cloudRef, event: S.event, dirty: S.dirty })); } catch (e) {}
   }
   function loadSaved() {
     try {
       var d = JSON.parse(localStorage.getItem(KEY));
       if (!d || !d.docs) return null;
       var docs = {}, fx = {};
-      ROOM_ORDER.forEach(function (k) {
+      Object.keys(ROOMS).forEach(function (k) {
         if (d.docs[k] && Array.isArray(d.docs[k].items)) docs[k] = cleanDoc(d.docs[k]);
         if (d.fix && Array.isArray(d.fix[k])) fx[k] = cleanItems(d.fix[k], true);
       });
       var ev = d.event && Array.isArray(d.event.rooms) ? d.event : null;
-      var rooms = ev ? ROOM_ORDER.filter(function (k) { return ev.rooms.indexOf(k) >= 0; }) : [];
-      if (!rooms.length) rooms = ROOM_ORDER.slice();
+      var rooms = ev ? sortRooms(ev.rooms.filter(function (k) { return has(ROOMS, k); })) : [];
+      if (!rooms.length) rooms = visibleRooms();
       var odate = '';
-      ROOM_ORDER.forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
-      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
-      return { event: event, room: ROOMS[d.room] ? d.room : 'bistro', snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
+      Object.keys(ROOMS).forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
+      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
+      return { event: event, dirty: d.dirty === true, room: has(ROOMS, d.room) ? d.room : rooms[0], snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
 
@@ -2001,6 +2144,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return { app: 'applebrook-floorplan', version: 4, room: k, roomName: ROOMS[k].name, name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, savedAt: new Date().toISOString(), items: d.items, fixtures: S.fix[k] };
   }
   /* One file holds the whole event: every included room plus the event date. */
+  function roomDefs() { var o = {}; S.event.rooms.forEach(function (k) { o[k] = ROOMS[k]; }); return o; }
   function payload() {
     var rooms = {};
     S.event.rooms.forEach(function (k) {
@@ -2008,7 +2152,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      event: { name: S.event.name, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), pos: S.event.pos, locked: S.event.locked },
+      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), pos: S.event.pos, locked: S.event.locked },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
@@ -2024,16 +2168,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       toast('Layout file sent to your downloads.');
     } catch (e) { toast('Could not create the file. Try Copy layout text.'); }
   }
-  function saveFile() {
+  function saveFile(cb) {
     var d = doc(), text = JSON.stringify(payload(), null, 2);
     var name = (S.event.rooms.length > 1 ? (S.event.name ? slug(S.event.name) : 'event-' + S.event.rooms.length + '-rooms') : slug(room().name) + '-' + slug(d.name || 'layout')) + (S.event.date ? '-' + S.event.date : '') + '.floorplan';
     if (window.showSaveFilePicker) {
       window.showSaveFilePicker({ suggestedName: name, types: FILE_TYPES }).then(function (h) {
-        return h.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); }).then(function () { toast('Saved ' + h.name); });
-      }).catch(function (e) { if (e && e.name === 'AbortError') return; downloadFile(text, name); });
+        return h.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); }).then(function () { S.dirty = false; save(); toast('Saved ' + h.name); if (cb) cb(true); });
+      }).catch(function (e) { if (e && e.name === 'AbortError') { if (cb) cb(false); return; } downloadFile(text, name); S.dirty = false; save(); if (cb) cb(true); });
       return;
     }
-    downloadFile(text, name);
+    downloadFile(text, name); S.dirty = false; save(); if (cb) cb(true);
   }
   function copyText() {
     var text = JSON.stringify(payload());
@@ -2051,16 +2195,20 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function ensureInEvent(k) {
     if (S.event.rooms.indexOf(k) >= 0) return;
-    S.event.rooms = ROOM_ORDER.filter(function (r) { return S.event.rooms.indexOf(r) >= 0 || r === k; });
+    S.event.rooms = sortRooms(S.event.rooms.concat([k]));
     S.event.pos = null; S.event.locked = false;
     buildRoomSelect();
   }
   function applyEvent(o) {
-    var keys = ROOM_ORDER.filter(function (k) { return o.rooms[k] && Array.isArray(o.rooms[k].items); });
+    if (o.roomDefs && typeof o.roomDefs === 'object') Object.keys(o.roomDefs).forEach(function (k) {
+      if (!has(ROOMS, k) && /^[a-z0-9_]{1,24}$/i.test(k)) { var r = cleanRoom(o.roomDefs[k]); if (r) { r.gone = true; ROOMS[k] = r; } }
+    });
+    ensureRoomData();
+    var keys = sortRooms(Object.keys(o.rooms).filter(function (k) { return has(ROOMS, k) && o.rooms[k] && Array.isArray(o.rooms[k].items); }));
     if (!keys.length) return 'That file has no rooms this app knows.';
     var ev = o.event || {};
     var ps = cleanPos(ev.pos, keys);
-    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
+    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
     keys.forEach(function (k) {
       var r = o.rooms[k];
       S.docs[k] = cleanDoc(r); delete hist[k];
@@ -2068,7 +2216,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
     var rk = keys.indexOf(o.room) >= 0 ? o.room : keys[0];
-    buildRoomSelect(); setRoom(rk); syncEventUI(); commit();
+    buildRoomSelect(); setRoom(rk); syncEventUI(); commit(); S.dirty = false; save();
     return '';
   }
   function applyLayout(text) {
@@ -2076,7 +2224,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     try { o = JSON.parse(text); } catch (e) { return 'That is not valid layout text.'; }
     if (o && o.app === 'applebrook-floorplan' && o.rooms && typeof o.rooms === 'object' && !Array.isArray(o.rooms)) return applyEvent(o);
     if (!o || o.app !== 'applebrook-floorplan' || !Array.isArray(o.items)) return 'That file is not an Applebrook floor plan layout.';
-    if (!ROOMS[o.room]) return 'That layout is for a room this app does not have.';
+    if (!has(ROOMS, o.room)) return 'That layout is for a room this app does not have.';
     ensureInEvent(o.room);
     if (o.room !== S.room || S.all) setRoom(o.room);
     var cd = cleanDoc(o), d = doc();
@@ -2105,18 +2253,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   $('openGo').addEventListener('click', function () {
     var t = $('pasteInput').value.trim();
     if (!t) { $('openErr').textContent = 'Paste layout text first, or choose a file above.'; return; }
-    var err = applyLayout(t);
-    if (err) { $('openErr').textContent = err; return; }
-    openDlg.close(); showView('editor'); toast('Layout opened.');
+    guardDirty(function () {
+      var err = applyLayout(t);
+      if (err) { $('openErr').textContent = err; return; }
+      openDlg.close(); showView('editor'); toast('Layout opened.');
+    });
   });
   $('fileInput').addEventListener('change', function () {
     var f = $('fileInput').files && $('fileInput').files[0];
     if (!f) return;
     var rd = new FileReader();
     rd.onload = function () {
-      var err = applyLayout(String(rd.result));
-      if (err) { $('openErr').textContent = err; return; }
-      openDlg.close(); showView('editor'); toast('Opened ' + f.name);
+      guardDirty(function () {
+        var err = applyLayout(String(rd.result));
+        if (err) { $('openErr').textContent = err; return; }
+        openDlg.close(); showView('editor'); toast('Opened ' + f.name);
+      });
     };
     rd.onerror = function () { $('openErr').textContent = 'Could not read that file.'; };
     rd.readAsText(f);
@@ -2162,9 +2314,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (S.all) {
       st = eventStats(); titleOn = PP.title; ttl = S.event.name || 'All rooms';
       bits = ['Applebrook', S.event.rooms.map(function (k) { return ROOMS[k].name; }).join(', ')];
+      if (S.event.host) bits.push('Host: ' + S.event.host);
     } else {
       st = stats(items()); titleOn = PP.title && d.showTitle; ttl = titleOn ? (d.name || room().name) : room().name;
       bits = ['Applebrook', room().name];
+      if (S.event.host) bits.push('Host: ' + S.event.host);
     }
     var dateOn = PP.date && !!S.event.date;
     $('printHead').hidden = !(titleOn || dateOn);
@@ -2180,6 +2334,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return !!pn;
   }
   window.addEventListener('beforeprint', function () {
+    if (document.body.classList.contains('pall')) { pageStyle.textContent = '@page { size: letter landscape; margin: 0.25in; }'; return; }
     if (sel || multi.length) select(null);
     var pn = fillPrintHead();
     var head = !$('printHead').hidden, R = room(), vw, vh;
@@ -2195,7 +2350,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     document.body.style.setProperty('--pw', (vw * k).toFixed(3) + 'in');
     document.body.style.setProperty('--ph', (vh * k).toFixed(3) + 'in');
   });
-  window.addEventListener('afterprint', function () { applyRoom(); if (S.all) { renderAll(); fitSize(); } });
+  window.addEventListener('afterprint', function () {
+    if (document.body.classList.contains('pall')) { document.body.classList.remove('pall'); $('printAll').replaceChildren(); return; }
+    applyRoom(); if (S.all) { renderAll(); fitSize(); } });
   function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
   $('printBtn').addEventListener('click', function () { closeMenu(); doPrint(); });
 
@@ -2267,6 +2424,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       $('csGo').disabled = false;
       if (!rows || !rows[0]) { $('csErr').textContent = 'The save did not go through.'; return; }
       cloudRef[refKey] = { id: rows[0].id, kind: kind, name: name };
+      if (kind === 'layout') S.dirty = false;
       save();
       csDlg.close(); toast(kind === 'standard' ? 'Saved as a standard layout for ' + room().name + '.' : 'Saved to the cloud.');
     }, function (e) { $('csGo').disabled = false; $('csErr').textContent = cloudMsg(e); });
@@ -2285,11 +2443,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       $('coErr').textContent = 'Opening...';
       sb('GET', '?id=eq.' + encodeURIComponent(r.id) + '&select=data').then(function (rows) {
         if (!rows || !rows[0]) { $('coErr').textContent = 'That layout is gone.'; return; }
+        guardDirty(function () {
         var err = applyLayout(JSON.stringify(rows[0].data));
         if (err) { $('coErr').textContent = err; return; }
         if (r.kind === 'standard') cloudRef[S.room] = { id: r.id, kind: 'standard', name: r.name }; else cloudRef.__event = { id: r.id, kind: 'layout', name: r.name };
         save();
         coDlg.close(); if (openDlg.open) openDlg.close(); showView('editor'); toast('Opened ' + (r.name || 'layout') + '.');
+        });
       }, function (e) { $('coErr').textContent = cloudMsg(e); });
     });
     var del = document.createElement('button'); del.type = 'button'; del.className = 'btn danger'; del.textContent = 'Delete';
@@ -2319,7 +2479,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var list = $('coList'); list.replaceChildren(); $('coErr').textContent = 'Loading...';
     sb('GET', '?select=id,kind,room,name,author,is_default,updated_at&order=updated_at.desc&limit=200').then(function (rows) {
       $('coErr').textContent = '';
-      var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard'; });
+      var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard' && r.kind !== 'config'; });
       function sect(title, arr, empty) {
         var h = document.createElement('div'); h.className = 'chead'; h.textContent = title; list.appendChild(h);
         if (!arr.length) { var e = document.createElement('p'); e.className = 'fine'; e.textContent = empty; list.appendChild(e); }
@@ -2379,6 +2539,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     S.event.rooms.forEach(function (k) {
       var o = document.createElement('option'); o.value = k; o.textContent = ROOMS[k].name; roomSel.appendChild(o);
     });
+    $('printAllBtn').hidden = S.event.rooms.length < 2;
     if (S.event.rooms.length > 1) { var a = document.createElement('option'); a.value = '__all'; a.textContent = 'All rooms'; roomSel.appendChild(a); }
     roomSel.value = S.all ? '__all' : S.room;
   }
@@ -2425,6 +2586,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     return pk;
   }
+  function drawRoom(g, k) {
+    var R = ROOMS[k], d = S.docs[k], pd = roomPath(R);
+    el('path', { 'class': 'floor', d: pd }, g);
+    el('path', { 'class': 'wall', d: pd }, g);
+    S.fix[k].forEach(function (it) { var n = buildNode(it, false, d.items); n.classList.add('fixture'); g.appendChild(n); });
+    d.items.forEach(function (it) { g.appendChild(buildNode(it, false, d.items)); });
+  }
   function renderAll(tight) {
     var pk = allPlan(tight), pad = 20, locked = S.event.locked;
     allSvg.replaceChildren();
@@ -2433,13 +2601,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     S.event.rooms.forEach(function (k) {
       var R = ROOMS[k], P = pk.pos[k], d = S.docs[k];
       var g = el('g', { 'class': 'allroom' + (locked ? ' locked' : ''), transform: 'translate(' + P.x + ' ' + (P.y + ALAB) + ')', 'data-room': k, tabindex: '0', role: 'button', 'aria-label': 'Edit ' + R.name }, allSvg);
-      el('rect', { 'class': 'floor', x: 0, y: 0, width: R.w, height: R.h }, g);
-      el('rect', { 'class': 'wall', x: -1.5, y: -1.5, width: R.w + 3, height: R.h + 3, rx: 1.5 }, g);
-      S.fix[k].forEach(function (it) { var n = buildNode(it, false, d.items); n.classList.add('fixture'); g.appendChild(n); });
-      d.items.forEach(function (it) { g.appendChild(buildNode(it, false, d.items)); });
-      var t = el('text', { 'class': 'alabel', x: 0, y: -10 }, g);
-      var st = stats(d.items);
-      t.textContent = R.name + (d.name ? ' - ' + d.name : '') + ' (' + seatWord(st.seats) + ')';
+      drawRoom(g, k);
+      var st = stats(d.items), lx = 0;
+      if (R.color) { el('circle', { cx: 9, cy: -17, r: 8, fill: COLORS[R.color] }, g); lx = 24; }
+      var t = el('text', { 'class': 'alabel' + (R.cap && st.seats > R.cap ? ' cap-over' : ''), x: lx, y: -10 }, g);
+      t.textContent = R.name + (d.name ? ' - ' + d.name : '') + ' (' + seatWord(st.seats) + (R.cap ? ' of ' + R.cap : '') + ')';
     });
     syncArrUI();
   }
@@ -2510,7 +2676,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function newGoSync() {
     var n = newDlg.querySelectorAll('input[data-k]:checked').length;
     $('newGo').disabled = !n;
-    $('newAll').checked = n === ROOM_ORDER.length;
+    $('newAll').checked = n === newDlg.querySelectorAll('input[data-k]').length;
   }
   function openNew() {
     closeMenu();
@@ -2526,19 +2692,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     var all = row('All rooms', '', { id: 'newAll' });
     all.addEventListener('change', function () { newDlg.querySelectorAll('input[data-k]').forEach(function (c) { c.checked = all.checked; }); newGoSync(); });
-    ROOM_ORDER.forEach(function (k) {
+    visibleRooms().forEach(function (k) {
       var c = row(ROOMS[k].name, ftin(ROOMS[k].w) + ' × ' + ftin(ROOMS[k].h), { 'data-k': k });
       c.addEventListener('change', newGoSync);
     });
     var work = S.event.rooms.some(function (k) { return !S.docs[k].fresh; });
     $('newWarn').textContent = work ? 'This replaces the floorplan you are working on. Save it first if you need it.' : '';
+    $('nwTitle').value = ''; $('nwHost').value = ''; $('nwDate').value = '';
     $('newGo').disabled = true;
     newDlg.showModal();
   }
-  function newEvent(keys) {
-    keys = ROOM_ORDER.filter(function (k) { return keys.indexOf(k) >= 0; });
+  function newEvent(keys, meta) {
+    keys = sortRooms(keys);
     if (!keys.length) return;
-    S.event = { rooms: keys, name: '', date: '', multi: false, endDate: '', pos: null, locked: false };
+    meta = meta || {};
+    S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', pos: null, locked: false };
+    S.dirty = false;
     keys.forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
     leaveAll(); sel = null; multi = [];
@@ -2548,19 +2717,524 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   $('newCancel').addEventListener('click', function () { newDlg.close(); });
   $('newGo').addEventListener('click', function () {
     var keys = [].map.call(newDlg.querySelectorAll('input[data-k]:checked'), function (c) { return c.getAttribute('data-k'); });
-    newDlg.close(); newEvent(keys);
-    toast(keys.length > 1 ? 'New floorplan with ' + keys.length + ' rooms. Use the room menu to switch or see all rooms.' : 'New floorplan started.');
+    var meta = { name: $('nwTitle').value.trim().slice(0, 60), host: $('nwHost').value.trim().slice(0, 60), date: $('nwDate').value };
+    guardDirty(function () {
+      newDlg.close(); newEvent(keys, meta);
+      toast(keys.length > 1 ? 'New floorplan with ' + keys.length + ' rooms. Use the room menu to switch or see all rooms.' : 'New floorplan started.');
+    });
   });
   $('goNew').addEventListener('click', openNew);
   $('newMenuBtn').addEventListener('click', openNew);
 
+  /* ---------- shared config: rooms and table types ---------- */
+  var CFG_KEY = 'applebrook-config-v1', cfgId = null, cfgTimer = null;
+  function dm(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; }
+  function mkBtn(label, cls, fn, aria) { var b = dm('button', cls, label); b.type = 'button'; if (aria) b.setAttribute('aria-label', aria); b.addEventListener('click', fn); return b; }
+  function sureBtn(label, fn) {
+    var b = mkBtn(label, 'btn danger', function () {
+      if (b.getAttribute('data-sure') !== '1') { b.setAttribute('data-sure', '1'); b.textContent = 'Sure?'; return; }
+      fn();
+    });
+    b.addEventListener('blur', function () { b.removeAttribute('data-sure'); b.textContent = label; });
+    return b;
+  }
+  function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
+  function roomPath(R) {
+    var W = R.w, H = R.h, c = R.cuts || {}, nw = c.nw, ne = c.ne, sw = c.sw, se = c.se, p = [];
+    if (nw) p.push([nw.w, 0]); else p.push([0, 0]);
+    if (ne) p.push([W - ne.w, 0], [W - ne.w, ne.h], [W, ne.h]); else p.push([W, 0]);
+    if (se) p.push([W, H - se.h], [W - se.w, H - se.h], [W - se.w, H]); else p.push([W, H]);
+    if (sw) p.push([sw.w, H], [sw.w, H - sw.h], [0, H - sw.h]); else p.push([0, H]);
+    if (nw) p.push([0, nw.h], [nw.w, nw.h]);
+    return 'M' + p.map(function (a) { return a[0] + ' ' + a[1]; }).join('L') + 'Z';
+  }
+  function cutsOk(r, c) {
+    function s(a, b, k) { return (a ? a[k] : 0) + (b ? b[k] : 0); }
+    return s(c.nw, c.ne, 'w') < r.w - 11 && s(c.sw, c.se, 'w') < r.w - 11 && s(c.nw, c.sw, 'h') < r.h - 11 && s(c.ne, c.se, 'h') < r.h - 11;
+  }
+  function cleanRoom(o) {
+    if (!o || typeof o !== 'object') return null;
+    var w = +o.w, h = +o.h;
+    if (!(w >= 24 && h >= 24)) return null;
+    var r = { name: String(o.name || 'Room').slice(0, 40), w: Math.min(3000, Math.round(w * 2) / 2), h: Math.min(3000, Math.round(h * 2) / 2) };
+    var cuts = {}, any = false;
+    ['nw', 'ne', 'sw', 'se'].forEach(function (k) {
+      var c = o.cuts && o.cuts[k];
+      if (c && +c.w > 0 && +c.h > 0) { cuts[k] = { w: Math.round(+c.w), h: Math.round(+c.h) }; any = true; }
+    });
+    if (any && cutsOk(r, cuts)) r.cuts = cuts;
+    var cap = Math.round(+o.cap || 0); if (cap > 0) r.cap = Math.min(9999, cap);
+    if (o.color && has(COLORS, o.color)) r.color = o.color;
+    if (o.hidden) r.hidden = true;
+    if (o.gone) r.gone = true;
+    return r;
+  }
+  function cleanType(o) {
+    if (!o || typeof o !== 'object' || !has(GROUP_CAPS, o.group)) return null;
+    var w = +o.w, h = +o.h, g = o.group;
+    if (!(w >= 12 && w <= 240)) return null;
+    var t = { name: String(o.name || 'Table').slice(0, 40), group: g, shape: g === 'round' ? 'round' : 'rect', w: r2(w) };
+    t.h = g === 'round' ? t.w : (h >= 12 && h <= 240 ? r2(h) : t.w);
+    t.seats = g === 'service' ? 0 : Math.max(0, Math.min(40, Math.round(+o.seats || 0)));
+    if (g === 'round' && +o.seatRot) t.seatRot = r2(+o.seatRot);
+    if (g !== 'round' && +o.rot) t.rot = r2(+o.rot);
+    if (g === 'dining' && o.endsFirst) t.endsFirst = true;
+    if (g === 'service') t.short = String(o.short || t.name).slice(0, 10);
+    if (o.hidden) t.hidden = true;
+    if (o.gone) t.gone = true;
+    return t;
+  }
+  function resetObj(o, src) { Object.keys(o).forEach(function (k) { delete o[k]; }); Object.keys(src).forEach(function (k) { o[k] = src[k]; }); }
+  function cfgData() { return { v: 1, rooms: ROOMS, roomOrder: ROOM_ORDER, types: TYPES, typeOrder: TYPE_ORDER }; }
+  function applyConfig(c) {
+    var rooms = clone(DEF.rooms), types = clone(DEF.types), ro = DEF.roomOrder.slice(), to = DEF.typeOrder.slice();
+    if (c && typeof c === 'object') {
+      if (c.rooms && typeof c.rooms === 'object') Object.keys(c.rooms).forEach(function (k) { var r = cleanRoom(c.rooms[k]); if (r) rooms[k] = r; });
+      if (c.types && typeof c.types === 'object') Object.keys(c.types).forEach(function (k) { var t = cleanType(c.types[k]); if (t) types[k] = t; });
+      if (Array.isArray(c.roomOrder)) ro = c.roomOrder.slice();
+      if (Array.isArray(c.typeOrder)) to = c.typeOrder.slice();
+    }
+    function fin(order, map) {
+      var out = [];
+      order.forEach(function (k) { if (has(map, k) && !map[k].gone && out.indexOf(k) < 0) out.push(k); });
+      Object.keys(map).forEach(function (k) { if (!map[k].gone && out.indexOf(k) < 0) out.push(k); });
+      return out;
+    }
+    ro = fin(ro, rooms); to = fin(to, types);
+    resetObj(ROOMS, rooms); resetObj(TYPES, types);
+    ROOM_ORDER.length = 0; ro.forEach(function (k) { ROOM_ORDER.push(k); });
+    TYPE_ORDER.length = 0; to.forEach(function (k) { TYPE_ORDER.push(k); });
+  }
+  function sortRooms(keys) {
+    var a = ROOM_ORDER.filter(function (k) { return keys.indexOf(k) >= 0; });
+    keys.forEach(function (k) { if (a.indexOf(k) < 0 && has(ROOMS, k)) a.push(k); });
+    return a;
+  }
+  function visibleRooms() { var v = ROOM_ORDER.filter(function (k) { return !ROOMS[k].hidden; }); return v.length ? v : ROOM_ORDER.slice(); }
+  function ensureRoomData() {
+    Object.keys(ROOMS).forEach(function (k) {
+      if (!S.docs[k]) S.docs[k] = freshDoc();
+      if (!S.fix[k]) S.fix[k] = newItems(BUILTIN_FIXTURES[k] || []);
+    });
+  }
+  function loadConfigLocal() {
+    try { var o = JSON.parse(localStorage.getItem(CFG_KEY)); if (o && o.cfg) { applyConfig(o.cfg); cfgId = typeof o.id === 'string' ? o.id : null; } } catch (e) {}
+  }
+  function storeConfigLocal() { try { localStorage.setItem(CFG_KEY, JSON.stringify({ cfg: cfgData(), id: cfgId })); } catch (e) {} }
+  function setCfgStatus(m) { ['cfgStatusR', 'cfgStatusT'].forEach(function (i) { var e = $(i); if (e) e.textContent = m; }); }
+  function pushConfig() {
+    var row = { kind: 'config', room: 'config', name: 'Rooms and tables', author: '', data: cfgData(), updated_at: new Date().toISOString() };
+    setCfgStatus('Saving to the cloud...');
+    var p = cfgId ? sb('PATCH', '?id=eq.' + encodeURIComponent(cfgId), row, 'return=representation') : sb('POST', '', row, 'return=representation');
+    p.then(function (rows) {
+      if (cfgId && (!rows || !rows[0])) { cfgId = null; return sb('POST', '', row, 'return=representation'); }
+      return rows;
+    }).then(function (rows) {
+      if (rows && rows[0]) { cfgId = rows[0].id; storeConfigLocal(); setCfgStatus('Saved to the cloud. Everyone sees these changes.'); }
+      else setCfgStatus('The cloud save did not go through. Saved on this computer only.');
+    }, function (e) { setCfgStatus(cloudMsg(e) + ' Saved on this computer only.'); });
+  }
+  function refreshAfterConfig() {
+    ensureRoomData();
+    S.event.rooms = sortRooms(S.event.rooms.filter(function (k) { return has(ROOMS, k); }));
+    if (!S.event.rooms.length) S.event.rooms = [visibleRooms()[0]];
+    if (S.event.rooms.indexOf(S.room) < 0) S.room = S.event.rooms[0];
+    buildRoomSelect(); buildPalette(); syncEventUI();
+    if (curView === 'rooms') buildRoomSettings();
+    if (curView === 'tables') buildTableSettings();
+    if (S.all) { renderAll(); fitSize(); } else { applyRoom(); render(); }
+    updateStats();
+  }
+  function cfgChanged() {
+    storeConfigLocal(); refreshAfterConfig();
+    clearTimeout(cfgTimer); cfgTimer = setTimeout(pushConfig, 500);
+  }
+  function fetchConfig() {
+    sb('GET', '?kind=eq.config&select=id,data,updated_at&order=updated_at.desc&limit=1').then(function (rows) {
+      if (!rows || !rows.length) return;
+      cfgId = rows[0].id;
+      var before = JSON.stringify(cfgData());
+      applyConfig(rows[0].data);
+      storeConfigLocal();
+      if (JSON.stringify(cfgData()) !== before) refreshAfterConfig();
+    }, function () {});
+  }
+
+  /* ---------- Room Settings ---------- */
+  function swapOrder(arr, key, dir, ok) {
+    var i = arr.indexOf(key), j = i + dir;
+    while (j >= 0 && j < arr.length && ok && !ok(arr[j])) j += dir;
+    if (i < 0 || j < 0 || j >= arr.length) return;
+    var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+  }
+  function buildRoomSettings() {
+    var list = $('roomList'); list.replaceChildren();
+    if (!ROOM_ORDER.length) list.appendChild(dm('p', 'fine', 'No rooms yet. Add one.'));
+    ROOM_ORDER.forEach(function (k, i) {
+      var R = ROOMS[k], row = dm('div', 'srow' + (R.hidden ? ' dim' : '')), dot = dm('span', 'sdot');
+      if (R.color) dot.style.background = COLORS[R.color];
+      row.appendChild(dot);
+      var info = dm('div', 'sinfo');
+      info.appendChild(dm('div', 'sn', R.name + (R.hidden ? ' (hidden)' : '')));
+      info.appendChild(dm('div', 'sm', [ftin(R.w) + ' × ' + ftin(R.h), R.cuts ? 'shaped' : '', R.cap ? 'max ' + R.cap + ' seats' : ''].filter(Boolean).join(' · ')));
+      row.appendChild(info);
+      var bs = dm('div', 'sb');
+      bs.appendChild(mkBtn('Edit', 'btn primary', function () { openRoomDlg(k); }));
+      bs.appendChild(mkBtn('Duplicate', 'btn', function () { dupRoom(k); }));
+      var up = mkBtn('↑', 'btn', function () { swapOrder(ROOM_ORDER, k, -1); cfgChanged(); }, 'Move up'); up.disabled = i === 0;
+      var dn = mkBtn('↓', 'btn', function () { swapOrder(ROOM_ORDER, k, 1); cfgChanged(); }, 'Move down'); dn.disabled = i === ROOM_ORDER.length - 1;
+      bs.appendChild(up); bs.appendChild(dn);
+      bs.appendChild(mkBtn(R.hidden ? 'Show' : 'Hide', 'btn', function () { if (R.hidden) delete R.hidden; else R.hidden = true; cfgChanged(); }));
+      bs.appendChild(sureBtn('Delete', function () {
+        if (ROOM_ORDER.length < 2) { toast('Keep at least one room.'); return; }
+        R.gone = true; ROOM_ORDER.splice(ROOM_ORDER.indexOf(k), 1); cfgChanged(); toast(R.name + ' deleted. Saved layouts that use it still open.');
+      }));
+      row.appendChild(bs);
+      list.appendChild(row);
+    });
+  }
+  function dupRoom(k) {
+    var nk = 'r' + uid(), R = clone(ROOMS[k]);
+    R.name = (R.name + ' copy').slice(0, 40); delete R.hidden; delete R.gone;
+    ROOMS[nk] = R; ROOM_ORDER.splice(ROOM_ORDER.indexOf(k) + 1, 0, nk);
+    ensureRoomData(); S.fix[nk] = newItems(S.fix[k] || []);
+    cfgChanged(); save();
+    sb('GET', '?kind=eq.standard&is_default=eq.true&room=eq.' + encodeURIComponent(k) + '&select=name,author,data&limit=1').then(function (rows) {
+      if (!rows || !rows[0]) return;
+      var d = clone(rows[0].data || {}); d.room = nk; d.roomName = R.name;
+      return sb('POST', '', { kind: 'standard', room: nk, name: rows[0].name, author: rows[0].author || '', data: d, is_default: true, updated_at: new Date().toISOString() });
+    }).then(function () {}, function () {});
+    toast('Duplicated as ' + R.name + '.');
+  }
+  var rdKey = null, rdColor = '';
+  function rdNum(id) { return Math.max(0, parseFloat($(id).value) || 0); }
+  function rdParse() {
+    var w = rdNum('rdWf') * 12 + rdNum('rdWi'), h = rdNum('rdHf') * 12 + rdNum('rdHi');
+    if (!(w >= 24 && h >= 24)) return { err: 'The room needs at least 2 ft each way.' };
+    if (w > 3000 || h > 3000) return { err: 'That is bigger than 250 ft.' };
+    var R = { name: $('rdName').value.trim() || 'Room', w: w, h: h }, cuts = {}, any = false, bad = false;
+    ['nw', 'ne', 'sw', 'se'].forEach(function (k) {
+      var cw = rdNum('cut_' + k + '_w'), ch = rdNum('cut_' + k + '_h');
+      if (cw > 0 || ch > 0) { if (!(cw > 0 && ch > 0)) bad = true; else { cuts[k] = { w: cw, h: ch }; any = true; } }
+    });
+    if (bad) return { err: 'A corner cut needs both a width and a depth.' };
+    if (any) { if (!cutsOk(R, cuts)) return { err: 'The corner cuts are too big for this room.' }; R.cuts = cuts; }
+    var cap = Math.round(rdNum('rdCap')); if (cap > 0) R.cap = cap;
+    if (rdColor) R.color = rdColor;
+    return { R: R };
+  }
+  function rdPreview() {
+    var p = rdParse(), t = $('rdPrevTxt');
+    if (p.err) { t.textContent = p.err; t.className = 'fine warn'; return p; }
+    t.className = 'fine'; t.textContent = ftin(p.R.w) + ' × ' + ftin(p.R.h) + (p.R.cuts ? ', shaped' : '');
+    var sv = $('rdPrev'), R = p.R, m = Math.max(R.w, R.h) * 0.06 + 6;
+    sv.replaceChildren();
+    sv.setAttribute('viewBox', (-m) + ' ' + (-m) + ' ' + (R.w + 2 * m) + ' ' + (R.h + 2 * m));
+    var d = roomPath(R);
+    el('path', { 'class': 'floor', d: d }, sv);
+    if (rdKey && S.fix[rdKey]) { try { S.fix[rdKey].forEach(function (it) { var n = buildNode(it, false, []); n.classList.add('fixture'); sv.appendChild(n); }); } catch (e) {} }
+    el('path', { 'class': 'wall', d: d, 'vector-effect': 'non-scaling-stroke' }, sv);
+    return p;
+  }
+  (function () {
+    var box = $('rdColors');
+    [''].concat(Object.keys(COLORS)).forEach(function (c) {
+      var b = dm('button', 'swatch'); b.type = 'button'; b.setAttribute('data-c', c); b.setAttribute('aria-label', c || 'No color'); b.title = c || 'No color';
+      if (c) b.style.background = COLORS[c]; else b.textContent = '×';
+      b.addEventListener('click', function () { rdColor = c; rdSyncColor(); rdPreview(); });
+      box.appendChild(b);
+    });
+    ['rdName', 'rdWf', 'rdWi', 'rdHf', 'rdHi', 'rdCap', 'cut_nw_w', 'cut_nw_h', 'cut_ne_w', 'cut_ne_h', 'cut_sw_w', 'cut_sw_h', 'cut_se_w', 'cut_se_h'].forEach(function (id) { $(id).addEventListener('input', rdPreview); });
+  })();
+  function rdSyncColor() { [].forEach.call($('rdColors').children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-c') === rdColor ? 'true' : 'false'); }); }
+  function openRoomDlg(k) {
+    rdKey = k || null;
+    var R = k ? ROOMS[k] : { name: 'New room', w: 240, h: 240 };
+    $('rdTitle').textContent = k ? 'Edit room' : 'Add room';
+    $('rdName').value = R.name;
+    $('rdWf').value = Math.floor(R.w / 12); $('rdWi').value = r2(R.w - Math.floor(R.w / 12) * 12);
+    $('rdHf').value = Math.floor(R.h / 12); $('rdHi').value = r2(R.h - Math.floor(R.h / 12) * 12);
+    $('rdCap').value = R.cap || '';
+    ['nw', 'ne', 'sw', 'se'].forEach(function (c) {
+      $('cut_' + c + '_w').value = R.cuts && R.cuts[c] ? R.cuts[c].w : ''; $('cut_' + c + '_h').value = R.cuts && R.cuts[c] ? R.cuts[c].h : '';
+    });
+    $('rdShape').open = !!R.cuts;
+    rdColor = R.color || ''; rdSyncColor();
+    $('rdErr').textContent = '';
+    $('rdFixRow').hidden = !k; $('rdStdRow').hidden = !k;
+    if (k) { $('rdFixTxt').textContent = S.fix[k].length + (S.fix[k].length === 1 ? ' fixture' : ' fixtures') + ' set in this browser'; loadStds(k); }
+    rdPreview();
+    $('roomDlg').showModal();
+  }
+  $('roomAdd').addEventListener('click', function () { openRoomDlg(null); });
+  $('rdCancel').addEventListener('click', function () { $('roomDlg').close(); });
+  $('rdGo').addEventListener('click', function () {
+    var p = rdParse();
+    if (p.err) { $('rdErr').textContent = p.err; return; }
+    var key = rdKey || ('r' + uid()), prev = ROOMS[key] || {}, R = p.R;
+    if (prev.hidden) R.hidden = true;
+    ROOMS[key] = R;
+    if (!rdKey) ROOM_ORDER.push(key);
+    $('roomDlg').close(); cfgChanged();
+    toast(rdKey ? 'Room saved.' : R.name + ' added.');
+  });
+  $('rdFixBtn').addEventListener('click', function () {
+    var k = rdKey; if (!k) return;
+    var p = rdParse(); if (p.err) { $('rdErr').textContent = p.err; return; }
+    var R = p.R; if (ROOMS[k].hidden) R.hidden = true; ROOMS[k] = R; storeConfigLocal();
+    $('roomDlg').close();
+    var added = S.event.rooms.indexOf(k) < 0;
+    if (added) ensureInEvent(k);
+    ensureRoomData(); leaveAll(); buildRoomSelect(); setRoom(k); showView('editor'); setEditFix(true);
+    toast((added ? ROOMS[k].name + ' added to this floorplan. ' : '') + 'Editing fixtures. Add shapes, lines, or text.');
+    clearTimeout(cfgTimer); cfgTimer = setTimeout(pushConfig, 500);
+  });
+  function loadStds(k) {
+    var box = $('rdStd'); box.replaceChildren(dm('p', 'fine', 'Loading...'));
+    sb('GET', '?kind=eq.standard&room=eq.' + encodeURIComponent(k) + '&select=id,name,author,is_default,updated_at&order=updated_at.desc').then(function (rows) {
+      box.replaceChildren();
+      if (!rows.length) { box.appendChild(dm('p', 'fine', 'None yet. In the editor, use Save to cloud and pick standard layout.')); return; }
+      rows.forEach(function (r) { box.appendChild(stdRow(k, r)); });
+    }, function (e) { box.replaceChildren(dm('p', 'fine warn', cloudMsg(e))); });
+  }
+  function stdRow(k, r) {
+    var row = dm('div', 'crow'), n = dm('div', 'cn', r.name || 'Untitled'), bs = dm('div', 'cb');
+    row.appendChild(n);
+    row.appendChild(dm('div', 'cm', [r.is_default ? 'Default' : '', r.author, fmtShort(r.updated_at)].filter(Boolean).join(' · ')));
+    function fail(e) { $('rdErr').textContent = cloudMsg(e); }
+    bs.appendChild(mkBtn('Rename', 'btn', function () {
+      var inp = dm('input', 'rn'); inp.type = 'text'; inp.maxLength = 60; inp.value = r.name || '';
+      row.replaceChild(inp, n); inp.focus(); inp.select();
+      var fin = false;
+      function done() {
+        if (fin) return; fin = true;
+        var v = inp.value.trim();
+        if (!v || v === r.name) { loadStds(k); return; }
+        sb('PATCH', '?id=eq.' + encodeURIComponent(r.id), { name: v }).then(function () { loadStds(k); }, fail);
+      }
+      inp.addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); done(); } });
+      inp.addEventListener('blur', done);
+    }));
+    if (!r.is_default) bs.appendChild(mkBtn('Make default', 'btn', function () {
+      sb('PATCH', '?kind=eq.standard&room=eq.' + encodeURIComponent(k) + '&is_default=eq.true', { is_default: false })
+        .then(function () { return sb('PATCH', '?id=eq.' + encodeURIComponent(r.id), { is_default: true }); })
+        .then(function () { loadStds(k); }, fail);
+    }));
+    bs.appendChild(sureBtn('Delete', function () {
+      sb('DELETE', '?id=eq.' + encodeURIComponent(r.id)).then(function () { loadStds(k); }, fail);
+    }));
+    row.appendChild(bs);
+    return row;
+  }
+
+  /* ---------- Table Settings ---------- */
+  function groupKeys(g) { return TYPE_ORDER.filter(function (k) { return TYPES[k].group === g; }); }
+  function typeNotes(T) {
+    var n = [];
+    if (T.seatRot) n.push('seat ring turned ' + T.seatRot + '°');
+    if (T.rot) n.push('placed turned ' + T.rot + '°');
+    if (T.endsFirst) n.push('seats on the short ends');
+    if (T.hidden) n.push('hidden');
+    return n;
+  }
+  function buildTableSettings() {
+    var list = $('tableList'); list.replaceChildren();
+    ['round', 'dining', 'service'].forEach(function (g) {
+      list.appendChild(dm('div', 'chead', GROUP_CAPS[g]));
+      var keys = groupKeys(g);
+      if (!keys.length) list.appendChild(dm('p', 'fine', 'None.'));
+      keys.forEach(function (k, i) {
+        var T = TYPES[k], row = dm('div', 'srow' + (T.hidden ? ' dim' : '')), ic = dm('span', 'sdot ticon');
+        ic.innerHTML = iconSvg(k, T); row.appendChild(ic);
+        var info = dm('div', 'sinfo');
+        info.appendChild(dm('div', 'sn', T.name));
+        info.appendChild(dm('div', 'sm', [dimText(T), isSvc(T) ? 'service' : T.seats + ' seats'].concat(typeNotes(T)).join(' · ')));
+        row.appendChild(info);
+        var bs = dm('div', 'sb');
+        bs.appendChild(mkBtn('Edit', 'btn primary', function () { openTtDlg(k); }));
+        bs.appendChild(mkBtn('Duplicate', 'btn', function () { dupType(k); }));
+        var up = mkBtn('↑', 'btn', function () { swapOrder(TYPE_ORDER, k, -1, function (x) { return TYPES[x].group === g; }); cfgChanged(); }, 'Move up'); up.disabled = i === 0;
+        var dn = mkBtn('↓', 'btn', function () { swapOrder(TYPE_ORDER, k, 1, function (x) { return TYPES[x].group === g; }); cfgChanged(); }, 'Move down'); dn.disabled = i === keys.length - 1;
+        bs.appendChild(up); bs.appendChild(dn);
+        bs.appendChild(mkBtn(T.hidden ? 'Show' : 'Hide', 'btn', function () { if (T.hidden) delete T.hidden; else T.hidden = true; cfgChanged(); }));
+        bs.appendChild(sureBtn('Delete', function () {
+          T.gone = true; TYPE_ORDER.splice(TYPE_ORDER.indexOf(k), 1); cfgChanged(); toast(T.name + ' deleted. Layouts that use it keep working.');
+        }));
+        row.appendChild(bs);
+        list.appendChild(row);
+      });
+    });
+  }
+  function dupType(k) {
+    var nk = 't' + uid(), T = clone(TYPES[k]);
+    T.name = (T.name + ' copy').slice(0, 40); delete T.hidden; delete T.gone;
+    TYPES[nk] = T; TYPE_ORDER.splice(TYPE_ORDER.indexOf(k) + 1, 0, nk);
+    cfgChanged(); toast('Duplicated as ' + T.name + '.');
+  }
+  var ttKey = null;
+  function ttKind() { return document.querySelector('input[name="ttKind"]:checked').value; }
+  function ttNum(id) { return Math.max(0, parseFloat($(id).value) || 0); }
+  function ttSync() {
+    var kd = ttKind();
+    $('ttWl').textContent = kd === 'round' ? 'Diameter (in)' : 'Long side (in)';
+    $('ttHrow').hidden = kd === 'round';
+    $('ttSeatsRow').hidden = kd === 'svc';
+    $('ttSeatRotRow').hidden = kd !== 'round';
+    $('ttRotRow').hidden = kd === 'round';
+    $('ttEndsRow').hidden = kd !== 'rect';
+    $('ttShortRow').hidden = kd !== 'svc';
+  }
+  function ttParse() {
+    var kd = ttKind(), w = ttNum('ttW'), h = ttNum('ttH');
+    if (!(w >= 12 && w <= 240)) return { err: 'Size must be between 12 and 240 inches.' };
+    if (kd !== 'round' && !(h >= 12 && h <= 240)) return { err: 'Short side must be between 12 and 240 inches.' };
+    if (kd !== 'round' && h > w) { var t = w; w = h; h = t; }
+    var o = { name: $('ttName').value.trim() || 'Table', group: kd === 'round' ? 'round' : kd === 'rect' ? 'dining' : 'service', w: w, h: h,
+      seats: Math.round(ttNum('ttSeats')), seatRot: ttNum('ttSeatRot'), rot: ttNum('ttRot'), endsFirst: $('ttEnds').checked, short: $('ttShort').value.trim() };
+    var T = cleanType(o); if (!T) return { err: 'Check the size.' };
+    if (T.seats > maxSeats(T)) T.seats = maxSeats(T);
+    return { T: T };
+  }
+  function ttPreview() {
+    var p = ttParse(), box = $('ttPrev');
+    if (p.err) { $('ttPrevTxt').textContent = p.err; $('ttPrevTxt').className = 'fine warn'; return; }
+    $('ttPrevTxt').className = 'fine';
+    $('ttPrevTxt').textContent = dimText(p.T) + (isSvc(p.T) ? '' : ', up to ' + maxSeats(p.T) + ' seats');
+    box.innerHTML = iconSvg('x', p.T);
+  }
+  document.querySelectorAll('input[name="ttKind"]').forEach(function (r) { r.addEventListener('change', function () { ttSync(); ttPreview(); }); });
+  ['ttName', 'ttW', 'ttH', 'ttSeats', 'ttSeatRot', 'ttRot', 'ttEnds', 'ttShort'].forEach(function (id) { $(id).addEventListener('input', ttPreview); $(id).addEventListener('change', ttPreview); });
+  function openTtDlg(k) {
+    ttKey = k || null;
+    var T = k ? TYPES[k] : { name: 'New table', group: 'dining', shape: 'rect', w: 48, h: 30, seats: 4 };
+    $('ttTitle').textContent = k ? 'Edit table' : 'Add table';
+    $('ttName').value = T.name;
+    document.querySelector('input[name="ttKind"][value="' + (T.group === 'round' ? 'round' : T.group === 'service' ? 'svc' : 'rect') + '"]').checked = true;
+    $('ttW').value = T.w; $('ttH').value = T.h; $('ttSeats').value = T.seats || 0;
+    $('ttSeatRot').value = T.seatRot || 0; $('ttRot').value = T.rot || 0; $('ttEnds').checked = !!T.endsFirst; $('ttShort').value = T.short || '';
+    $('ttErr').textContent = '';
+    ttSync(); ttPreview();
+    $('ttDlg').showModal();
+  }
+  $('tableAdd').addEventListener('click', function () { openTtDlg(null); });
+  $('ttCancel').addEventListener('click', function () { $('ttDlg').close(); });
+  $('ttGo').addEventListener('click', function () {
+    var p = ttParse();
+    if (p.err) { $('ttErr').textContent = p.err; return; }
+    var key = ttKey || ('t' + uid()), prev = TYPES[key] || {}, T = p.T;
+    if (prev.hidden) T.hidden = true;
+    TYPES[key] = T;
+    if (!ttKey) TYPE_ORDER.push(key);
+    $('ttDlg').close(); cfgChanged();
+    toast(ttKey ? 'Table saved.' : T.name + ' added.');
+  });
+
+  /* ---------- Event settings ---------- */
+  function openEvDlg() {
+    var e = S.event;
+    $('evTitle').value = e.name; $('evHost').value = e.host || ''; $('evDate').value = e.date;
+    $('evMulti').checked = e.multi; $('evEnd').value = e.endDate; $('evEndRow').hidden = !e.multi;
+    var box = $('evRooms'); box.replaceChildren();
+    var seen = {}, keys = sortRooms(ROOM_ORDER.filter(function (k) { return !ROOMS[k].hidden; }).concat(e.rooms)).filter(function (k) { if (seen[k]) return false; seen[k] = 1; return true; });
+    keys.forEach(function (k) {
+      var l = dm('label', 'chk'), i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('data-k', k); i.checked = e.rooms.indexOf(k) >= 0;
+      i.addEventListener('change', function () { $('evGo').removeAttribute('data-confirm'); $('evWarn').textContent = ''; $('evGo').textContent = 'Save'; });
+      l.appendChild(i); l.appendChild(dm('span', '', ROOMS[k].name));
+      var m = dm('span', 'fine', ftin(ROOMS[k].w) + ' × ' + ftin(ROOMS[k].h)); m.style.marginLeft = 'auto'; l.appendChild(m);
+      box.appendChild(l);
+    });
+    $('evWarn').textContent = ''; $('evGo').removeAttribute('data-confirm'); $('evGo').textContent = 'Save';
+    $('evDlg').showModal();
+  }
+  $('evSetBtn').addEventListener('click', openEvDlg);
+  $('evMulti').addEventListener('change', function () { $('evEndRow').hidden = !$('evMulti').checked; });
+  $('evCancel').addEventListener('click', function () { $('evDlg').close(); });
+  $('evGo').addEventListener('click', function () {
+    var e = S.event, chosen = [].map.call($('evRooms').querySelectorAll('input[data-k]:checked'), function (c) { return c.getAttribute('data-k'); });
+    if (!chosen.length) { $('evWarn').textContent = 'Pick at least one room.'; return; }
+    var removed = e.rooms.filter(function (k) { return chosen.indexOf(k) < 0; });
+    var loaded = removed.filter(function (k) { return S.docs[k] && !S.docs[k].fresh; });
+    if (loaded.length && $('evGo').getAttribute('data-confirm') !== '1') {
+      $('evWarn').textContent = loaded.map(function (k) { return ROOMS[k].name; }).join(', ') + (loaded.length > 1 ? ' have layouts.' : ' has a layout.') + ' Removing drops it from this event. Press again to confirm.';
+      $('evGo').setAttribute('data-confirm', '1'); $('evGo').textContent = 'Remove and save';
+      return;
+    }
+    var sd = $('evDate').value, multi = $('evMulti').checked;
+    e.name = $('evTitle').value.trim().slice(0, 60); e.host = $('evHost').value.trim().slice(0, 60);
+    e.date = vDate(sd); e.multi = multi; e.endDate = multi ? vDate($('evEnd').value) : '';
+    var next = sortRooms(chosen);
+    if (next.join() !== e.rooms.join()) {
+      e.rooms = next; e.pos = null; e.locked = false;
+      ensureRoomData();
+      if (next.indexOf(S.room) < 0) { leaveAll(); S.room = next[0]; }
+      if (S.all && next.length < 2) leaveAll();
+    }
+    S.dirty = true;
+    $('evDlg').close();
+    buildRoomSelect(); syncEventUI();
+    if (S.all) { renderAll(); fitSize(); syncDocUI(); } else setRoom(S.room);
+    save(); toast('Event settings saved.');
+  });
+
+  /* ---------- unsaved changes ---------- */
+  var guardNext = null;
+  function guardDirty(next) {
+    if (!S.dirty) { next(); return; }
+    guardNext = next; $('unsDlg').showModal();
+  }
+  $('unsCancel').addEventListener('click', function () { guardNext = null; $('unsDlg').close(); });
+  $('unsDiscard').addEventListener('click', function () { var n = guardNext; guardNext = null; $('unsDlg').close(); if (n) n(); });
+  $('unsSave').addEventListener('click', function () {
+    saveFile(function (ok) {
+      var n = guardNext; guardNext = null; $('unsDlg').close();
+      if (ok && n) n();
+    });
+  });
+
+  /* ---------- print every room, a page each ---------- */
+  function printAllRooms() {
+    var box = $('printAll'); box.replaceChildren();
+    S.event.rooms.forEach(function (k) {
+      var R = ROOMS[k], d = S.docs[k], pad = S.dims ? PAD : 20, vw = R.w + 2 * pad, vh = R.h + 2 * pad;
+      var sec = dm('section', 'psec'), head = dm('div', 'pshead'), st = stats(d.items);
+      var ttl = (PP.title && d.showTitle && d.name) ? d.name : R.name;
+      var row = dm('div', 'pshrow'); row.appendChild(dm('div', 'ps1', ttl));
+      row.appendChild(dm('div', 'psd', PP.date && S.event.date ? eventDateText() : ''));
+      head.appendChild(row);
+      var bits = ['Applebrook'];
+      if (S.event.name && PP.title) bits.push(S.event.name);
+      bits.push(R.name);
+      if (S.event.host) bits.push('Host: ' + S.event.host);
+      if (PP.seats) bits.push(seatWord(st.seats));
+      bits.push(st.tables + (st.tables === 1 ? ' table' : ' tables'));
+      bits.push('Printed ' + new Date().toLocaleDateString());
+      head.appendChild(dm('div', 'ps2', bits.join(' • ')));
+      sec.appendChild(head);
+      var body = dm('div', 'psbody'), pn = PP.notes && d.showNotes && d.notes.trim();
+      var aw = 10.5 - (pn ? 2.52 : 0), ah = 7.2, kf = Math.min(aw / vw, ah / vh);
+      var sv = document.createElementNS(NS, 'svg');
+      sv.setAttribute('viewBox', (-pad) + ' ' + (-pad) + ' ' + vw + ' ' + vh);
+      sv.style.width = (vw * kf).toFixed(3) + 'in'; sv.style.height = (vh * kf).toFixed(3) + 'in';
+      drawRoom(sv, k);
+      body.appendChild(sv);
+      if (pn) { var nb = dm('div', 'psnotes'); nb.appendChild(dm('div', 'pnh', 'Setup notes')); nb.appendChild(dm('div', 'pnt', d.notes)); body.appendChild(nb); }
+      sec.appendChild(body);
+      box.appendChild(sec);
+    });
+    document.body.classList.add('pall');
+    try { window.print(); } catch (e) { document.body.classList.remove('pall'); box.replaceChildren(); toast('Printing is not available here.'); }
+  }
+  $('printAllBtn').addEventListener('click', function () { closeMenu(); printAllRooms(); });
+
   /* ---------- start ---------- */
+  loadConfigLocal();
+  buildPalette();
   var saved = loadSaved();
-  ROOM_ORDER.forEach(function (k) {
+  Object.keys(ROOMS).forEach(function (k) {
     S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : freshDoc();
     S.fix[k] = saved && saved.fix[k] ? saved.fix[k] : newItems(BUILTIN_FIXTURES[k] || []);
   });
-  if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; S.dims = saved.dims; S.event = saved.event; }
+  if (saved) { S.room = saved.room; S.snap = saved.snap; S.grid = saved.grid; S.dims = saved.dims; S.event = saved.event; S.dirty = saved.dirty; }
   if (S.event.rooms.indexOf(S.room) < 0) S.room = S.event.rooms[0];
   buildRoomSelect(); syncEventUI();
   if (saved && saved.cloud) Object.keys(saved.cloud).forEach(function (k) { var c = saved.cloud[k]; if ((ROOMS[k] || k === '__event') && c && typeof c.id === 'string') cloudRef[k] = { id: c.id, kind: c.kind === 'standard' ? 'standard' : 'layout', name: String(c.name || '') }; });
@@ -2573,8 +3247,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!VIEWS[name]) name = 'home';
     Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== name; });
     curView = name;
-    if (name === 'rooms') buildRoomSettings();
-    if (name === 'tables') buildTableSettings();
+    if (name === 'rooms') { buildRoomSettings(); setCfgStatus(''); fetchConfig(); }
+    if (name === 'tables') { buildTableSettings(); setCfgStatus(''); fetchConfig(); }
     if (name === 'editor') { fitSize(); renderHandles(); } else { closeMenu(); }
     if (!fromHash) { try { if (location.hash !== '#' + name) location.hash = name; } catch (e) {} }
     window.scrollTo(0, 0);
@@ -2582,35 +3256,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var goEls = document.querySelectorAll('[data-go]');
   for (var gi = 0; gi < goEls.length; gi++) goEls[gi].addEventListener('click', function (e) { showView(e.currentTarget.getAttribute('data-go')); });
   window.addEventListener('hashchange', function () { var h = (location.hash || '').slice(1); if (VIEWS[h] && h !== curView) showView(h, true); });
-
-  function buildRoomSettings() {
-    var h = '<thead><tr><th>Room</th><th>Size</th><th>Inches</th><th>Cloud standard layouts</th></tr></thead><tbody>';
-    ROOM_ORDER.forEach(function (k) {
-      var R = ROOMS[k];
-      h += '<tr><td>' + R.name + '</td><td class="num">' + ftin(R.w) + ' × ' + ftin(R.h) + '</td><td class="num">' + R.w + ' × ' + R.h + '</td><td class="num" data-room="' + k + '">...</td></tr>';
-    });
-    $('roomTab').innerHTML = h + '</tbody>';
-    sb('GET', '?select=room&kind=eq.standard').then(function (rows) {
-      var c = {}; rows.forEach(function (r) { c[r.room] = (c[r.room] || 0) + 1; });
-      ROOM_ORDER.forEach(function (k) { var td = $('roomTab').querySelector('[data-room="' + k + '"]'); if (td) td.textContent = c[k] || 0; });
-    }, function () {
-      ROOM_ORDER.forEach(function (k) { var td = $('roomTab').querySelector('[data-room="' + k + '"]'); if (td) td.textContent = '-'; });
-    });
-  }
-  function buildTableSettings() {
-    var h = '<thead><tr><th>Table</th><th>Size</th><th>Default seats</th><th>Defaults</th></tr></thead><tbody>';
-    GROUPS.forEach(function (g) {
-      h += '<tr class="grow"><td colspan="4">' + g.cap + '</td></tr>';
-      g.keys.forEach(function (k) {
-        var T = TYPES[k], notes = [];
-        if (T.seatRot) notes.push('Seat ring turned ' + T.seatRot + '°');
-        if (T.rot) notes.push('Placed turned ' + T.rot + '°');
-        if (T.endsFirst) notes.push('Seats on the short ends');
-        h += '<tr><td>' + T.name + '</td><td class="num">' + dimText(T) + '</td><td class="num">' + (isSvc(T) ? '-' : T.seats) + '</td><td>' + notes.join(', ') + '</td></tr>';
-      });
-    });
-    $('tableTab').innerHTML = h + '</tbody>';
-  }
 
   var root = document.documentElement;
   var MOON = '<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M15 10.4A6.4 6.4 0 017.6 3 6.4 6.4 0 1015 10.4z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>';
@@ -2636,6 +3281,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   syncTheme();
 
   seedDefaults();
+  fetchConfig();
   var startHash = (location.hash || '').slice(1);
   showView(VIEWS[startHash] ? startHash : 'home', true);
 
