@@ -181,6 +181,15 @@ body.allv .palette, body.allv .rpanel, body.allv #lpToggle, body.allv #rpToggle,
 .crow .cb { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 6px; }
 .crow .btn { padding: 6px 10px; font-size: 13px; }
 .chead { margin: 10px 0 2px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.crumbs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+.crumbs .crumb { padding: 4px 10px; font-size: 13px; }
+.csep { color: var(--muted); }
+.folders { display: grid; gap: 4px; max-height: 150px; overflow-y: auto; }
+.fbtn { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 10px; font: 600 14px var(--font-ui); color: var(--ink); background: var(--floor); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; text-align: left; }
+.fbtn:hover { border-color: var(--accent); }
+.newf { display: flex; gap: 6px; }
+.newf input { flex: 1; min-width: 0; }
 .radios { display: flex; gap: 14px; flex-wrap: wrap; }
 .radios label { display: flex; align-items: center; gap: 6px; font-size: 14px; cursor: pointer; }
 .radios input, .chk2 input { accent-color: var(--accent); }
@@ -361,6 +370,7 @@ body.pdfmode { --bg: #fff; --panel: #fff; --ink: #111; --muted: #444; --line: #b
 .cmore { font-size: 11px; color: var(--muted); }
 .cdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .cdot.big { width: 14px; height: 14px; }
+.cdot.d { background: transparent; border: 2px solid var(--muted); box-sizing: border-box; }
 .cdot.r { background: #c4524a; } .cdot.y { background: #d19a2a; } .cdot.g { background: #3d8b63; } .cdot.x { background: #9aa39d; opacity: .7; }
 .calday { display: grid; gap: 10px; }
 .calh2 { margin: 6px 0 0; font-size: 18px; }
@@ -485,6 +495,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <header class="phead"><div class="club">Applebrook Golf Club</div><div style="display:flex;gap:8px;align-items:center"><button class="btn installBtn" type="button" hidden>Install app</button><button class="iconbtn themeBtn" type="button"></button></div></header>
   <div class="hero"><h1>Floor Plans</h1></div>
   <div class="cards">
+    <button class="card" type="button" id="goResume" hidden><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M7 4.5l11 6.5-11 6.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Resume</h2><p id="resumeTxt"></p></button>
     <button class="card" type="button" id="goNew"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 4v14M4 11h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New</h2><p>Start an event or a single floor plan.</p></button>
     <button class="card" type="button" data-go="calendar"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="5" width="15" height="13.5" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h15M7.5 3v4M14.5 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Events Calendar</h2><p>See scheduled floor plans by date.</p></button>
     <button class="card" type="button" id="goLoad"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 15V4M6.5 8.5L11 4l4.5 4.5M4 15v3h14v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Load</h2><p>Open a saved layout from this device.</p></button>
@@ -564,6 +575,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="cloudSaveBtn" type="button"><span>Save</span><kbd>Ctrl+S</kbd></button>
           <button class="mi" id="saveBtn" type="button"><span>Save to file</span></button>
           <button class="mi" id="saveCopyBtn" type="button"><span>Save a copy to cloud</span></button>
+          <button class="mi" id="saveStdBtn" type="button"><span>Save as room standard</span></button>
           <button class="mi installBtn" type="button" hidden><span>Install app</span></button>
           <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
           <button class="mi" id="printBtn" type="button"><span>Print</span></button>
@@ -797,17 +809,24 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 </dialog>
 
 <dialog id="cloudSaveDlg" aria-labelledby="csTitle">
-  <h2 id="csTitle">Save</h2>
-  <p class="lead" id="csLead"></p>
+  <h2 id="csTitle">Save event</h2>
   <div class="openbox">
-    <div class="field" style="margin:0"><label for="csName">Name</label><input id="csName" type="text" maxlength="60" autocomplete="off"></div>
-    <div class="field" style="margin:0"><label for="csAuthor">Your name</label><input id="csAuthor" type="text" maxlength="40" autocomplete="off"></div>
-    <div class="field" style="margin:0"><span class="lbl">Save as</span>
-      <div class="radios">
-        <label><input type="radio" name="csKind" value="layout" checked> Saved layout</label>
-        <label><input type="radio" name="csKind" value="standard"> Standard layout for this room</label>
+    <div id="csEvFields">
+      <div class="field" style="margin:0 0 10px"><label for="csEvTitle">Event title</label><input id="csEvTitle" type="text" maxlength="60" autocomplete="off"></div>
+      <div class="row2" style="margin-bottom:6px">
+        <div class="field" style="margin:0"><label for="csHost">Host</label><input id="csHost" type="text" maxlength="60" autocomplete="off"></div>
+        <div class="field" style="margin:0"><label for="csDate">Date</label><input id="csDate" type="date"></div>
       </div>
+      <p class="fine" id="csRooms" style="margin:0 0 4px"></p>
     </div>
+    <div class="field" style="margin:0"><label for="csName" id="csNameL">File name</label><input id="csName" type="text" maxlength="80" autocomplete="off"></div>
+    <div class="field" id="csLoc" style="margin:0">
+      <span class="lbl">Save in</span>
+      <div class="crumbs" id="csCrumbs"></div>
+      <div class="folders" id="csFolders"></div>
+      <div class="newf"><input id="csNewF" type="text" maxlength="60" placeholder="New folder name" autocomplete="off"><button class="btn" id="csNewFBtn" type="button">Add folder</button></div>
+    </div>
+    <div class="field" style="margin:0"><label for="csAuthor">Your name</label><input id="csAuthor" type="text" maxlength="40" autocomplete="off"></div>
     <label class="chk2" id="csReplaceRow" hidden><input type="checkbox" id="csReplace"><span id="csReplaceTxt">Replace the saved copy</span></label>
     <div class="err" id="csErr" role="alert"></div>
   </div>
@@ -897,8 +916,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
 <dialog id="unsDlg" aria-labelledby="unsTitle">
   <h2 id="unsTitle">Unsaved changes</h2>
-  <p class="lead">This floorplan has changes that are not saved to a file or the cloud.</p>
-  <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Discard changes</button><button class="btn primary" id="unsSave" type="button">Save to file first</button></div>
+  <p class="lead">This project has changes that are not saved. Save it as an event first, or discard it.</p>
+  <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Discard changes</button><button class="btn primary" id="unsSave" type="button">Save</button></div>
 </dialog>
 
 <dialog id="chooseDlg" aria-labelledby="chooseTitle">
@@ -2486,13 +2505,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return 'Cloud error: ' + (e && e.message);
   }
   var csDlg = $('cloudSaveDlg'), coDlg = $('cloudOpenDlg');
-  function csKind() { return document.querySelector('input[name="csKind"]:checked').value; }
   /* ---------- Save, autosave and drafts ---------- */
   function nowTime() { return new Date().toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' }); }
   function setSaveInd(m) { var e = $('saveInd'); e.textContent = m; hide(e, !m); }
   function authorName() { try { return localStorage.getItem(AUTHOR_KEY) || ''; } catch (e) { return ''; } }
   function eventLabel() { return S.event.name || (S.docs[S.event.rooms[0]] && S.docs[S.event.rooms[0]].name) || ''; }
-  function hasWork() { return !!(S.event.name || S.event.date || S.event.rooms.some(function (k) { return !S.docs[k].fresh; })); }
+  function hasWork() { return !!(S.event.name || S.event.date || S.event.rooms.some(function (k) { return !S.docs[k].fresh || !!S.docs[k].name; })); }
   function layoutRow(kind, name) { return { kind: kind, room: S.event.rooms.join(','), name: name, author: authorName(), data: payload(), updated_at: new Date().toISOString() }; }
   function failInd(e) { setSaveInd(e instanceof TypeError ? 'Offline, will retry' : 'Save failed, will retry'); }
   /* Update the existing cloud copy of this event. */
@@ -2503,7 +2521,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     setSaveInd('Saving...');
     return sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation').then(function (rows) {
       if (!rows || !rows[0]) { delete cloudRef.__event; setSaveInd(''); save(); return false; }
-      ref.name = name; S.dirty = false; S.stale = false; save(); setSaveInd('Saved ' + nowTime()); pushShare(); return true;
+      ref.name = name; S.dirty = false; S.stale = false; evCache = null; save(); setSaveInd('Saved ' + nowTime()); pushShare(); return true;
     }, function (e) { failInd(e); return false; });
   }
   /* Before the first manual save, work goes to a draft that stays out of the calendar and lists. */
@@ -2518,7 +2536,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       return rows;
     }).then(function (rows) {
       if (!rows || !rows[0]) { setSaveInd(''); return false; }
-      cloudRef.__draft = { id: rows[0].id, kind: 'draft', name: name }; S.stale = false; save(); setSaveInd('Draft saved ' + nowTime()); return true;
+      cloudRef.__draft = { id: rows[0].id, kind: 'draft', name: name }; S.stale = false; evCache = null; save(); setSaveInd('Draft saved ' + nowTime()); return true;
     }, function (e) { failInd(e); return false; });
   }
   function autoTick() {
@@ -2539,44 +2557,123 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     openSaveDlg(false);
   }
-  var csCopy = false;
-  function refFor(kind) { return kind === 'standard' ? cloudRef[S.room] : cloudRef.__event; }
-  function csSync() {
-    var ref = csCopy ? null : refFor(csKind());
-    $('csReplaceRow').hidden = !ref; $('csReplace').checked = !!ref;
-    $('csReplaceTxt').textContent = ref ? 'Update the cloud copy (' + (ref.name || 'saved') + ')' : '';
+  /* ---------- save dialog: events and folders ---------- */
+  var csCopy = false, csMode = 'event', csFolder = [], csAfter = null, csIndex = [], csNameTouched = false, csFolderTouched = false;
+  function leafName(n) { var p = String(n || '').split('/'); return p[p.length - 1] || 'Untitled'; }
+  function pathOf(n) { var p = String(n || '').split('/'); p.pop(); return p; }
+  function cleanSeg(t) { return String(t || '').replace(/[\/\\]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 60); }
+  function childFolders(names, path) {
+    var out = {};
+    names.forEach(function (n) {
+      var d = pathOf(n);
+      if (d.length > path.length && path.every(function (s, i) { return d[i] === s; })) out[d[path.length]] = (out[d[path.length]] || 0) + 1;
+    });
+    return out;
   }
-  [].forEach.call(document.querySelectorAll('input[name="csKind"]'), function (r) { r.addEventListener('change', csSync); });
-  function openSaveDlg(copy) {
-    csCopy = !!copy;
-    var multiRoom = S.event.rooms.length > 1;
-    $('csTitle').textContent = copy ? 'Save a copy to the cloud' : 'Save';
-    $('csLead').textContent = multiRoom ? 'Saves this event (' + S.event.rooms.length + ' rooms) for everyone to open. Fixtures go with it.' : 'Saves ' + room().name + ' for everyone to open. Fixtures go with it.';
-    var stRef = cloudRef[S.room], evRef = cloudRef.__event;
-    var kind = (!copy && !evRef && stRef && stRef.kind === 'standard' && !multiRoom && !S.all) ? 'standard' : 'layout';
-    document.querySelector('input[name="csKind"][value="' + kind + '"]').checked = true;
-    document.querySelector('input[name="csKind"][value="standard"]').disabled = S.all;
+  function defaultFile(title, date) { return cleanSeg((date ? date + ' ' : '') + title); }
+  function defaultFolder(date) { return date ? [date.slice(0, 4), date] : ['Floor plans']; }
+  function renderLoc() {
+    var cr = $('csCrumbs'), fl = $('csFolders'); cr.replaceChildren(); fl.replaceChildren();
+    cr.appendChild(mkBtn('Cloud', 'btn crumb', function () { csFolder = []; csFolderTouched = true; renderLoc(); }));
+    csFolder.forEach(function (seg, i) {
+      cr.appendChild(dm('span', 'csep', '/'));
+      cr.appendChild(mkBtn(seg, 'btn crumb', function () { csFolder = csFolder.slice(0, i + 1); csFolderTouched = true; renderLoc(); }));
+    });
+    var kids = childFolders(csIndex, csFolder), names = Object.keys(kids).sort();
+    if (!names.length) fl.appendChild(dm('p', 'fine', 'No folders here yet.'));
+    names.forEach(function (n) {
+      var b = mkBtn(n, 'fbtn', function () { csFolder = csFolder.concat([n]); csFolderTouched = true; renderLoc(); });
+      b.appendChild(dm('span', 'fine', kids[n] + (kids[n] === 1 ? ' item' : ' items'))); fl.appendChild(b);
+    });
+  }
+  function csSync() {
+    var ref = csCopy ? null : (csMode === 'std' ? cloudRef[S.room] : cloudRef.__event);
+    $('csReplaceRow').hidden = !ref; $('csReplace').checked = !!ref;
+    $('csReplaceTxt').textContent = ref ? 'Update the cloud copy (' + leafName(ref.name || 'saved') + ')' : '';
+  }
+  function csNameDefault() {
+    if (csNameTouched) return;
+    $('csName').value = defaultFile($('csEvTitle').value.trim() || 'Untitled', vDate($('csDate').value));
+  }
+  function openSaveDlg(copy, mode, after) {
+    csCopy = !!copy; csMode = mode === 'std' ? 'std' : 'event'; csAfter = after || null;
+    csNameTouched = false; csFolderTouched = false; csIndex = [];
+    var std = csMode === 'std', many = S.event.rooms.length > 1;
+    $('csTitle').textContent = std ? 'Save as room standard' : (copy ? 'Save a copy' : 'Save event');
+    hide($('csEvFields'), std); hide($('csLoc'), std);
+    $('csNameL').textContent = std ? 'Standard name' : 'File name';
     $('csAuthor').value = authorName();
-    var ref = copy ? null : refFor(kind);
-    $('csName').value = (ref && ref.name) || (cloudRef.__draft && !evRef && kind === 'layout' ? eventLabel() : '') || (S.all || multiRoom ? S.event.name : doc().name) || eventLabel() || '';
-    csSync();
     $('csErr').textContent = '';
+    if (std) {
+      $('csName').value = (cloudRef[S.room] && cloudRef[S.room].kind === 'standard' && !copy ? leafName(cloudRef[S.room].name) : '') || (doc().name || room().name);
+    } else {
+      var title = S.event.name || (!many && !S.event.date ? doc().name : '');
+      $('csEvTitle').value = title; $('csHost').value = S.event.host || ''; $('csDate').value = S.event.date || '';
+      $('csDate').required = !!S.event.date;
+      $('csRooms').textContent = 'Rooms: ' + S.event.rooms.map(function (k) { return ROOMS[k].name; }).join(', ') + '. Change them in Event settings.';
+      var ref = copy ? null : cloudRef.__event;
+      $('csName').value = ref ? leafName(ref.name) : defaultFile(title || 'Untitled', S.event.date);
+      csNameTouched = !!ref;
+      csFolder = ref ? pathOf(ref.name) : defaultFolder(S.event.date);
+      renderLoc();
+      sb('GET', '?kind=eq.layout&select=name&limit=500').then(function (rows) { csIndex = (rows || []).map(function (r) { return r.name; }); if (csDlg.open) renderLoc(); }, function () {});
+    }
+    csSync();
     csDlg.showModal();
   }
+  $('csEvTitle').addEventListener('input', csNameDefault);
+  $('csDate').addEventListener('input', function () {
+    csNameDefault();
+    if (!csFolderTouched) { csFolder = defaultFolder(vDate($('csDate').value)); renderLoc(); }
+  });
+  $('csName').addEventListener('input', function () { csNameTouched = true; });
+  $('csNewFBtn').addEventListener('click', function () {
+    var n = cleanSeg($('csNewF').value);
+    if (!n) return;
+    if (csFolder.length >= 5) { $('csErr').textContent = 'That is as deep as folders go.'; return; }
+    csFolder = csFolder.concat([n]); csFolderTouched = true; $('csNewF').value = ''; renderLoc();
+  });
+  $('csNewF').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('csNewFBtn').click(); } });
+  /* Save, then carry on with whatever was waiting. */
+  function saveThen(cb) {
+    if (cloudRef.__event) {
+      saveToCloudSilent().then(function (ok) { if (ok) cb(); else toast('Could not save. Try again.'); });
+      return;
+    }
+    openSaveDlg(false, 'event', cb);
+  }
   $('cloudSaveBtn').addEventListener('click', function () { closeMenu(); doSave(); });
-  $('saveCopyBtn').addEventListener('click', function () { closeMenu(); openSaveDlg(true); });
-  $('csCancel').addEventListener('click', function () { csDlg.close(); });
+  $('saveCopyBtn').addEventListener('click', function () { closeMenu(); openSaveDlg(true, 'event'); });
+  $('saveStdBtn').addEventListener('click', function () {
+    closeMenu();
+    if (S.all) { toast('Pick a room first.'); return; }
+    openSaveDlg(false, 'std');
+  });
+  $('csCancel').addEventListener('click', function () { csAfter = null; csDlg.close(); });
+  csDlg.addEventListener('close', function () { csAfter = null; });
   $('csGo').addEventListener('click', function () {
-    var name = $('csName').value.trim(), author = $('csAuthor').value.trim();
-    if (!name) { $('csErr').textContent = 'Give it a name.'; return; }
+    var author = $('csAuthor').value.trim(), std = csMode === 'std', fname = cleanSeg($('csName').value);
+    if (!fname) { $('csErr').textContent = std ? 'Give it a name.' : 'Give the file a name.'; return; }
+    var kind = std ? 'standard' : 'layout', many = S.event.rooms.length > 1, title = '', host = '', date = '';
+    if (!std) {
+      title = $('csEvTitle').value.trim().slice(0, 60); host = $('csHost').value.trim().slice(0, 60); date = vDate($('csDate').value);
+      if (!title) { $('csErr').textContent = 'Give the event a title.'; return; }
+      if (S.event.date && !date) { $('csErr').textContent = 'An event needs a date.'; return; }
+    }
     try { localStorage.setItem(AUTHOR_KEY, author); } catch (e) {}
-    var kind = csKind(), ref = csCopy ? null : refFor(kind), refKey = kind === 'standard' ? S.room : '__event';
-    var conv = (kind === 'layout' && !cloudRef.__event && cloudRef.__draft) ? cloudRef.__draft : null;
-    var row = { kind: kind, room: kind === 'standard' ? S.room : S.event.rooms.join(','), name: name, author: author,
-      data: kind === 'standard' ? roomPayload(S.room) : payload(), updated_at: new Date().toISOString() };
+    var ref = csCopy ? null : (std ? cloudRef[S.room] : cloudRef.__event), refKey = std ? S.room : '__event';
+    var conv = (!std && !cloudRef.__event && cloudRef.__draft) ? cloudRef.__draft : null;
+    if (!std) {
+      S.event.host = host; S.event.date = date;
+      if (date || many) S.event.name = title; else doc().name = title;
+      syncEventUI(); syncDocUI();
+    }
+    var folderPath = csFolder.map(cleanSeg).filter(Boolean).join('/'), full = std ? fname : (folderPath ? folderPath + '/' : '') + fname;
+    var row = { kind: kind, room: std ? S.room : S.event.rooms.join(','), name: full, author: author,
+      data: std ? roomPayload(S.room) : payload(), updated_at: new Date().toISOString() };
     var target = conv || ((ref && !$('csReplaceRow').hidden && $('csReplace').checked) ? ref : null);
     $('csGo').disabled = true; $('csErr').textContent = 'Saving...';
-    var pre = (kind === 'standard' && !target)
+    var pre = (std && !target)
       ? sb('GET', '?kind=eq.standard&is_default=eq.true&room=eq.' + encodeURIComponent(S.room) + '&select=id').then(function (rs) { row.is_default = !rs.length; }, function () {})
       : Promise.resolve();
     pre.then(function () {
@@ -2587,17 +2684,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }).then(function (rows) {
       $('csGo').disabled = false;
       if (!rows || !rows[0]) { $('csErr').textContent = 'The save did not go through.'; return; }
-      cloudRef[refKey] = { id: rows[0].id, kind: kind, name: name };
-      if (kind === 'layout') { delete cloudRef.__draft; S.dirty = false; S.stale = false; setSaveInd('Saved ' + nowTime()); pushShare(); }
+      cloudRef[refKey] = { id: rows[0].id, kind: kind, name: full };
+      if (!std) { delete cloudRef.__draft; S.dirty = false; S.stale = false; evCache = null; setSaveInd('Saved ' + nowTime()); pushShare(); }
       save();
-      csDlg.close(); toast(kind === 'standard' ? 'Saved as a standard layout for ' + room().name + '.' : 'Saved. Autosave is on.');
+      var after = csAfter; csAfter = null;
+      csDlg.close(); toast(std ? 'Saved as the standard layout for ' + room().name + '.' : 'Saved. Autosave is on.');
+      if (after) after();
     }, function (e) { $('csGo').disabled = false; $('csErr').textContent = cloudMsg(e); });
   });
 
   function fmtShort(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
   function cloudRow(r) {
     var row = document.createElement('div'); row.className = 'crow';
-    var n = document.createElement('div'); n.className = 'cn'; n.textContent = r.name || 'Untitled'; row.appendChild(n);
+    var n = document.createElement('div'); n.className = 'cn'; n.textContent = leafName(r.name); row.appendChild(n);
     var m = document.createElement('div'); m.className = 'cm';
     var rn = String(r.room || '').split(',').map(function (k) { return (ROOMS[k] || {}).name || k; }).join(', ');
     m.textContent = [r.is_default ? 'Default' : '', rn, r.author, fmtShort(r.updated_at)].filter(Boolean).join(' · '); row.appendChild(m);
@@ -2639,29 +2738,46 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return row;
   }
   function openCloud() { closeMenu(); coDlg.showModal(); loadCloudList(); }
+  var coPath = [], coRows = [];
   function loadCloudList() {
-    var list = $('coList'); list.replaceChildren(); $('coErr').textContent = 'Loading...';
-    sb('GET', '?select=id,kind,room,name,author,is_default,updated_at&order=updated_at.desc&limit=200').then(function (rows) {
-      $('coErr').textContent = '';
-      var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard' && r.kind !== 'config' && r.kind !== 'draft' && r.kind !== 'share'; }), drf = rows.filter(function (r) { return r.kind === 'draft'; });
-      function sect(title, arr, empty) {
-        var h = document.createElement('div'); h.className = 'chead'; h.textContent = title; list.appendChild(h);
-        if (!arr.length) { var e = document.createElement('p'); e.className = 'fine'; e.textContent = empty; list.appendChild(e); }
-        arr.forEach(function (r) { list.appendChild(cloudRow(r)); });
-      }
-      std.sort(function (a, b) { return (b.room === S.room) - (a.room === S.room) || (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0); });
-      sect('Standard layouts', std, 'None yet. Use Save and pick standard layout.');
-      sect('Saved layouts', lay, 'None yet.');
-      var dh = document.createElement('div'); dh.className = 'chead'; dh.textContent = 'Drafts'; list.appendChild(dh);
-      if (!drf.length) { var de = document.createElement('p'); de.className = 'fine'; de.textContent = 'None. Unsaved work is kept here until you delete it.'; list.appendChild(de); }
-      else {
-        drf.forEach(function (r) { list.appendChild(cloudRow(r)); });
-        var cb = sureBtn('Clear drafts', function () {
-          sb('DELETE', '?kind=eq.draft').then(function () { delete cloudRef.__draft; toast('Drafts cleared.'); loadCloudList(); }, function (e) { $('coErr').textContent = cloudMsg(e); });
-        });
-        cb.style.margin = '8px 10px'; list.appendChild(cb);
-      }
+    $('coList').replaceChildren(); $('coErr').textContent = 'Loading...';
+    sb('GET', '?select=id,kind,room,name,author,is_default,updated_at&order=updated_at.desc&limit=500').then(function (rows) {
+      coRows = rows || []; $('coErr').textContent = ''; renderCloudList();
     }, function (e) { $('coErr').textContent = cloudMsg(e); });
+  }
+  function renderCloudList() {
+    var list = $('coList'); list.replaceChildren();
+    var rows = coRows;
+    var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind === 'layout'; }), drf = rows.filter(function (r) { return r.kind === 'draft'; });
+    function sect(title, arr, empty) {
+      list.appendChild(dm('div', 'chead', title));
+      if (!arr.length) list.appendChild(dm('p', 'fine', empty));
+      arr.forEach(function (r) { list.appendChild(cloudRow(r)); });
+    }
+    list.appendChild(dm('div', 'chead', 'Saved events'));
+    var cr = dm('div', 'crumbs');
+    cr.appendChild(mkBtn('All events', 'btn crumb', function () { coPath = []; renderCloudList(); }));
+    coPath.forEach(function (seg, i) { cr.appendChild(dm('span', 'csep', '/')); cr.appendChild(mkBtn(seg, 'btn crumb', function () { coPath = coPath.slice(0, i + 1); renderCloudList(); })); });
+    list.appendChild(cr);
+    var kids = childFolders(lay.map(function (r) { return r.name; }), coPath), kn = Object.keys(kids).sort().reverse();
+    kn.forEach(function (n) {
+      var fb = mkBtn(n, 'fbtn', function () { coPath = coPath.concat([n]); renderCloudList(); });
+      fb.appendChild(dm('span', 'fine', kids[n] + (kids[n] === 1 ? ' item' : ' items'))); list.appendChild(fb);
+    });
+    var here = lay.filter(function (r) { var d = pathOf(r.name); return d.length === coPath.length && coPath.every(function (x, i) { return d[i] === x; }); });
+    if (!kn.length && !here.length) list.appendChild(dm('p', 'fine', coPath.length ? 'Nothing in this folder.' : 'None yet.'));
+    here.forEach(function (r) { list.appendChild(cloudRow(r)); });
+    std.sort(function (a, b) { return (b.room === S.room) - (a.room === S.room) || (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0); });
+    sect('Standard layouts', std, 'None yet. Use Save as room standard in the editor menu.');
+    list.appendChild(dm('div', 'chead', 'Drafts'));
+    if (!drf.length) list.appendChild(dm('p', 'fine', 'None. Unsaved work is kept here until you delete it.'));
+    else {
+      drf.forEach(function (r) { list.appendChild(cloudRow(r)); });
+      var cb = sureBtn('Clear drafts', function () {
+        sb('DELETE', '?kind=eq.draft').then(function () { delete cloudRef.__draft; evCache = null; toast('Drafts cleared.'); loadCloudList(); }, function (e) { $('coErr').textContent = cloudMsg(e); });
+      });
+      cb.style.margin = '8px 10px'; list.appendChild(cb);
+    }
   }
   $('cloudOpenBtn').addEventListener('click', openCloud);
   $('defaultBtn').addEventListener('click', function () {
@@ -3364,19 +3480,36 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   });
 
   /* ---------- unsaved changes ---------- */
-  var guardNext = null;
-  function guardDirty(next) {
+  var guardNext = null, guardDiscard = null, guardHash = false;
+  function guardDirty(next, onDiscard, fromHash) {
     if (!S.dirty) { next(); return; }
-    guardNext = next; $('unsDlg').showModal();
+    guardNext = next; guardDiscard = onDiscard || null; guardHash = !!fromHash;
+    $('unsDlg').showModal();
   }
-  $('unsCancel').addEventListener('click', function () { guardNext = null; $('unsDlg').close(); });
-  $('unsDiscard').addEventListener('click', function () { var n = guardNext; guardNext = null; $('unsDlg').close(); if (n) n(); });
-  $('unsSave').addEventListener('click', function () {
-    saveFile(function (ok) {
-      var n = guardNext; guardNext = null; $('unsDlg').close();
-      if (ok && n) n();
-    });
+  $('unsCancel').addEventListener('click', function () {
+    var h = guardHash; guardNext = null; guardDiscard = null; guardHash = false; $('unsDlg').close();
+    if (h) { try { location.hash = 'editor'; } catch (e) {} }
   });
+  $('unsDiscard').addEventListener('click', function () {
+    var n = guardNext, d = guardDiscard; guardNext = null; guardDiscard = null; guardHash = false; $('unsDlg').close();
+    if (d) d();
+    if (n) n();
+  });
+  $('unsSave').addEventListener('click', function () {
+    var n = guardNext; guardNext = null; guardDiscard = null; guardHash = false; $('unsDlg').close();
+    saveThen(function () { if (n) n(); });
+  });
+  /* Throw the open project away and go back to a blank start. */
+  function resetProject() {
+    var dr = cloudRef.__draft;
+    if (dr) sb('DELETE', '?id=eq.' + encodeURIComponent(dr.id)).catch(function () {});
+    S.event = { rooms: sortRooms(visibleRooms()), name: '', host: '', date: '', multi: false, endDate: '', notes: '', pos: null, locked: false, setRooms: [] };
+    Object.keys(ROOMS).forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
+    Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
+    S.dirty = false; S.stale = false; S.viaNext = false; evCache = null; setSaveInd('');
+    leaveAll(); sel = null; multi = [];
+    buildRoomSelect(); setRoom(S.event.rooms[0]); syncEventUI(); save(); seedDefaults();
+  }
 
   /* ---------- print, PDF and share ---------- */
   function pageInfo(k) {
@@ -3745,21 +3878,32 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     o.legacy = !e;
     return o;
   }
+  var EV_SEL = '?kind=eq.KIND&select=id,name,author,room,updated_at,ev:data->event,d1:data->date,s1:data->setRooms&order=updated_at.desc&limit=500';
   function fetchEvents(force) {
     if (evCache && !force) return Promise.resolve(evCache);
-    return sb('GET', '?kind=eq.layout&select=id,name,author,room,updated_at,ev:data->event,d1:data->date,s1:data->setRooms&order=updated_at.desc&limit=500').then(function (rows) {
-      evCache = rows.map(evFromRow).filter(function (e) { return e.start; });
+    return Promise.all([
+      sb('GET', EV_SEL.replace('KIND', 'layout')),
+      sb('GET', EV_SEL.replace('KIND', 'draft')).catch(function () { return []; })
+    ]).then(function (res) {
+      evCache = res[0].map(evFromRow).filter(function (e) { return e.start; });
+      res[1].forEach(function (r) { var e = evFromRow(r); if (e.start) { e.draft = true; evCache.push(e); } });
       return evCache;
     });
   }
   function evStatus(e) {
+    if (e.draft) return 'd';
     if (e.end < todayStr()) return 'x';
     var n = e.rooms.filter(function (k) { return e.set.indexOf(k) >= 0; }).length;
     return n === 0 ? 'r' : (n >= e.rooms.length ? 'g' : 'y');
   }
-  var EV_STATUS = { r: 'Nothing set yet', y: 'Partly set', g: 'All rooms set', x: 'Past event' };
+  var EV_STATUS = { d: 'Draft, not saved yet', r: 'Nothing set yet', y: 'Partly set', g: 'All rooms set', x: 'Past event' };
   function rName(k) { return has(ROOMS, k) ? ROOMS[k].name : k; }
-  function eventsOn(day) { return (evCache || []).filter(function (e) { return e.start <= day && day <= e.end; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); }); }
+  function localDraft() {
+    if (!hasWork() || !S.event.date || cloudRef.__event || cloudRef.__draft) return null;
+    var e = S.event, end = e.multi && vDate(e.endDate) >= e.date ? e.endDate : e.date;
+    return { id: '__local', name: eventLabel() || 'Untitled event', author: '', start: e.date, end: end, host: e.host || '', rooms: e.rooms.slice(), set: [], draft: true, local: true };
+  }
+  function eventsOn(day) { return (evCache || []).concat(localDraft() || []).filter(function (e) { return e.start <= day && day <= e.end; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); }); }
   function buildCalendar(force) {
     if (!calMonth) { var t = new Date(); calMonth = new Date(t.getFullYear(), t.getMonth(), 1); }
     $('calMsg').textContent = 'Loading...';
@@ -3807,6 +3951,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var range = e.end !== e.start ? ymdDate(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' to ' + ymdDate(e.end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
     info.appendChild(dm('div', 'sm', [EV_STATUS[st], e.host ? 'Host: ' + e.host : '', range, e.author].filter(Boolean).join(' · ')));
     head.appendChild(info);
+    if (e.draft) {
+      head.appendChild(mkBtn(e.local ? 'Resume' : 'Open', 'btn primary', function () { openDraftRow(e); }));
+      if (!e.local) head.appendChild(sureBtn('Delete draft', function () {
+        sb('DELETE', '?id=eq.' + encodeURIComponent(e.id)).then(function () {
+          evCache = (evCache || []).filter(function (x) { return x.id !== e.id; });
+          if (cloudRef.__draft && cloudRef.__draft.id === e.id) delete cloudRef.__draft;
+          save(); renderCal();
+        }, function (x) { $('calMsg').textContent = cloudMsg(x); });
+      }));
+      card.appendChild(head);
+      return card;
+    }
     head.appendChild(mkBtn('Open', 'btn primary', function () { openEventRow(e); }));
     card.appendChild(head);
     var rl = dm('div', 'evrooms');
@@ -3838,6 +3994,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       });
     });
   }
+  function openDraftRow(e) {
+    if (e.local) { showView('editor'); return; }
+    guardDirty(function () {
+      sb('GET', '?id=eq.' + encodeURIComponent(e.id) + '&select=data').then(function (rows) {
+        if (!rows || !rows[0]) { toast('That draft is gone.'); return; }
+        var err = applyLayout(JSON.stringify(rows[0].data));
+        if (err) { toast(err); return; }
+        cloudRef.__draft = { id: e.id, kind: 'draft', name: e.name }; S.dirty = S.stale = true; save();
+        showView('editor'); toast('Opened the draft ' + e.name + '.');
+      }, function (x) { toast(cloudMsg(x)); });
+    });
+  }
   function openEventRow(e, then) {
     guardDirty(function () {
       sb('GET', '?id=eq.' + encodeURIComponent(e.id) + '&select=data').then(function (rows) {
@@ -3859,7 +4027,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var rk = S.room;
     fetchEvents(true).then(function (list) {
       var t = todayStr();
-      var c = list.filter(function (e) { return e.rooms.indexOf(rk) >= 0 && e.end >= t; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); });
+      var c = list.filter(function (e) { return !e.draft && e.rooms.indexOf(rk) >= 0 && e.end >= t; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); });
       if (!c.length) { toast('No upcoming events for ' + rName(rk) + '.'); return; }
       var cur = cloudRef.__event ? cloudRef.__event.id : null, idx = -1, i;
       for (i = 0; i < c.length; i++) if (c[i].id === cur) idx = i;
@@ -3950,11 +4118,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   setRoom(S.room);
 
   /* ---------- pages, theme, settings lists ---------- */
+  function syncResume() {
+    var on = hasWork(); $('goResume').hidden = !on;
+    if (on) $('resumeTxt').textContent = [eventLabel() || room().name, eventDateText(), S.dirty ? 'Not saved yet' : 'Saved'].filter(Boolean).join(' · ');
+  }
+  $('goResume').addEventListener('click', function () { showView('editor'); });
   var VIEWS = { home: 'viewHome', calendar: 'viewCalendar', settings: 'viewSettings', rooms: 'viewRooms', tables: 'viewTables', editor: 'viewEditor' };
-  function showView(name, fromHash) {
+  function showView(name, fromHash, noGuard) {
     if (!VIEWS[name]) name = 'home';
+    if (!noGuard && curView === 'editor' && name !== 'editor' && S.dirty) {
+      guardDirty(function () { showView(name, fromHash, true); }, resetProject, fromHash);
+      return;
+    }
     Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== name; });
     curView = name;
+    if (name === 'home') syncResume();
     if (name === 'calendar') buildCalendar(true);
     if (name === 'rooms') { buildRoomSettings(); setCfgStatus(''); fetchConfig(); }
     if (name === 'tables') { buildTableSettings(); setCfgStatus(''); fetchConfig(); }
