@@ -262,6 +262,15 @@ body.allv .palette, body.allv .rpanel, body.allv #lpToggle, body.allv #rpToggle,
 .table.sel .tbody { stroke: var(--accent); stroke-width: 2.6; fill: var(--accent-soft); }
 .item:focus-visible .tbody { stroke: var(--accent); stroke-width: 2.6; stroke-dasharray: 6 4; }
 .tlabel { font-family: var(--font-ui); font-weight: 700; fill: var(--ink); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+.gbr { fill: var(--panel); stroke: var(--line); stroke-width: 1; }
+.gbox { cursor: move; }
+.gbox:hover .gbr { stroke: var(--accent); }
+.gbox.sel .gbr { stroke: var(--accent); stroke-width: 1.6; }
+.gbt { font-family: var(--font-ui); font-weight: 500; fill: var(--ink); dominant-baseline: central; pointer-events: none; }
+.gbt.b { font-weight: 700; }
+.gbl { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 3 3; opacity: .55; pointer-events: none; }
+body.pdfmode.no-guests .gbox { display: none; }
+@media print { body.no-guests .gbox { display: none; } }
 .tseats { font-family: var(--font-num); font-weight: 500; fill: var(--muted); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
 .shp { stroke: var(--shape-edge); stroke-width: 2; }
 .fill-none { fill: none; pointer-events: all; }
@@ -589,6 +598,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="gridBtn" type="button" role="switch" aria-checked="false"><span>Show grid</span><span class="sw"></span></button>
           <button class="mi" id="dimsBtn" type="button" role="switch" aria-checked="false"><span>Show room size</span><span class="sw"></span></button>
           <hr>
+          <button class="mi" id="arrBoxMenuBtn" type="button"><span>Auto arrange name boxes</span></button>
           <button class="mi" id="clearBtn" type="button"><span>Clear layout</span></button>
         </div>
       </div>
@@ -648,6 +658,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
               <g id="shapesL"></g>
               <g id="tablesL"></g>
               <g id="textL"></g>
+              <g id="gboxL"></g>
             </g>
             <g id="handlesL"></g>
           </svg>
@@ -681,7 +692,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         <div id="blkTable">
           <div class="field">
             <label for="labelInput">Label</label>
-            <input id="labelInput" type="text" maxlength="8" autocomplete="off">
+            <textarea id="labelInput" maxlength="400" rows="2" autocomplete="off"></textarea>
+          </div>
+          <div class="field">
+            <label for="guestInput">Guests</label>
+            <textarea id="guestInput" maxlength="2000" rows="4" placeholder="Family or member names, any format"></textarea>
+            <button class="btn full" id="arrBoxBtn" type="button" style="margin-top:6px">Auto arrange name boxes</button>
           </div>
           <div class="field" id="seatField">
             <label for="seatInput">Seats</label>
@@ -991,6 +1007,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <label class="chk"><input type="checkbox" id="ppNotes"><span>Notes</span></label>
     <label class="chk"><input type="checkbox" id="ppNums"><span>Table numbers</span></label>
     <label class="chk"><input type="checkbox" id="ppSeats"><span># of seats</span></label>
+    <label class="chk"><input type="checkbox" id="ppGuests"><span>Guest names</span></label>
   </div>
   <div class="dlgfoot">
     <button class="btn" id="ppClose" type="button">Close</button>
@@ -1155,7 +1172,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function room() { return ROOMS[S.room]; }
 
   /* ---------- dom refs ---------- */
-  var allSvg = $('allRoom'), svg = $('room'), fixL = $('fixL'), shapesL = $('shapesL'), tablesL = $('tablesL'), textL = $('textL'), handlesL = $('handlesL');
+  var allSvg = $('allRoom'), svg = $('room'), fixL = $('fixL'), shapesL = $('shapesL'), tablesL = $('tablesL'), textL = $('textL'), gboxL = $('gboxL'), handlesL = $('handlesL');
   var scroller = $('scroller'), emptyMsg = $('emptyMsg');
   var roomSel = $('roomSel'), dimsEl = $('dims'), nameInput = $('nameInput');
   var seatStat = $('seatStat'), tableStat = $('tableStat');
@@ -1163,7 +1180,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var menuBtn = $('menuBtn'), menu = $('menu');
   var inspBody = $('inspBody'), inspTitle = $('inspTitle'), inspSub = $('inspSub');
   var blkTable = $('blkTable'), blkChairs = $('blkChairs'), blkShape = $('blkShape'), blkLine = $('blkLine'), blkText = $('blkText');
-  var labelInput = $('labelInput'), seatField = $('seatField'), seatInput = $('seatInput'), seatMax = $('seatMax');
+  var guestInput = $('guestInput'), labelInput = $('labelInput'), seatField = $('seatField'), seatInput = $('seatInput'), seatMax = $('seatMax');
   var seatMinus = $('seatMinus'), seatPlus = $('seatPlus');
   var chCount = $('chCount'), chLen = $('chLen'), chSpace = $('chSpace'), chWarn = $('chWarn'), chFlip = $('chFlip'), chCounts = $('chCounts');
   var wInput = $('wInput'), hInput = $('hInput'), fillRow = $('fillRow'), wtRow = $('wtRow');
@@ -1229,9 +1246,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var minD = Math.min(T.w, T.h);
     var fs = clamp(minD * 0.34, 9, 14);
     var tg = el('g', { transform: 'rotate(' + (-t.rot) + ')' }, g);
-    var showSub = !isSvc(T) && minD >= 40 && t.seats > 0;
-    var lab = el('text', { 'class': 'tlabel' + (isSvc(T) ? '' : ' num'), 'font-size': fs, y: showSub ? -fs * 0.35 : 0 }, tg);
-    lab.textContent = isSvc(T) ? (t.label || T.short) : t.label;
+    var fit = fitLabel(isSvc(T) ? (t.label || T.short) : t.label, t, T, fs), nl = fit.lines.length;
+    var showSub = !isSvc(T) && minD >= 40 && t.seats > 0 && nl <= 1 && !fit.over.length;
+    fs = fit.fs;
+    fit.lines.forEach(function (ln, i) {
+      var lab = el('text', { 'class': 'tlabel' + (isSvc(T) ? '' : ' num'), 'font-size': fs, y: nl > 1 ? (i - (nl - 1) / 2) * fs * 1.15 : (showSub ? -fs * 0.35 : 0) }, tg);
+      lab.textContent = ln;
+    });
+    if (!nl) el('text', { 'class': 'tlabel', 'font-size': fs, y: 0 }, tg).textContent = '';
     if (showSub) {
       var sub = el('text', { 'class': 'tseats', 'font-size': fs * 0.62, y: fs * 0.75 }, tg);
       sub.textContent = seatWord(t.seats);
@@ -1302,10 +1324,140 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function nodeFor(id) { return svg.querySelector('.item[data-id="' + id + '"]'); }
 
+  /* ---------- table label fit and guest name boxes ---------- */
+  var GB_FS = 9.5, GB_LH = 12, GB_MAXCH = 24, LABEL_MIN = 7;
+  function wrapPara(p, maxCh, soft) {
+    var out = [], line = '';
+    p.split(/\s+/).filter(Boolean).forEach(function (w) {
+      while (!soft && w.length > maxCh) { if (line) { out.push(line); line = ''; } out.push(w.slice(0, maxCh)); w = w.slice(maxCh); }
+      var t = line ? line + ' ' + w : w;
+      if (line && t.length > maxCh) { out.push(line); line = w; } else line = t;
+    });
+    if (line || !out.length) out.push(line);
+    return out;
+  }
+  function wrapLinesTxt(str, maxCh, soft) {
+    var out = [];
+    String(str).split('\n').forEach(function (p) { out = out.concat(wrapPara(p, maxCh, soft)); });
+    return out;
+  }
+  function labelAvail(t, T) {
+    var minD = Math.min(T.w, T.h);
+    if (isRound(T)) return { w: T.w * 0.74, h: T.w * 0.62 };
+    var r = (((t.rot || 0) % 180) + 180) % 180, w, h;
+    if (r < 22.5 || r > 157.5) { w = T.w; h = T.h; } else if (Math.abs(r - 90) < 22.5) { w = T.h; h = T.w; } else { w = minD; h = minD; }
+    return { w: Math.max(8, w - 6), h: Math.max(8, h - 4) };
+  }
+  function fitLabel(raw, t, T, fsMax) {
+    raw = String(raw == null ? '' : raw);
+    if (!raw) return { fs: fsMax, lines: [], over: [] };
+    if (raw.length <= 5 && raw.indexOf('\n') < 0) return { fs: fsMax, lines: [raw], over: [] };
+    var av = labelAvail(t, T), fs = fsMax, lines, maxL;
+    for (;;) {
+      lines = wrapLinesTxt(raw, Math.max(1, Math.floor(av.w / (fs * 0.6))), true);
+      maxL = Math.max(1, Math.floor(av.h / (fs * 1.15)));
+      var wide = Math.max.apply(null, lines.map(function (l) { return l.length; })) * fs * 0.6 > av.w * 1.05;
+      if (lines.length <= maxL && !wide) return { fs: fs, lines: lines, over: [] };
+      if (fs <= LABEL_MIN) break;
+      fs = Math.max(LABEL_MIN, fs - 0.5);
+    }
+    var k = 0;
+    while (k < lines.length && k < maxL && lines[k].length * fs * 0.6 <= av.w * 1.05) k++;
+    return { fs: fs, lines: lines.slice(0, k), over: lines.slice(k) };
+  }
+  function gboxInfo(t) {
+    var T = tinfo(t), fs = clamp(Math.min(T.w, T.h) * 0.34, 9, 14);
+    var fit = fitLabel(isSvc(T) ? (t.label || T.short) : t.label, t, T, fs);
+    var rows = [];
+    if (fit.over.length) wrapLinesTxt(fit.over.join(' '), GB_MAXCH + 4).forEach(function (l) { rows.push({ t: l, b: true }); });
+    if (t.guests && String(t.guests).trim()) {
+      if (rows.length) rows.push({ t: '', gap: true });
+      wrapLinesTxt(String(t.guests).trim(), GB_MAXCH).forEach(function (l) { rows.push({ t: l }); });
+    }
+    if (!rows.length) return null;
+    var chars = Math.max.apply(null, rows.map(function (r) { return r.t.length * (r.b ? 1.1 : 1); }));
+    var h = rows.reduce(function (a, r) { return a + (r.gap ? 5 : GB_LH); }, 0) + 8;
+    return { rows: rows, w: Math.max(34, chars * GB_FS * 0.57 + 12), h: h };
+  }
+  function gboxCenter(t, bx, R) {
+    R = R || room();
+    var o = t.gbox;
+    if (o) return { x: t.x + o.dx, y: t.y + o.dy };
+    var hx = half(t).x + 24 + bx.w / 2;
+    if (t.x + hx + bx.w / 2 > R.w && t.x - hx - bx.w / 2 > 0) hx = -hx;
+    return { x: clamp(t.x + hx, Math.min(bx.w / 2, R.w / 2), Math.max(R.w - bx.w / 2, R.w / 2)), y: clamp(t.y, Math.min(bx.h / 2, R.h / 2), Math.max(R.h - bx.h / 2, R.h / 2)) };
+  }
+  function gboxNode(t, live, R) {
+    var bx = gboxInfo(t); if (!bx) return null;
+    var c = gboxCenter(t, bx, R), h = half(t);
+    var g = el('g', { 'class': 'gbox' + (live && isSel(t.id) ? ' sel' : ''), transform: 'translate(' + c.x.toFixed(2) + ' ' + c.y.toFixed(2) + ')' });
+    if (live) g.setAttribute('data-gid', t.id);
+    var dx = t.x - c.x, dy = t.y - c.y, dist = Math.hypot(dx, dy);
+    if (Math.abs(dx) - h.x - bx.w / 2 > 14 || Math.abs(dy) - h.y - bx.h / 2 > 14) {
+      var k = Math.max(h.x, h.y) / (dist || 1);
+      el('line', { 'class': 'gbl', x1: 0, y1: 0, x2: dx - dx * k, y2: dy - dy * k }, g);
+    }
+    el('rect', { 'class': 'gbr', x: -bx.w / 2, y: -bx.h / 2, width: bx.w, height: bx.h, rx: 3 }, g);
+    var y = -bx.h / 2 + 4;
+    bx.rows.forEach(function (r) {
+      if (r.gap) { y += 5; return; }
+      var tx = el('text', { 'class': 'gbt' + (r.b ? ' b' : ''), 'font-size': GB_FS, x: -bx.w / 2 + 6, y: (y + GB_LH / 2).toFixed(2) }, g);
+      tx.textContent = r.t; y += GB_LH;
+    });
+    return g;
+  }
+  function gboxFor(id) { return gboxL.querySelector('.gbox[data-gid="' + id + '"]'); }
+  function refreshGbox(t) {
+    var old = gboxFor(t.id), g = gboxNode(t, true);
+    if (old) { if (g) old.replaceWith(g); else old.remove(); } else if (g) gboxL.appendChild(g);
+  }
+  function overlapArea(a, b) {
+    var w = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0), h = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
+    return w > 0 && h > 0 ? w * h : 0;
+  }
+  function autoArrangeBoxes() {
+    var R = room(), ts = items().filter(function (t) { return t.kind === 'table' && gboxInfo(t); });
+    if (!ts.length) { toast('No name boxes to arrange yet.'); return; }
+    var obs = [];
+    items().forEach(function (it) {
+      if (it.kind === 'table') { var h = half(it); obs.push({ x0: it.x - h.x - 20, x1: it.x + h.x + 20, y0: it.y - h.y - 20, y1: it.y + h.y + 20 }); }
+      else if (it.kind === 'text') { var b = itemBox(it); obs.push({ x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1 }); }
+    });
+    fix().forEach(function (it) { if (!isSeg(it)) { var b = itemBox(it); obs.push({ x0: b.x0, x1: b.x1, y0: b.y0, y1: b.y1 }); } });
+    var dirs = [[1, 0], [0, 1], [-1, 0], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]], steps = [0, 12, 26, 44, 70, 105, 150, 210], slides = [0, -0.6, 0.6, -1.2, 1.2, -1.9, 1.9];
+    ts.sort(function (a, b) { return a.y - b.y || a.x - b.x; }).forEach(function (t) {
+      var bx = gboxInfo(t), h = half(t), best = null, done = false;
+      for (var si = 0; si < steps.length && !done; si++) {
+        for (var di = 0; di < dirs.length && !done; di++) {
+          var d = dirs[di], diag = d[0] !== 0 && d[1] !== 0;
+          for (var li = 0; li < (diag ? 1 : slides.length); li++) {
+            var cx = t.x + d[0] * (h.x + 22 + bx.w / 2 + steps[si]), cy = t.y + d[1] * (h.y + 22 + bx.h / 2 + steps[si]);
+            if (!diag) { if (d[0] === 0) cx += slides[li] * bx.w; else cy += slides[li] * bx.h; }
+            var r = { x0: cx - bx.w / 2, x1: cx + bx.w / 2, y0: cy - bx.h / 2, y1: cy + bx.h / 2 };
+            var score = 0;
+            obs.forEach(function (o) { score += overlapArea(r, o); });
+            var out = (Math.max(0, -r.x0) + Math.max(0, r.x1 - R.w)) * bx.h + (Math.max(0, -r.y0) + Math.max(0, r.y1 - R.h)) * bx.w;
+            score += out * 6 + (Math.abs(slides[li]) * 3 + steps[si] * 0.05);
+            if (!best || score < best.score) best = { score: score, cx: cx, cy: cy, r: r };
+            if (score < 4 && out === 0) { done = true; break; }
+          }
+        }
+      }
+      t.gbox = { dx: r2(best.cx - t.x), dy: r2(best.cy - t.y) };
+      obs.push({ x0: best.r.x0 - 3, x1: best.r.x1 + 3, y0: best.r.y0 - 3, y1: best.r.y1 + 3 });
+    });
+    ts.forEach(refreshGbox); commit(); toast('Name boxes arranged.');
+  }
+  $('arrBoxBtn').addEventListener('click', autoArrangeBoxes);
+  $('arrBoxMenuBtn').addEventListener('click', function () { closeMenu(); autoArrangeBoxes(); });
+  guestInput.addEventListener('input', function () { var t = byId(sel); if (!t || t.kind !== 'table') return; t.guests = guestInput.value.slice(0, 2000); if (!t.guests) delete t.guests; refreshGbox(t); });
+  guestInput.addEventListener('change', commit);
+
   function refreshItem(it) {
     var old = nodeFor(it.id), had = old && document.activeElement === old;
     var g = mk(it);
     if (old) old.replaceWith(g); else layerFor(it).appendChild(g);
+    if (it.kind === 'table') refreshGbox(it);
     if (had) g.focus({ preventScroll: true });
   }
 
@@ -1316,9 +1468,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function render() {
-    fixL.replaceChildren(); shapesL.replaceChildren(); tablesL.replaceChildren(); textL.replaceChildren();
+    fixL.replaceChildren(); shapesL.replaceChildren(); tablesL.replaceChildren(); textL.replaceChildren(); gboxL.replaceChildren();
     fix().forEach(function (it) { fixL.appendChild(mk(it)); });
     items().forEach(function (it) { layerFor(it).appendChild(mk(it)); });
+    items().forEach(function (it) { if (it.kind === 'table') { var gn = gboxNode(it, true); if (gn) gboxL.appendChild(gn); } });
     renderHandles();
     updateStats(true);
   }
@@ -1336,6 +1489,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- handles ---------- */
   function renderHandles() {
     handlesL.replaceChildren();
+    Array.prototype.forEach.call(gboxL.children, function (g) { g.classList.toggle('sel', isSel(g.getAttribute('data-gid'))); });
     var it = sel ? byId(sel) : null;
     if (!it) return;
     var r = 7 / scale;
@@ -1597,6 +1751,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (document.activeElement !== seatRotInput) seatRotInput.value = r2(it.seatRot || 0);
       if (document.activeElement !== labelInput) labelInput.value = it.label;
       labelInput.placeholder = isSvc(T) ? 'Optional' : 'Table number';
+      if (document.activeElement !== guestInput) guestInput.value = it.guests || '';
       seatField.hidden = mx === 0;
       seatInput.max = mx;
       if (document.activeElement !== seatInput) seatInput.value = it.seats;
@@ -1678,7 +1833,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function duplicate(it) {
     var c = clone(it); c.id = uid();
-    if (c.kind === 'table') { var T = tinfo(c); c.label = isSvc(T) ? c.label : nextLabel(); }
+    if (c.kind === 'table') { var T = tinfo(c); c.label = isSvc(T) ? c.label : nextLabel(); delete c.guests; delete c.gbox; }
     moveItem(c, it, 24, 24, false);
     if (blocked(c)) { var p = findFree(c); c.x = p.x; c.y = p.y; }
     addNode(c);
@@ -1687,6 +1842,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var a = isFix(it) ? fix() : items(), i = a.indexOf(it);
     if (i >= 0) a.splice(i, 1);
     var n = nodeFor(it.id); if (n) n.remove();
+    var gn0 = gboxFor(it.id); if (gn0) gn0.remove();
     sel = null; multi = []; renderHandles(); syncInspector(); updateStats(); commit();
   }
   function setSeats(t, n) {
@@ -1705,7 +1861,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   /* ---------- inspector wiring ---------- */
-  labelInput.addEventListener('input', function () { var t = byId(sel); if (!t) return; t.label = labelInput.value.slice(0, 8); refreshItem(t); });
+  labelInput.addEventListener('input', function () { var t = byId(sel); if (!t) return; t.label = labelInput.value.slice(0, 400); refreshItem(t); });
   labelInput.addEventListener('change', commit);
   seatMinus.addEventListener('click', function () { var t = byId(sel); if (t) { setSeats(t, t.seats - 1); seatInput.value = t.seats; } });
   seatPlus.addEventListener('click', function () { var t = byId(sel); if (t) { setSeats(t, t.seats + 1); seatInput.value = t.seats; } });
@@ -1927,6 +2083,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       try { svg.setPointerCapture(e.pointerId); } catch (err) {}
       return;
     }
+    var gbx = e.target.closest ? e.target.closest('.gbox') : null;
+    if (gbx && !(e.shiftKey || e.ctrlKey || e.metaKey)) {
+      var gt = byId(gbx.getAttribute('data-gid'));
+      if (gt) {
+        if (sel !== gt.id) select(gt.id); else setRP(true, 'table');
+        var pg = toWorld(e), gi = gboxInfo(gt), gc = gboxCenter(gt, gi);
+        drag = { mode: 'gbox', id: gt.id, sx: pg.x, sy: pg.y, ox: gc.x - gt.x, oy: gc.y - gt.y };
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        return;
+      }
+    }
     var g = e.target.closest ? e.target.closest('.item') : null;
     if (!g) {
       var p0 = toWorld(e), keep = e.shiftKey ? currentIds() : [];
@@ -1956,6 +2123,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!drag.box && (w0 > 3 || h0 > 3)) drag.box = el('rect', { 'class': 'marq' }, handlesL);
       if (drag.box) { drag.box.setAttribute('x', x0); drag.box.setAttribute('y', y0); drag.box.setAttribute('width', w0); drag.box.setAttribute('height', h0); }
       drag.r = { x0: x0, y0: y0, x1: x0 + w0, y1: y0 + h0 };
+      return;
+    }
+    if (drag.mode === 'gbox') {
+      var gt2 = byId(drag.id); if (!gt2) return;
+      var q2 = clampPt({ x: gt2.x + drag.ox + (p.x - drag.sx), y: gt2.y + drag.oy + (p.y - drag.sy) });
+      gt2.gbox = { dx: r2(q2.x - gt2.x), dy: r2(q2.y - gt2.y) }; refreshGbox(gt2);
       return;
     }
     var it = byId(drag.id); if (!it) return;
@@ -2217,6 +2390,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- storage and files ---------- */
   function newItems(arr) { return arr.map(function (o) { var c = clone(o); c.id = uid(); return c; }); }
 
+  function gbClean(dst, o) {
+    var g = String(o.guests == null ? '' : o.guests).slice(0, 2000);
+    if (g) dst.guests = g;
+    if (o.gbox && isFinite(parseFloat(o.gbox.dx)) && isFinite(parseFloat(o.gbox.dy))) dst.gbox = { dx: parseFloat(o.gbox.dx), dy: parseFloat(o.gbox.dy) };
+  }
   function cleanItem(o) {
     if (!o || typeof o !== 'object') return null;
     var id = String(o.id || uid());
@@ -2224,21 +2402,24 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (o.kind === 'table' && o.type === 'merged') {
       var parts = (Array.isArray(o.parts) ? o.parts : []).map(function (p) {
         if (!p || !TYPES[p.type]) return null;
-        return { type: p.type, label: String(p.label == null ? '' : p.label).slice(0, 8), seats: clamp(Math.round(num(p.seats, 0)), 0, 40),
+        return { type: p.type, label: String(p.label == null ? '' : p.label).slice(0, 400), seats: clamp(Math.round(num(p.seats, 0)), 0, 40),
           seatRot: num(p.seatRot, 0), ext: clamp(num(p.ext, 36), 6, 1000), rel: [0, 90, 180, 270].indexOf(+p.rel) >= 0 ? +p.rel : 0 };
       }).filter(Boolean);
       if (parts.length < 2) return null;
       var mt = { id: id, kind: 'table', type: 'merged', svc: !!o.svc, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)),
         w: r2(parts.reduce(function (a, p) { return a + p.ext; }, 0)), h: clamp(num(o.h, 30), 6, 400), seats: 0, seatRot: 0,
-        label: String(o.label == null ? '' : o.label).slice(0, 8), parts: parts };
+        label: String(o.label == null ? '' : o.label).slice(0, 400), parts: parts };
+      gbClean(mt, o);
       mt.seats = clamp(Math.round(num(o.seats, 0)), 0, maxSeats(tinfo(mt)));
       return mt;
     }
     if (o.kind === 'table') {
       var T = TYPES[o.type]; if (!T) return null;
-      return { id: id, kind: 'table', type: o.type, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)),
+      var tt = { id: id, kind: 'table', type: o.type, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)),
         seats: clamp(Math.round(num(o.seats, T.seats)), 0, maxSeats(o.type)), seatRot: norm(num(o.seatRot, T.seatRot || 0)),
-        label: String(o.label == null ? '' : o.label).slice(0, 8) };
+        label: String(o.label == null ? '' : o.label).slice(0, 400) };
+      gbClean(tt, o);
+      return tt;
     }
     if (o.kind === 'rect' || o.kind === 'ellipse') {
       return { id: id, kind: o.kind, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)), w: clamp(num(o.w, 60), 6, 2000), h: clamp(num(o.h, 40), 6, 2000), fill: FILLS.indexOf(o.fill) >= 0 ? o.fill : 'none' };
@@ -2403,15 +2584,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- printing ---------- */
   var pageStyle = document.createElement('style'); document.head.appendChild(pageStyle);
-  var PP = { title: true, date: true, notes: true, nums: true, seats: true };
+  var PP = { title: true, date: true, notes: true, nums: true, seats: true, guests: true };
   (function () {
     try { var o = JSON.parse(localStorage.getItem(PRINT_KEY)); if (o) Object.keys(PP).forEach(function (k) { if (typeof o[k] === 'boolean') PP[k] = o[k]; }); } catch (e) {}
   })();
   function applyPP() {
     document.body.classList.toggle('no-nums', !PP.nums);
     document.body.classList.toggle('no-seats', !PP.seats);
+    document.body.classList.toggle('no-guests', !PP.guests);
   }
-  var PP_IDS = { title: 'ppTitle', date: 'ppDate', notes: 'ppNotes', nums: 'ppNums', seats: 'ppSeats' };
+  var PP_IDS = { title: 'ppTitle', date: 'ppDate', notes: 'ppNotes', nums: 'ppNums', seats: 'ppSeats', guests: 'ppGuests' };
   Object.keys(PP_IDS).forEach(function (k) {
     $(PP_IDS[k]).addEventListener('change', function () {
       PP[k] = $(PP_IDS[k]).checked; applyPP();
@@ -2880,6 +3062,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     el('path', { 'class': 'wall', d: pd }, g);
     S.fix[k].forEach(function (it) { var n = buildNode(it, false, d.items); n.classList.add('fixture'); g.appendChild(n); });
     d.items.forEach(function (it) { g.appendChild(buildNode(it, false, d.items)); });
+    d.items.forEach(function (it) { if (it.kind === 'table') { var gn = gboxNode(it, false, R); if (gn) g.appendChild(gn); } });
   }
   function renderAll(tight, target) {
     var pk = allPlan(tight), pad = 20, locked = S.event.locked, T = target || allSvg;
