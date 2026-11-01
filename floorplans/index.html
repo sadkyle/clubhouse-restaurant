@@ -313,6 +313,15 @@ dialog.wide { width: min(780px, calc(100vw - 32px)); }
 .cap-near { color: #b7791f; }
 .cap-over { color: var(--danger); }
 #printAll { display: none; }
+body.pdfmode { --bg: #fff; --panel: #fff; --ink: #111; --muted: #444; --line: #bbb; --accent: #1d6a45; --accent-soft: #fff;
+  --floor: #fff; --outside: #fff; --grid: #eee; --grid2: #ddd; --wall: #333; --table: #fff; --table-edge: #333;
+  --svc: #e6e6e6; --svc-edge: #555; --chair: #d6d6d6; --chair-back: #8a8a8a; --shape-edge: #555; --line-ink: #222;
+  --f-gray: #e2e2e2; --f-green: #d5e9dc; --f-amber: #f1e6c6; --f-blue: #d8e6ef; color-scheme: light; }
+#pdfStage { position: fixed; left: -20000px; top: 0; width: 1px; height: 1px; overflow: hidden; }
+.shpages img { display: block; width: 100%; height: auto; margin: 0 0 16px; background: #fff; border: 1px solid var(--line); border-radius: 8px; }
+.shbye { text-align: center; padding: 90px 10px; }
+.shbye h1 { font-size: 26px; line-height: 1.3; margin: 0 auto; max-width: 560px; }
+.shfoot { display: flex; justify-content: center; margin: 4px 0 24px; }
 .calbar { display: flex; align-items: center; justify-content: center; gap: 10px; }
 .calbar h2 { margin: 0; font-size: 20px; min-width: 190px; text-align: center; }
 #calMsg:empty { display: none; }
@@ -465,9 +474,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="cards">
     <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Add, edit and arrange rooms, and manage standard layouts.</p></button>
     <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Add and edit table sizes, shapes and defaults.</p></button>
+    <button class="card" type="button" id="goEmail"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3" y="5" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 6.5L11 12l7.5-5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Email Text</h2><p>The wording used when you share a floor plan by email.</p></button>
   </div>
 </main>
 
+<main class="page" id="viewShare" hidden>
+  <header class="phead"><div class="club">Applebrook Golf Club</div><button class="iconbtn themeBtn" type="button"></button></header>
+  <div class="hero" id="shHead"><h1 id="shTitle"></h1><p class="fine" id="shSub" role="status"></p></div>
+  <div class="shpages" id="shPages"></div>
+  <div class="shfoot"><button class="btn primary" id="shDl" type="button" hidden>Download PDF</button></div>
+  <div class="shbye" id="shBye" hidden><h1>We hope you enjoyed your event with Applebrook Golf Club.</h1></div>
+</main>
 <main class="page" id="viewCalendar" hidden>
   <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Events Calendar</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
   <div class="calbar"><button class="btn" id="calPrev" type="button" aria-label="Previous month">&larr;</button><h2 id="calTitle"></h2><button class="btn" id="calNext" type="button" aria-label="Next month">&rarr;</button><button class="btn" id="calToday" type="button">Today</button></div>
@@ -526,8 +543,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="saveCopyBtn" type="button"><span>Save a copy to cloud</span></button>
           <button class="mi installBtn" type="button" hidden><span>Install app</span></button>
           <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
-          <button class="mi" id="printBtn" type="button"><span>Print or save PDF</span></button>
-          <button class="mi" id="printAllBtn" type="button" hidden><span>Print every room (page each)</span></button>
+          <button class="mi" id="printBtn" type="button"><span>Print</span></button>
+          <button class="mi" id="pdfBtn" type="button"><span>Save as PDF</span></button>
+          <button class="mi" id="shareBtn" type="button"><span>Share floor plan</span></button>
           <button class="mi" id="printSetBtn" type="button"><span>Print settings</span></button>
           <hr>
           <button class="mi" id="fixBtn" type="button" role="switch" aria-checked="false"><span>Edit room fixtures</span><span class="sw"></span></button>
@@ -869,6 +887,42 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <button class="card" type="button" id="choosePlan"><h2>Create Floor Plan</h2><p>One room, no date. Add a date later to make it an event.</p></button>
   </div>
   <div class="dlgfoot"><button class="btn" id="chooseCancel" type="button">Cancel</button></div>
+</dialog>
+
+<dialog id="prDlg" aria-labelledby="prTitle">
+  <h2 id="prTitle">Print</h2>
+  <p class="lead">Choose the rooms to include, or use the master floor plan with every room on one page.</p>
+  <div class="checks" id="prRooms"></div>
+  <div class="dlgfoot">
+    <button class="btn" id="prCancel" type="button">Cancel</button>
+    <button class="btn" id="prMaster" type="button">Print master floor plan</button>
+    <button class="btn primary" id="prGo" type="button">Print selected rooms</button>
+  </div>
+</dialog>
+
+<dialog id="shDlg" aria-labelledby="shTitleD">
+  <h2 id="shTitleD">Share floor plan</h2>
+  <p class="lead">Anyone with this link can view the floor plan. They cannot edit it. The link keeps working and updates each time you save.</p>
+  <div class="field"><label for="shUrl">Link</label><input id="shUrl" type="text" readonly></div>
+  <p class="fine" id="shExp" style="margin:6px 10px 0"></p>
+  <p class="fine" id="shNote" style="margin:4px 10px 0" role="status"></p>
+  <div class="dlgfoot">
+    <button class="btn" id="shClose" type="button">Close</button>
+    <button class="btn" id="shEmail" type="button">Share via email</button>
+    <button class="btn primary" id="shCopy" type="button">Copy to clipboard</button>
+  </div>
+</dialog>
+
+<dialog id="emDlg" aria-labelledby="emTitle">
+  <h2 id="emTitle">Email text</h2>
+  <p class="lead">Used when you share a floor plan by email. Saved on this computer. Use {event}, {date} and {link}. If you leave out {link}, it is added at the end.</p>
+  <div class="field"><label for="emSubj">Subject</label><input id="emSubj" type="text" maxlength="200" autocomplete="off"></div>
+  <div class="field"><label for="emBody">Message</label><textarea id="emBody" rows="9" maxlength="4000" spellcheck="true"></textarea></div>
+  <div class="dlgfoot">
+    <button class="btn" id="emReset" type="button">Reset to default</button>
+    <button class="btn" id="emCancel" type="button">Cancel</button>
+    <button class="btn primary" id="emSave" type="button">Save</button>
+  </div>
 </dialog>
 
 <dialog id="newDlg" aria-labelledby="newTitle">
@@ -2190,7 +2244,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!rooms.length) rooms = visibleRooms();
       var odate = '';
       Object.keys(ROOMS).forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
-      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
+      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), share: String(ev && ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
       return { event: event, dirty: d.dirty === true, room: has(ROOMS, d.room) ? d.room : rooms[0], snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
@@ -2208,7 +2262,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
+      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
@@ -2250,7 +2304,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!keys.length) return 'That file has no rooms this app knows.';
     var ev = o.event || {};
     var ps = cleanPos(ev.pos, keys);
-    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
+    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), share: String(ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
     keys.forEach(function (k) {
       var r = o.rooms[k];
       S.docs[k] = cleanDoc(r); delete hist[k];
@@ -2386,7 +2440,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (document.body.classList.contains('pall')) { document.body.classList.remove('pall'); $('printAll').replaceChildren(); return; }
     applyRoom(); if (S.all) { renderAll(); fitSize(); } });
   function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
-  $('printBtn').addEventListener('click', function () { closeMenu(); doPrint(); });
 
   /* ---------- cloud (Supabase REST, open access for now) ---------- */
   var SB_URL = 'https://ucfiplykbardbbtvyvgh.supabase.co', SB_KEY = 'sb_publishable_KwqmJ4Gr9clERJzKYnC0Ng_vvoQrl8y';
@@ -2427,7 +2480,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     setSaveInd('Saving...');
     return sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation').then(function (rows) {
       if (!rows || !rows[0]) { delete cloudRef.__event; setSaveInd(''); save(); return false; }
-      ref.name = name; S.dirty = false; S.stale = false; save(); setSaveInd('Saved ' + nowTime()); return true;
+      ref.name = name; S.dirty = false; S.stale = false; save(); setSaveInd('Saved ' + nowTime()); pushShare(); return true;
     }, function (e) { failInd(e); return false; });
   }
   /* Before the first manual save, work goes to a draft that stays out of the calendar and lists. */
@@ -2512,7 +2565,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       $('csGo').disabled = false;
       if (!rows || !rows[0]) { $('csErr').textContent = 'The save did not go through.'; return; }
       cloudRef[refKey] = { id: rows[0].id, kind: kind, name: name };
-      if (kind === 'layout') { delete cloudRef.__draft; S.dirty = false; S.stale = false; setSaveInd('Saved ' + nowTime()); }
+      if (kind === 'layout') { delete cloudRef.__draft; S.dirty = false; S.stale = false; setSaveInd('Saved ' + nowTime()); pushShare(); }
       save();
       csDlg.close(); toast(kind === 'standard' ? 'Saved as a standard layout for ' + room().name + '.' : 'Saved. Autosave is on.');
     }, function (e) { $('csGo').disabled = false; $('csErr').textContent = cloudMsg(e); });
@@ -2567,7 +2620,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var list = $('coList'); list.replaceChildren(); $('coErr').textContent = 'Loading...';
     sb('GET', '?select=id,kind,room,name,author,is_default,updated_at&order=updated_at.desc&limit=200').then(function (rows) {
       $('coErr').textContent = '';
-      var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard' && r.kind !== 'config' && r.kind !== 'draft'; }), drf = rows.filter(function (r) { return r.kind === 'draft'; });
+      var std = rows.filter(function (r) { return r.kind === 'standard'; }), lay = rows.filter(function (r) { return r.kind !== 'standard' && r.kind !== 'config' && r.kind !== 'draft' && r.kind !== 'share'; }), drf = rows.filter(function (r) { return r.kind === 'draft'; });
       function sect(title, arr, empty) {
         var h = document.createElement('div'); h.className = 'chead'; h.textContent = title; list.appendChild(h);
         if (!arr.length) { var e = document.createElement('p'); e.className = 'fine'; e.textContent = empty; list.appendChild(e); }
@@ -2636,7 +2689,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     S.event.rooms.forEach(function (k) {
       var o = document.createElement('option'); o.value = k; o.textContent = ROOMS[k].name; roomSel.appendChild(o);
     });
-    $('printAllBtn').hidden = S.event.rooms.length < 2;
     if (S.event.rooms.length > 1) { var a = document.createElement('option'); a.value = '__all'; a.textContent = 'All rooms'; roomSel.appendChild(a); }
     roomSel.value = S.all ? '__all' : S.room;
   }
@@ -2690,21 +2742,23 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     S.fix[k].forEach(function (it) { var n = buildNode(it, false, d.items); n.classList.add('fixture'); g.appendChild(n); });
     d.items.forEach(function (it) { g.appendChild(buildNode(it, false, d.items)); });
   }
-  function renderAll(tight) {
-    var pk = allPlan(tight), pad = 20, locked = S.event.locked;
-    allSvg.replaceChildren();
-    S.allVB = { w: pk.w + 2 * pad, h: pk.h + 2 * pad };
-    allSvg.setAttribute('viewBox', (pk.x - pad) + ' ' + (pk.y - pad) + ' ' + S.allVB.w + ' ' + S.allVB.h);
+  function renderAll(tight, target) {
+    var pk = allPlan(tight), pad = 20, locked = S.event.locked, T = target || allSvg;
+    T.replaceChildren();
+    var VBX = { w: pk.w + 2 * pad, h: pk.h + 2 * pad };
+    if (!target) S.allVB = VBX;
+    T.setAttribute('viewBox', (pk.x - pad) + ' ' + (pk.y - pad) + ' ' + VBX.w + ' ' + VBX.h);
     S.event.rooms.forEach(function (k) {
       var R = ROOMS[k], P = pk.pos[k], d = S.docs[k];
-      var g = el('g', { 'class': 'allroom' + (locked ? ' locked' : ''), transform: 'translate(' + P.x + ' ' + (P.y + ALAB) + ')', 'data-room': k, tabindex: '0', role: 'button', 'aria-label': 'Edit ' + R.name }, allSvg);
+      var g = el('g', { 'class': 'allroom' + (locked ? ' locked' : ''), transform: 'translate(' + P.x + ' ' + (P.y + ALAB) + ')', 'data-room': k, tabindex: '0', role: 'button', 'aria-label': 'Edit ' + R.name }, T);
       drawRoom(g, k);
       var st = stats(d.items), lx = 0;
       if (R.color) { el('circle', { cx: 9, cy: -17, r: 8, fill: COLORS[R.color] }, g); lx = 24; }
       var t = el('text', { 'class': 'alabel' + (R.cap && st.seats > R.cap ? ' cap-over' : ''), x: lx, y: -10 }, g);
       t.textContent = R.name + (d.name ? ' - ' + d.name : '') + ' (' + seatWord(st.seats) + (R.cap ? ' of ' + R.cap : '') + ')';
     });
-    syncArrUI();
+    if (!target) syncArrUI();
+    return VBX;
   }
   function syncArrUI() {
     setSwitch($('arrLock'), S.event.locked);
@@ -3301,40 +3355,346 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
   });
 
-  /* ---------- print every room, a page each ---------- */
-  function printAllRooms() {
+  /* ---------- print, PDF and share ---------- */
+  function pageInfo(k) {
+    var inf = { show: true, ttl: '', date: '', bits: ['Applebrook'], notes: '' }, st, d, R;
+    var dateOn = PP.date && !!S.event.date;
+    if (k === '__master') {
+      st = eventStats();
+      inf.show = PP.title || dateOn; inf.ttl = S.event.name || 'All rooms'; inf.date = dateOn ? eventDateText() : '';
+      inf.bits.push(S.event.rooms.map(function (r) { return ROOMS[r].name; }).join(', '));
+    } else {
+      R = ROOMS[k]; d = S.docs[k]; st = stats(d.items);
+      inf.ttl = S.event.date ? ((PP.title && S.event.name) ? S.event.name : R.name) : ((PP.title && d.showTitle && d.name) ? d.name : R.name);
+      inf.date = dateOn ? eventDateText() : '';
+      if (S.event.name && PP.title && !S.event.date) inf.bits.push(S.event.name);
+      inf.bits.push(R.name);
+      if (PP.notes && d.showNotes && d.notes.trim()) inf.notes = d.notes;
+    }
+    if (S.event.host) inf.bits.push('Host: ' + S.event.host);
+    if (PP.seats) inf.bits.push(seatWord(st.seats));
+    inf.bits.push(st.tables + (st.tables === 1 ? ' table' : ' tables'));
+    inf.bits.push('Printed ' + new Date().toLocaleDateString());
+    return inf;
+  }
+  /* Draw one page into an svg: a room, or the all-rooms master. Returns the viewBox size. */
+  function fillPageSvg(sv, k) {
+    if (k === '__master') return renderAll(true, sv);
+    var R = ROOMS[k], pad = S.dims ? PAD : 20, vw = R.w + 2 * pad, vh = R.h + 2 * pad;
+    sv.setAttribute('viewBox', (-pad) + ' ' + (-pad) + ' ' + vw + ' ' + vh);
+    drawRoom(sv, k);
+    return { w: vw, h: vh };
+  }
+  function printSections(list) {
     var box = $('printAll'); box.replaceChildren();
-    S.event.rooms.forEach(function (k) {
-      var R = ROOMS[k], d = S.docs[k], pad = S.dims ? PAD : 20, vw = R.w + 2 * pad, vh = R.h + 2 * pad;
-      var sec = dm('section', 'psec'), head = dm('div', 'pshead'), st = stats(d.items);
-      var ttl = S.event.date ? ((PP.title && S.event.name) ? S.event.name : R.name) : ((PP.title && d.showTitle && d.name) ? d.name : R.name);
-      var row = dm('div', 'pshrow'); row.appendChild(dm('div', 'ps1', ttl));
-      row.appendChild(dm('div', 'psd', PP.date && S.event.date ? eventDateText() : ''));
-      head.appendChild(row);
-      var bits = ['Applebrook'];
-      if (S.event.name && PP.title && !S.event.date) bits.push(S.event.name);
-      bits.push(R.name);
-      if (S.event.host) bits.push('Host: ' + S.event.host);
-      if (PP.seats) bits.push(seatWord(st.seats));
-      bits.push(st.tables + (st.tables === 1 ? ' table' : ' tables'));
-      bits.push('Printed ' + new Date().toLocaleDateString());
-      head.appendChild(dm('div', 'ps2', bits.join(' • ')));
+    list.forEach(function (k) {
+      var inf = pageInfo(k), sv = document.createElementNS(NS, 'svg');
+      var sec = dm('section', 'psec'), head = dm('div', 'pshead');
+      if (inf.show) {
+        var row = dm('div', 'pshrow'); row.appendChild(dm('div', 'ps1', inf.ttl)); row.appendChild(dm('div', 'psd', inf.date));
+        head.appendChild(row); head.appendChild(dm('div', 'ps2', inf.bits.join(' • ')));
+      }
       sec.appendChild(head);
-      var body = dm('div', 'psbody'), pn = PP.notes && d.showNotes && d.notes.trim();
-      var aw = 10.5 - (pn ? 2.52 : 0), ah = 7.2, kf = Math.min(aw / vw, ah / vh);
-      var sv = document.createElementNS(NS, 'svg');
-      sv.setAttribute('viewBox', (-pad) + ' ' + (-pad) + ' ' + vw + ' ' + vh);
-      sv.style.width = (vw * kf).toFixed(3) + 'in'; sv.style.height = (vh * kf).toFixed(3) + 'in';
-      drawRoom(sv, k);
+      var body = dm('div', 'psbody'), vb = fillPageSvg(sv, k);
+      var aw = 10.5 - (inf.notes ? 2.52 : 0), ah = 7.2, kf = Math.min(aw / vb.w, ah / vb.h);
+      sv.style.width = (vb.w * kf).toFixed(3) + 'in'; sv.style.height = (vb.h * kf).toFixed(3) + 'in';
       body.appendChild(sv);
-      if (pn) { var nb = dm('div', 'psnotes'); nb.appendChild(dm('div', 'pnh', 'Setup notes')); nb.appendChild(dm('div', 'pnt', d.notes)); body.appendChild(nb); }
+      if (inf.notes) { var nb = dm('div', 'psnotes'); nb.appendChild(dm('div', 'pnh', 'Setup notes')); nb.appendChild(dm('div', 'pnt', inf.notes)); body.appendChild(nb); }
       sec.appendChild(body);
       box.appendChild(sec);
     });
     document.body.classList.add('pall');
     try { window.print(); } catch (e) { document.body.classList.remove('pall'); box.replaceChildren(); toast('Printing is not available here.'); }
   }
-  $('printAllBtn').addEventListener('click', function () { closeMenu(); printAllRooms(); });
+
+  /* Pages as images, for PDF files and share links. 192 dpi, letter landscape. */
+  var PW = 2112, PH = 1632, PINL = ['fill', 'fill-opacity', 'stroke', 'stroke-width', 'stroke-opacity', 'stroke-dasharray', 'stroke-linecap', 'stroke-linejoin', 'opacity', 'font-family', 'font-size', 'font-weight', 'font-style', 'text-anchor', 'dominant-baseline', 'letter-spacing', 'paint-order', 'vector-effect'];
+  function inlineStyles(src, dst) {
+    var cs = getComputedStyle(src), st = '';
+    PINL.forEach(function (p) { var v = cs.getPropertyValue(p); if (v) st += p + ':' + v + ';'; });
+    if (cs.display === 'none') st += 'display:none;';
+    dst.setAttribute('style', st);
+    for (var i = 0; i < src.children.length; i++) if (dst.children[i]) inlineStyles(src.children[i], dst.children[i]);
+  }
+  function pageStage() {
+    var s = $('pdfStage');
+    if (!s) { s = dm('div'); s.id = 'pdfStage'; s.setAttribute('aria-hidden', 'true'); document.body.appendChild(s); }
+    return s;
+  }
+  function wrapLines(ctx, text, maxW) {
+    var out = [];
+    String(text).split('\n').forEach(function (par) {
+      var line = '';
+      par.split(' ').forEach(function (w) {
+        var t = line ? line + ' ' + w : w;
+        if (line && ctx.measureText(t).width > maxW) { out.push(line); line = w; } else line = t;
+      });
+      out.push(line);
+    });
+    return out;
+  }
+  function renderPage(k) {
+    var inf = pageInfo(k), stage = pageStage(), sv = document.createElementNS(NS, 'svg'), vb, clone;
+    stage.replaceChildren(); stage.appendChild(sv);
+    document.body.classList.add('pdfmode');
+    var aw = 2016 - (inf.notes ? 484 : 0), ah = 1382, w, h, kf;
+    try {
+      vb = fillPageSvg(sv, k);
+      kf = Math.min(aw / vb.w, ah / vb.h); w = Math.round(vb.w * kf); h = Math.round(vb.h * kf);
+      clone = sv.cloneNode(true); inlineStyles(sv, clone);
+    } finally { document.body.classList.remove('pdfmode'); stage.replaceChildren(); }
+    clone.setAttribute('xmlns', NS); clone.setAttribute('width', w); clone.setAttribute('height', h);
+    var xml = new XMLSerializer().serializeToString(clone);
+    return new Promise(function (res, rej) {
+      var im = new Image();
+      im.onload = function () { res(im); };
+      im.onerror = function () { rej(new Error('Could not draw the floor plan.')); };
+      im.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(xml);
+    }).then(function (im) {
+      var c = document.createElement('canvas'); c.width = PW; c.height = PH;
+      var ctx = c.getContext('2d'), ff = getComputedStyle(document.body).fontFamily || 'sans-serif';
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, PW, PH);
+      ctx.fillStyle = '#111'; ctx.textBaseline = 'alphabetic';
+      if (inf.show) {
+        ctx.textAlign = 'center'; ctx.font = '700 48px ' + ff; ctx.fillText(inf.ttl, PW / 2, 90, 1300);
+        ctx.textAlign = 'right'; ctx.font = '600 32px ' + ff; ctx.fillText(inf.date, PW - 48, 90);
+        ctx.textAlign = 'center'; ctx.font = '400 24px ' + ff; ctx.fillStyle = '#444'; ctx.fillText(inf.bits.join(' • '), PW / 2, 128, 1900);
+      }
+      ctx.drawImage(im, 48 + (aw - w) / 2, 167 + (ah - h) / 2, w, h);
+      if (inf.notes) {
+        var nx = PW - 48 - 461;
+        ctx.strokeStyle = '#bbb'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(nx, 167); ctx.lineTo(nx, 167 + ah); ctx.stroke();
+        ctx.textAlign = 'left'; ctx.fillStyle = '#444'; ctx.font = '700 24px ' + ff; ctx.fillText('SETUP NOTES', nx + 23, 167 + 24);
+        ctx.fillStyle = '#111'; ctx.font = '400 32px ' + ff;
+        var lines = wrapLines(ctx, inf.notes, 461 - 23 - 4), y = 167 + 24 + 52;
+        for (var i = 0; i < lines.length && y < 167 + ah; i++, y += 45) ctx.fillText(lines[i], nx + 23, y);
+      }
+      return c.toDataURL('image/jpeg', 0.85);
+    });
+  }
+  function renderPages(list) {
+    var out = [], p = Promise.resolve();
+    list.forEach(function (k) { p = p.then(function () { return renderPage(k); }).then(function (u) { out.push(u); }); });
+    return p.then(function () { return out; });
+  }
+  function dataBytes(u) {
+    var b = atob(u.slice(u.indexOf(',') + 1)), a = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+    return a;
+  }
+  /* A small PDF writer: one letter-landscape page per JPEG. */
+  function buildPdf(pages) {
+    var enc = new TextEncoder(), parts = [], off = 0, xref = [], n = pages.length;
+    function put(x) { var b = typeof x === 'string' ? enc.encode(x) : x; parts.push(b); off += b.length; }
+    function obj(id, dict, stream) {
+      xref[id] = off; put(id + ' 0 obj\n' + dict);
+      if (stream) { put('\nstream\n'); put(stream); put('\nendstream'); }
+      put('\nendobj\n');
+    }
+    put(new Uint8Array([0x25, 0x50, 0x44, 0x46, 0x2d, 0x31, 0x2e, 0x34, 0x0a, 0x25, 0xe2, 0xe3, 0xcf, 0xd3, 0x0a]));
+    var kids = [];
+    for (var i = 0; i < n; i++) kids.push((3 + 3 * i) + ' 0 R');
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, '<< /Type /Pages /Kids [' + kids.join(' ') + '] /Count ' + n + ' >>');
+    pages.forEach(function (u, i) {
+      var pg = 3 + 3 * i, ct = pg + 1, im = pg + 2, jb = dataBytes(u), cs = 'q 792 0 0 612 0 0 cm /Im0 Do Q';
+      obj(pg, '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 792 612] /Resources << /XObject << /Im0 ' + im + ' 0 R >> >> /Contents ' + ct + ' 0 R >>');
+      obj(ct, '<< /Length ' + cs.length + ' >>', enc.encode(cs));
+      obj(im, '<< /Type /XObject /Subtype /Image /Width ' + PW + ' /Height ' + PH + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + jb.length + ' >>', jb);
+    });
+    var total = 3 + 3 * n, xo = off, x = 'xref\n0 ' + total + '\n0000000000 65535 f \n';
+    for (var j = 1; j < total; j++) x += String(xref[j]).padStart(10, '0') + ' 00000 n \n';
+    put(x + 'trailer\n<< /Size ' + total + ' /Root 1 0 R >>\nstartxref\n' + xo + '\n%%EOF\n');
+    return new Blob(parts, { type: 'application/pdf' });
+  }
+  function downloadBlob(blob, name) {
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 3000);
+  }
+  function pdfName(list) {
+    var single = list.length === 1 && list[0] !== '__master';
+    var base = S.event.name || (single ? (S.docs[list[0]].name || ROOMS[list[0]].name) : 'floor-plan');
+    return slug(base) + (S.event.date ? '-' + S.event.date : '') + (list[0] === '__master' ? '-master' : '') + '.pdf';
+  }
+  function savePdf(list) {
+    var name = pdfName(list);
+    var hp = window.showSaveFilePicker
+      ? window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'PDF', accept: { 'application/pdf': ['.pdf'] } }] }).catch(function (e) { return e && e.name === 'AbortError' ? 'abort' : null; })
+      : Promise.resolve(null);
+    hp.then(function (h) {
+      if (h === 'abort') return;
+      toast('Building the PDF...');
+      return renderPages(list).then(function (pgs) {
+        var blob = buildPdf(pgs);
+        if (!h) { downloadBlob(blob, name); toast('Saved ' + name); return; }
+        return h.createWritable().then(function (w) { return w.write(blob).then(function () { return w.close(); }); }).then(function () { toast('Saved ' + h.name); });
+      });
+    }).catch(function (e) { toast('Could not make the PDF: ' + (e && e.message || 'error')); });
+  }
+
+  /* Print and Save as PDF: a room checklist first when the event has several rooms. */
+  var prMode = 'print', prDlg = $('prDlg');
+  function runOut(mode, list) {
+    if (mode === 'print') {
+      if (list.length === 1 && list[0] === S.room && !S.all && S.event.rooms.length < 2) doPrint(); else printSections(list);
+    } else savePdf(list);
+  }
+  function prSync() {
+    var all = prDlg.querySelectorAll('input[data-k]'), on = prDlg.querySelectorAll('input[data-k]:checked');
+    $('prAll').checked = on.length === all.length; $('prGo').disabled = !on.length;
+  }
+  function startOut(mode) {
+    closeMenu(); prMode = mode;
+    if (S.event.rooms.length < 2) { runOut(mode, [S.event.rooms[0]]); return; }
+    var box = $('prRooms'); box.replaceChildren();
+    function row(label, attrs) {
+      var l = document.createElement('label'); l.className = 'chk';
+      var i = document.createElement('input'); i.type = 'checkbox'; i.checked = true;
+      for (var a in attrs) i.setAttribute(a, attrs[a]);
+      var sp = document.createElement('span'); sp.textContent = label;
+      l.appendChild(i); l.appendChild(sp); box.appendChild(l); return i;
+    }
+    var all = row('All rooms', { id: 'prAll' });
+    all.addEventListener('change', function () { prDlg.querySelectorAll('input[data-k]').forEach(function (c) { c.checked = all.checked; }); prSync(); });
+    S.event.rooms.forEach(function (k) { row(ROOMS[k].name, { 'data-k': k }).addEventListener('change', prSync); });
+    var pr = mode === 'print';
+    $('prTitle').textContent = pr ? 'Print' : 'Save as PDF';
+    $('prGo').textContent = pr ? 'Print selected rooms' : 'Save selected rooms';
+    $('prMaster').textContent = pr ? 'Print master floor plan' : 'Save master floor plan';
+    prSync(); prDlg.showModal();
+  }
+  $('printBtn').addEventListener('click', function () { startOut('print'); });
+  $('pdfBtn').addEventListener('click', function () { startOut('pdf'); });
+  $('prCancel').addEventListener('click', function () { prDlg.close(); });
+  $('prGo').addEventListener('click', function () {
+    var keys = [].map.call(prDlg.querySelectorAll('input[data-k]:checked'), function (c) { return c.getAttribute('data-k'); });
+    prDlg.close(); if (keys.length) runOut(prMode, keys);
+  });
+  $('prMaster').addEventListener('click', function () { prDlg.close(); runOut(prMode, ['__master']); });
+
+  /* ---------- share link ---------- */
+  var EM_KEY = 'applebrook-email-v1';
+  var EM_DEF = { subject: 'Floor plan for {event}', body: 'Hello,\n\nHere is the floor plan for {event} on {date}. You can view it at the link below.\n\n{link}\n\nThank you,\nApplebrook Golf Club' };
+  function emailTpl() {
+    try { var o = JSON.parse(localStorage.getItem(EM_KEY) || ''); if (o && typeof o.subject === 'string' && typeof o.body === 'string') return o; } catch (e) {}
+    return EM_DEF;
+  }
+  function fillTpl(t, link) {
+    var ev = S.event.name || 'your event', dt = eventDateText();
+    var s = String(t).replace(' on {date}', dt ? ' on ' + dt : '').split('{event}').join(ev).split('{date}').join(dt);
+    if (s.indexOf('{link}') >= 0) return s.split('{link}').join(link);
+    return link ? s.replace(/\s+$/, '') + '\n\n' + link : s;
+  }
+  function shareUrl() { return location.href.split('#')[0].split('?')[0] + '?share=' + S.event.share; }
+  function newToken() {
+    var a = new Uint8Array(16); (window.crypto || window.msCrypto).getRandomValues(a);
+    return [].map.call(a, function (b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+  }
+  function shareExpiry() {
+    var e = S.event; if (!e.date) return '';
+    var end = (e.multi && vDate(e.endDate) && e.endDate >= e.date) ? e.endDate : e.date, p = end.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2] + 3).toISOString();
+  }
+  function shareTitle() { return S.event.name || (S.docs[S.event.rooms[0]] && S.docs[S.event.rooms[0]].name) || ROOMS[S.event.rooms[0]].name; }
+  function sharePageList() { return S.event.rooms.length > 1 ? ['__master'].concat(S.event.rooms) : [S.event.rooms[0]]; }
+  function setShNote(m) { var n = $('shNote'); if (n) n.textContent = m; }
+  var shareBusy = false, shareAgain = false;
+  function pushShare() {
+    if (!S.event.share) return Promise.resolve(false);
+    var exp = shareExpiry();
+    if (exp && Date.parse(exp) < Date.now()) return Promise.resolve(false);
+    if (shareBusy) { shareAgain = true; return Promise.resolve(false); }
+    shareBusy = true;
+    var tok = S.event.share, rooms = S.event.rooms.join(',');
+    return renderPages(sharePageList()).then(function (pgs) {
+      var data = { title: shareTitle(), date: eventDateText(), expires: exp, updated: new Date().toISOString(), pages: pgs };
+      var row = { data: data, updated_at: new Date().toISOString() };
+      return sb('PATCH', '?kind=eq.share&name=eq.' + encodeURIComponent(tok), row, 'return=representation').then(function (rows) {
+        if (rows && rows[0]) return rows;
+        return sb('POST', '', { kind: 'share', room: rooms, name: tok, data: data, updated_at: row.updated_at }, 'return=representation');
+      });
+    }).then(function () {
+      shareBusy = false; setShNote('Link updated ' + nowTime() + '.');
+      if (shareAgain) { shareAgain = false; pushShare(); }
+      return true;
+    }, function (e) {
+      shareBusy = false; shareAgain = false; setShNote('Could not update the shared PDF: ' + cloudMsg(e));
+      return false;
+    });
+  }
+  function openShDlg() {
+    $('shUrl').value = shareUrl();
+    var exp = shareExpiry();
+    $('shExp').textContent = exp ? 'The link stops working on ' + new Date(exp).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) + '.' : 'No event date is set, so this link does not expire.';
+    $('shDlg').showModal();
+  }
+  $('shareBtn').addEventListener('click', function () {
+    closeMenu();
+    var exp = shareExpiry();
+    if (exp && Date.parse(exp) < Date.now()) { toast('This event has passed, so its share link has expired.'); return; }
+    if (S.event.share) { setShNote(''); openShDlg(); pushShare(); return; }
+    S.event.share = newToken();
+    toast('Creating the share link...');
+    pushShare().then(function (ok) {
+      if (!ok) { delete S.event.share; toast('Could not create the link. Check the connection and try again.'); return; }
+      S.dirty = S.stale = true; save(); setShNote(''); openShDlg();
+    });
+  });
+  $('shClose').addEventListener('click', function () { $('shDlg').close(); });
+  $('shCopy').addEventListener('click', function () {
+    var u = $('shUrl').value;
+    function fb() { $('shUrl').select(); var ok = false; try { ok = document.execCommand('copy'); } catch (e) {} toast(ok ? 'Link copied.' : 'Copy was blocked. Select the link and copy it.'); }
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(u).then(function () { toast('Link copied.'); }, fb); else fb();
+  });
+  $('shEmail').addEventListener('click', function () {
+    var t = emailTpl(), link = $('shUrl').value;
+    var a = document.createElement('a');
+    a.href = 'mailto:?subject=' + encodeURIComponent(fillTpl(t.subject, link)) + '&body=' + encodeURIComponent(fillTpl(t.body, link));
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  /* Email wording, saved on this computer. */
+  function openEmDlg() { var t = emailTpl(); $('emSubj').value = t.subject; $('emBody').value = t.body; $('emDlg').showModal(); }
+  $('goEmail').addEventListener('click', openEmDlg);
+  $('emCancel').addEventListener('click', function () { $('emDlg').close(); });
+  $('emReset').addEventListener('click', function () { $('emSubj').value = EM_DEF.subject; $('emBody').value = EM_DEF.body; });
+  $('emSave').addEventListener('click', function () {
+    try { localStorage.setItem(EM_KEY, JSON.stringify({ subject: $('emSubj').value.slice(0, 200), body: $('emBody').value.slice(0, 4000) })); } catch (e) {}
+    $('emDlg').close(); toast('Email text saved.');
+  });
+  /* Expired links lose their pages. The row stays so the link shows the thank-you screen. */
+  function sweepShares() {
+    sb('GET', '?kind=eq.share&select=id,exp:data->expires,gone:data->expired&limit=200').then(function (rows) {
+      (rows || []).forEach(function (r) {
+        if (!r.gone && r.exp && Date.parse(r.exp) < Date.now()) sb('PATCH', '?id=eq.' + encodeURIComponent(r.id), { data: { expired: true, expires: r.exp } }).catch(function () {});
+      });
+    }, function () {});
+  }
+  /* The page members see. View only. */
+  function openShareView(tok) {
+    Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = true; });
+    $('viewShare').hidden = false;
+    function bye() { $('shHead').hidden = true; $('shPages').replaceChildren(); $('shDl').hidden = true; $('shBye').hidden = false; }
+    function msg(m) { $('shSub').textContent = m; }
+    msg('Loading...');
+    sb('GET', '?kind=eq.share&name=eq.' + encodeURIComponent(tok) + '&select=id,data&limit=1').then(function (rows) {
+      var r = rows && rows[0], d = r && r.data;
+      if (!d) { msg('This link is not active.'); return; }
+      if (d.expired || (d.expires && Date.parse(d.expires) < Date.now())) {
+        if (!d.expired) sb('PATCH', '?id=eq.' + encodeURIComponent(r.id), { data: { expired: true, expires: d.expires } }).catch(function () {});
+        bye(); return;
+      }
+      document.title = (d.title || 'Floor plan') + ' | Applebrook';
+      $('shTitle').textContent = d.title || 'Floor plan'; msg(d.date || '');
+      var box = $('shPages'); box.replaceChildren();
+      (d.pages || []).forEach(function (u, i) {
+        var im = new Image(); im.src = u; im.alt = 'Floor plan page ' + (i + 1); box.appendChild(im);
+      });
+      $('shDl').hidden = false;
+      $('shDl').onclick = function () { downloadBlob(buildPdf(d.pages || []), slug(d.title || 'floor-plan') + '.pdf'); };
+    }, function () { msg('This link is not available right now. Try again in a moment.'); });
+  }
 
   /* ---------- events calendar and next event ---------- */
   var evCache = null, calMonth = null, calSel = '', DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -3543,10 +3903,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   if (mq && mq.addEventListener) mq.addEventListener('change', syncTheme);
   syncTheme();
 
-  seedDefaults();
-  fetchConfig();
-  var startHash = (location.hash || '').slice(1);
-  showView(VIEWS[startHash] ? startHash : 'home', true);
+  var SHARE_TOK = ''; try { SHARE_TOK = (new URLSearchParams(location.search).get('share') || '').replace(/[^a-f0-9]/g, ''); } catch (e) {}
+  if (SHARE_TOK) openShareView(SHARE_TOK);
+  else {
+    seedDefaults();
+    fetchConfig();
+    setTimeout(sweepShares, 4000);
+    var startHash = (location.hash || '').slice(1);
+    showView(VIEWS[startHash] ? startHash : 'home', true);
+  }
 
   /* Installed app: double-clicking a .floorplan file opens it here. */
   if (window.launchQueue && window.launchQueue.setConsumer) {

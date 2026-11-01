@@ -24,7 +24,7 @@
   "file_handlers": [
     {
       "action": "./",
-      "name": "Floor plan layout",
+      "name": "Floor plan",
       "accept": {
         "application/x-applebrook-floorplan": [
           ".floorplan"
