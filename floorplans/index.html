@@ -696,11 +696,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
             <label for="labelInput">Label</label>
             <textarea id="labelInput" maxlength="400" rows="2" autocomplete="off"></textarea>
           </div>
-          <div class="field">
-            <label for="guestInput">Guests</label>
-            <textarea id="guestInput" maxlength="2000" rows="4" placeholder="Family or member names, any format"></textarea>
-            <button class="btn full" id="arrBoxBtn" type="button" style="margin-top:6px">Auto arrange name boxes</button>
-          </div>
           <div class="field" id="seatField">
             <label for="seatInput">Seats</label>
             <div class="stepper">
@@ -713,6 +708,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <div class="field" id="seatRotField">
             <label for="seatRotInput">Seat ring rotation (degrees)</label>
             <input id="seatRotInput" type="number" step="0.5" inputmode="decimal">
+          </div>
+          <div class="field">
+            <button class="btn full" id="asgBtn" type="button" aria-expanded="false" aria-controls="asgWrap">Assign members</button>
+            <div id="asgWrap" hidden style="margin-top:8px">
+              <textarea id="guestInput" maxlength="2000" rows="4" placeholder="Family or member names, any format" aria-label="Members at this table"></textarea>
+              <button class="btn full" id="arrBoxBtn" type="button" style="margin-top:6px">Auto arrange name boxes</button>
+            </div>
           </div>
         </div>
 
@@ -784,7 +786,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           </div>
         </div>
 
-        <div class="field">
+        <div class="field" id="rotField">
           <label for="rotInput">Rotation (degrees)</label>
           <div class="stepper">
             <button class="btn" id="rotMinus" type="button" aria-label="Rotate 5 degrees counterclockwise">&minus;5&deg;</button>
@@ -1450,6 +1452,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     ts.forEach(refreshGbox); commit(); toast('Name boxes arranged.');
   }
+  var asgFor = null, asgOpen = false;
+  $('asgBtn').addEventListener('click', function () {
+    asgOpen = !asgOpen; $('asgWrap').hidden = !asgOpen; this.setAttribute('aria-expanded', asgOpen ? 'true' : 'false');
+    if (asgOpen) guestInput.focus();
+  });
   $('arrBoxBtn').addEventListener('click', autoArrangeBoxes);
   $('arrBoxMenuBtn').addEventListener('click', function () { closeMenu(); autoArrangeBoxes(); });
   guestInput.addEventListener('input', function () { var t = byId(sel); if (!t || t.kind !== 'table') return; t.guests = guestInput.value.slice(0, 2000); if (!t.guests) delete t.guests; refreshGbox(t); });
@@ -1735,6 +1742,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!it) return;
     unmergeBtn.hidden = true; seatRotField.hidden = true;
     blkTable.hidden = it.kind !== 'table';
+    (function () {
+      var rf = $('rotField'), act = document.querySelector('#inspBody > .actions');
+      if (it.kind === 'table') { if (rf.previousElementSibling !== seatField) seatField.after(rf); }
+      else if (rf.nextElementSibling !== act) act.before(rf);
+    })();
     blkChairs.hidden = it.kind !== 'chairs';
     blkShape.hidden = !(it.kind === 'rect' || it.kind === 'ellipse');
     blkLine.hidden = it.kind !== 'line';
@@ -1754,6 +1766,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (document.activeElement !== labelInput) labelInput.value = it.label;
       labelInput.placeholder = isSvc(T) ? 'Optional' : 'Table number';
       if (document.activeElement !== guestInput) guestInput.value = it.guests || '';
+      if (asgFor !== it.id) { asgFor = it.id; asgOpen = !!it.guests; }
+      $('asgWrap').hidden = !asgOpen; $('asgBtn').setAttribute('aria-expanded', asgOpen ? 'true' : 'false');
       seatField.hidden = mx === 0;
       seatInput.max = mx;
       if (document.activeElement !== seatInput) seatInput.value = it.seats;
