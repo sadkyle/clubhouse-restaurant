@@ -172,7 +172,7 @@ body.allv .allonly { display: inline-flex; }
 .allroom:hover .wall, .allroom:focus-visible .wall { stroke: var(--accent); stroke-width: 4; }
 body.allv .work { grid-template-columns: minmax(0, 1fr); }
 body.allv #nextEvBtn, body.allv #stdBackBtn { display: none !important; }
-body.allv .palette, body.allv .inspector, body.allv #titlePrintBtn, body.allv #notesBtn, body.allv #fixPill, body.allv #fixBtn, body.allv #clearBtn, body.allv #defaultBtn { display: none !important; }
+body.allv .palette, body.allv .rpanel, body.allv #lpToggle, body.allv #rpToggle, body.allv #notesBtn, body.allv #fixPill, body.allv #fixBtn, body.allv #clearBtn, body.allv #defaultBtn { display: none !important; }
 .mcap { margin: 6px 10px 2px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
 .cloudlist { display: grid; gap: 6px; max-height: 52vh; overflow-y: auto; margin-bottom: 4px; }
 .crow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--floor); }
@@ -191,9 +191,29 @@ body.allv .palette, body.allv .inspector, body.allv #titlePrintBtn, body.allv #n
 .chk input { width: 18px; height: 18px; accent-color: var(--accent); }
 
 /* three columns */
-.work { display: grid; grid-template-columns: 200px minmax(0, 1fr) 270px; gap: 16px; align-items: start; }
+.work { display: flex; align-items: flex-start; gap: 0; }
+.stage { flex: 1 1 0; }
+.palette { flex: 0 0 auto; width: 200px; margin-right: 16px; box-sizing: border-box; overflow-x: hidden; transition: width .25s ease, margin-right .25s ease, opacity .2s ease, visibility 0s; }
+.palette > * { width: 200px; flex: none; }
+.work.lcol .palette { width: 0; margin-right: 0; padding-right: 0; opacity: 0; visibility: hidden; transition: width .25s ease, margin-right .25s ease, opacity .2s ease, visibility 0s .25s; }
+.rpanel { flex: 0 0 auto; width: 0; margin-left: 0; overflow: hidden; position: sticky; top: 12px; align-self: flex-start; transition: width .25s ease, margin-left .25s ease; }
+.work.rpan .rpanel { width: 270px; margin-left: 16px; }
+.rpin { width: 270px; box-sizing: border-box; }
+.rptabs { display: flex; align-items: center; gap: 4px; margin: -4px 0 12px; }
+.rptab { flex: 1; padding: 7px 10px; font: 600 13px var(--font-ui); color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
+.rptab[aria-selected="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
+.rpx { flex: none; }
+.cathead { width: 100%; cursor: pointer; font: inherit; color: inherit; }
+.cathead .chev { width: 14px; height: 14px; transition: transform .2s ease; }
+.cathead[aria-expanded="true"] .chev { transform: rotate(90deg); }
+.catbody { display: flex; flex-direction: column; gap: 5px; padding: 5px 0 2px 10px; }
+.catbody[hidden] { display: none; }
+.notefield { display: grid; gap: 6px; margin-bottom: 12px; }
+.notefield label { font-size: 13px; font-weight: 600; }
+.notefield textarea { box-sizing: border-box; width: 100%; min-height: 150px; padding: 10px 12px; font-size: 14px; line-height: 1.5; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; resize: vertical; }
+@media (prefers-reduced-motion: reduce) { .palette, .rpanel, .cathead .chev { transition: none !important; } }
 
-.palette { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; display: flex; flex-direction: column; gap: 14px; padding-right: 2px; }
+.palette { position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding-right: 2px; }
 .grp { display: flex; flex-direction: column; gap: 5px; }
 .cap { margin: 0; font-size: 11px; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
 .tile { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 6px 9px 6px 7px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; cursor: pointer; text-align: left; }
@@ -261,7 +281,7 @@ body.allv .palette, body.allv .inspector, body.allv #titlePrintBtn, body.allv #n
 .hdl[data-h="ne"], .hdl[data-h="sw"] { cursor: nesw-resize; }
 
 /* inspector */
-.inspector { position: sticky; top: 12px; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; max-height: calc(100vh - 24px); overflow-y: auto; }
+.inspector { position: static; padding: 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; max-height: calc(100vh - 24px); overflow-y: auto; }
 .inspector h2 { margin: 0; font-size: 16px; font-weight: 700; }
 .inspector p { margin: 0; color: var(--muted); font-size: 14px; }
 .inspector .sub { margin: 2px 0 14px; font-size: 13px; }
@@ -400,12 +420,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   .heading { grid-template-columns: minmax(0, 1fr); }
   .hero h1 { font-size: 32px; }
   .hr { justify-content: flex-start; }
-  .work { grid-template-columns: minmax(0, 1fr); }
-  .palette { position: static; max-height: none; overflow: visible; gap: 10px; }
-  .grp { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; align-items: stretch; gap: 8px; padding-bottom: 4px; }
-  .grp .cap { align-self: center; flex: 0 0 auto; }
-  .tile { flex: 0 0 auto; min-width: 150px; }
-  .inspector { position: static; max-height: none; }
+  .work { display: block; }
+  .palette { position: static; width: auto; margin: 0 0 12px; max-height: none; overflow: visible; gap: 8px; }
+  .palette > * { width: auto; }
+  .work.lcol .palette { display: none; }
+  .rpanel { position: static; width: auto; margin: 12px 0 0; overflow: visible; }
+  .work:not(.rpan) .rpanel { display: none; }
+  .work.rpan .rpanel { width: auto; margin-left: 0; }
+  .rpin { width: auto; }
+  .inspector { max-height: none; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
@@ -418,7 +441,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     color-scheme: light;
   }
   body { padding: 0; background: #fff; }
-  .top, .heading, .palette, .inspector, .status, .toast, dialog, .drawer, .hdl, .page, .ghost, .marq { display: none !important; }
+  .top, .heading, .palette, .rpanel, .inspector, .status, .toast, dialog, .drawer, .hdl, .page, .ghost, .marq { display: none !important; }
   .app { gap: 0; display: block; }
   .work { display: block; }
   .plan { display: flex; align-items: center; justify-content: center; height: var(--ah, 7.3in); }
@@ -568,6 +591,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <section class="stage" aria-label="Floor plan">
       <div class="heading">
         <div class="hl">
+          <button class="iconbtn" id="lpToggle" type="button" aria-controls="palette" aria-expanded="true" title="Hide tables and tools"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="2.5" y="3.5" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M7 3.5v11" stroke="currentColor" stroke-width="1.7"/></svg></button>
           <div class="selwrap">
             <label class="sr" for="roomSel">Room</label>
             <select id="roomSel" class="roomsel"></select>
@@ -580,9 +604,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <input id="nameInput" class="title" type="text" maxlength="60" placeholder="Layout title" autocomplete="off"><span class="saveind" id="saveInd" role="status" hidden></span>
           <label class="sr" for="dateInput">Event date (optional)</label>
           <input id="dateInput" class="datein" type="date" title="Event date (optional)">
-          <button class="pill" id="multiBtn" type="button" role="switch" aria-checked="false"><span>Multi-day</span><span class="sw"></span></button>
-          <label class="sr" for="endInput">End date</label>
-          <input id="endInput" class="datein" type="date" title="Last day of the event" hidden>
           <button class="pill allonly" id="arrLock" type="button" role="switch" aria-checked="false" title="Lock the room arrangement"><span>Lock layout</span><span class="sw"></span></button>
           <button class="pill allonly" id="autoBtn" type="button" title="Go back to the automatic arrangement"><span>Auto-arrange</span></button>
           <button class="pill" id="evSetBtn" type="button" title="Event title, host, date and rooms"><span>Event settings</span></button>
@@ -591,8 +612,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         </div>
         <div class="hr">
           <span class="fixpill" id="fixPill" hidden>Editing fixtures</span>
-          <button class="pill" id="titlePrintBtn" type="button" role="switch" aria-checked="true"><span>Title on print</span><span class="sw"></span></button>
-          <button class="pill" id="notesBtn" type="button" aria-expanded="false" aria-controls="notesPanel"><span>Notes</span><span class="dot" id="notesDot" hidden></span></button>
+          <button class="pill" id="notesBtn" type="button" aria-expanded="false" aria-controls="rightPanel"><span>Notes</span><span class="dot" id="notesDot" hidden></span></button>
+          <button class="iconbtn" id="rpToggle" type="button" aria-controls="rightPanel" aria-expanded="false" title="Show or hide the side panel"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="2.5" y="3.5" width="13" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M11 3.5v11" stroke="currentColor" stroke-width="1.7"/></svg></button>
         </div>
       </div>
       <div class="plan">
@@ -620,16 +641,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           </svg>
           <svg id="allRoom" role="group" aria-label="All rooms in this event" hidden></svg>
         </div>
-        <div class="printnotes" id="printNotes"><div class="pnh">Setup notes</div><div class="pnt" id="pnt"></div></div>
+        <div class="printnotes" id="printNotes"></div>
       </div>
-      <p class="status" id="statusP">Drag to move, or drag a table in from the left. Shift-click or drag a box to select several. Arrow keys nudge 6 in (Shift 1 in). [ and ] rotate 5 degrees, R rotates 90. Ctrl+Z undoes.</p>
     </section>
 
-    <aside class="inspector" aria-label="Selected item">
-      <div id="inspEmpty">
-        <h2>Nothing selected</h2>
-        <p>Click a table, shape, line, or label to edit it. Shift-click or drag a box to select several.</p>
-      </div>
+    <aside class="rpanel" id="rightPanel" aria-label="Side panel" inert>
+      <div class="inspector rpin">
+        <div class="rptabs" role="tablist">
+          <button class="rptab" id="rpTabTable" type="button" role="tab" aria-selected="true" aria-controls="rpTable">Table</button>
+          <button class="rptab" id="rpTabNotes" type="button" role="tab" aria-selected="false" aria-controls="rpNotes">Notes</button>
+          <button class="btn rpx" id="rpClose" type="button" aria-label="Close panel" title="Close panel">Close</button>
+        </div>
+        <div id="rpTable" role="tabpanel">
       <div id="inspMulti" hidden>
         <h2 id="mTitle"></h2>
         <p class="sub">Drag to move them together.</p>
@@ -748,19 +771,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="btn danger full" id="delBtn" type="button">Delete</button>
         </div>
       </div>
+    
+        </div>
+        <div id="rpNotes" role="tabpanel" hidden>
+          <div class="notefield" id="notesEv" hidden><label for="evNotesInput">Event notes</label><textarea id="evNotesInput" maxlength="4000" placeholder="Notes for the whole event..."></textarea></div>
+          <div class="notefield"><label for="notesInput" id="rmNotesLbl">Event notes</label><textarea id="notesInput" maxlength="4000" placeholder="Linens, napkins, tablecloths, table specifics for the servers..."></textarea></div>
+          <button class="mi" id="printNotesBtn" type="button" role="switch" aria-checked="false"><span>Print notes with layout</span><span class="sw"></span></button>
+        </div>
+      </div>
     </aside>
   </div>
 </div>
-
-<aside class="drawer" id="notesPanel" aria-labelledby="notesTitle" hidden>
-  <div class="drawer-h">
-    <h2 id="notesTitle">Setup notes</h2>
-    <button class="btn" id="notesClose" type="button">Close</button>
-  </div>
-  <label class="sr" for="notesInput">Setup notes for this layout</label>
-  <textarea id="notesInput" maxlength="4000" placeholder="Linens, napkins, tablecloths, table specifics for the servers..."></textarea>
-  <button class="mi" id="printNotesBtn" type="button" role="switch" aria-checked="false"><span>Print notes with layout</span><span class="sw"></span></button>
-</aside>
 
 <dialog id="openDlg" aria-labelledby="openTitle">
   <h2 id="openTitle">Open a layout</h2>
@@ -866,7 +887,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <p class="lead">Title, host, date and rooms for this floorplan.</p>
   <div class="field"><label for="evTitle">Event title</label><input id="evTitle" type="text" maxlength="60" autocomplete="off"></div>
   <div class="field"><label for="evHost">Host</label><input id="evHost" type="text" maxlength="60" autocomplete="off"></div>
-  <div class="field"><label for="evDate">Date</label><input id="evDate" type="date"></div>
+  <div class="field"><label for="evDate" id="evDateL">Date</label><input id="evDate" type="date"></div>
   <label class="chk2"><input type="checkbox" id="evMulti"><span>Multi-day event</span></label>
   <div class="field" id="evEndRow" hidden><label for="evEnd">End date</label><input id="evEnd" type="date"></div>
   <div class="field"><span class="lbl">Rooms</span><div class="checks" id="evRooms"></div></div>
@@ -1121,7 +1142,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var seatStat = $('seatStat'), tableStat = $('tableStat');
   var undoBtn = $('undoBtn'), redoBtn = $('redoBtn');
   var menuBtn = $('menuBtn'), menu = $('menu');
-  var inspEmpty = $('inspEmpty'), inspBody = $('inspBody'), inspTitle = $('inspTitle'), inspSub = $('inspSub');
+  var inspBody = $('inspBody'), inspTitle = $('inspTitle'), inspSub = $('inspSub');
   var blkTable = $('blkTable'), blkChairs = $('blkChairs'), blkShape = $('blkShape'), blkLine = $('blkLine'), blkText = $('blkText');
   var labelInput = $('labelInput'), seatField = $('seatField'), seatInput = $('seatInput'), seatMax = $('seatMax');
   var seatMinus = $('seatMinus'), seatPlus = $('seatPlus');
@@ -1130,8 +1151,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var textInput = $('textInput'), sizeRow = $('sizeRow'), boldBtn = $('boldBtn');
   var rotInput = $('rotInput'), rotateBtn = $('rotateBtn'), dupBtn = $('dupBtn'), lockBtn = $('lockBtn'), delBtn = $('delBtn');
   var openDlg = $('openDlg'), toastEl = $('toast');
-  var notesPanel = $('notesPanel'), notesBtn = $('notesBtn'), notesInput = $('notesInput');
-  var endInput = $('endInput'), statusP = $('statusP'), STATUS_TXT = statusP.textContent;
+  var notesBtn = $('notesBtn'), notesInput = $('notesInput');
+  
   var inspMulti = $('inspMulti'), mergeBtn = $('mergeBtn'), unmergeBtn = $('unmergeBtn'), seatRotField = $('seatRotField'), seatRotInput = $('seatRotInput'), dateInput = $('dateInput');
 
   /* ---------- stats and text tokens ---------- */
@@ -1506,6 +1527,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function select(id) {
     sel = id; multi = [];
     paintSel(); renderHandles(); syncInspector();
+    if (id) setRP(true, 'table');
   }
   function selectMulti(ids) {
     ids = ids.filter(function (id) { return !!byId(id); });
@@ -1532,8 +1554,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function syncInspector() {
     var it = sel ? byId(sel) : null;
     inspMulti.hidden = multi.length < 2;
-    if (multi.length >= 2) { inspEmpty.hidden = true; inspBody.hidden = true; syncMulti(); return; }
-    inspEmpty.hidden = !!it; inspBody.hidden = !it;
+    noteSel(multi.length >= 2 ? 'm' + multi.join(',') : (it ? it.id : ''));
+    if (multi.length >= 2) { inspBody.hidden = true; syncMulti(); return; }
+    inspBody.hidden = !it;
     if (!it) return;
     unmergeBtn.hidden = true; seatRotField.hidden = true;
     blkTable.hidden = it.kind !== 'table';
@@ -1898,7 +1921,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (e.shiftKey || e.ctrlKey || e.metaKey) { toggleSel(it.id); return; }
     var ids;
     if (multi.indexOf(it.id) >= 0) ids = multi.slice();
-    else { if (sel !== it.id) select(it.id); ids = [it.id]; }
+    else { if (sel !== it.id) select(it.id); else setRP(true, "table"); ids = [it.id]; }
     var p = toWorld(e), os = {};
     ids.forEach(function (id) { os[id] = clone(byId(id)); });
     drag = { mode: 'move', id: it.id, ids: ids, sx: p.x, sy: p.y, os: os, o: os[it.id] };
@@ -2006,7 +2029,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     if (e.key === 'Escape') {
       if (!menu.hidden) closeMenu();
-      else if (!notesPanel.hidden) closeNotes();
       else if (!typing) select(null);
       return;
     }
@@ -2080,13 +2102,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function dimText(T) { return isRound(T) ? inch(T.w) : r2(T.h) + ' × ' + inch(T.w); }
 
+  var UI_KEY = 'applebrook-ui-v1', UI = { lcol: false, cats: {} };
+  try { var uj = JSON.parse(localStorage.getItem(UI_KEY) || 'null'); if (uj && typeof uj === 'object') { UI.lcol = !!uj.lcol; if (uj.cats && typeof uj.cats === 'object') UI.cats = uj.cats; } } catch (e) {}
+  function saveUI() { try { localStorage.setItem(UI_KEY, JSON.stringify(UI)); } catch (e) {} }
   function buildPalette() {
     var nav = $('palette'); nav.replaceChildren();
-    function group(cap) {
-      var wrap = document.createElement('div'); wrap.className = 'grp'; wrap.setAttribute('role', 'group'); wrap.setAttribute('aria-label', cap);
-      var c = document.createElement('p'); c.className = 'cap'; c.textContent = cap; wrap.appendChild(c);
-      nav.appendChild(wrap);
-      return wrap;
+    var CHEV = '<svg class="chev" viewBox="0 0 16 16" aria-hidden="true"><path d="M5.5 3.5L10 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    function category(id, label, iconHtml) {
+      var wrap = document.createElement('div'); wrap.className = 'cat';
+      var head = document.createElement('button'); head.type = 'button'; head.className = 'tile cathead';
+      head.innerHTML = iconHtml + '<span class="nm">' + label + '</span>' + CHEV;
+      var body = document.createElement('div'); body.className = 'catbody'; body.setAttribute('role', 'group'); body.setAttribute('aria-label', label);
+      function set(on) { head.setAttribute('aria-expanded', on ? 'true' : 'false'); body.hidden = !on; }
+      set(!!UI.cats[id]);
+      head.addEventListener('click', function () { var on = head.getAttribute('aria-expanded') !== 'true'; set(on); UI.cats[id] = on; saveUI(); });
+      wrap.appendChild(head); wrap.appendChild(body); nav.appendChild(wrap);
+      return body;
     }
     function tile(wrap, iconHtml, name, sd, cls, fn) {
       var b = document.createElement('button'); b.type = 'button'; b.className = 'tile' + (cls ? ' ' + cls : '');
@@ -2101,12 +2132,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     ['round', 'dining', 'service'].forEach(function (g) {
       var keys = TYPE_ORDER.filter(function (k) { return TYPES[k].group === g && !TYPES[k].hidden; });
       if (!keys.length) return;
-      var wrap = group(GROUP_CAPS[g]);
+      var wrap = category(g, GROUP_CAPS[g], iconSvg(keys[0], TYPES[keys[0]]));
       keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function (at) { addTable(k, at); }); });
     });
-    var cw = group('Free chairs');
+    var cw = category('chairs', 'Chairs', iconSvg('chairs'));
     tile(cw, iconSvg('chairs'), 'Chair row', 'bar, high-top', 'tbl', addChairs);
-    var dw = group('Draw');
+    var dw = category('draw', 'Tools / Draw', iconSvg(DRAW[0].k));
     DRAW.forEach(function (d) { tile(dw, iconSvg(d.k), d.name, '', '', function (at) { addDraw(d.k, at); }); });
   }
   buildPalette();
@@ -2140,28 +2171,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     nameInput.value = (S.all || ev) ? S.event.name : d.name;
     nameInput.placeholder = ev ? 'Untitled event' : (S.all ? 'Event title' : 'Layout title');
     nameInput.tabIndex = ev ? -1 : 0;
-    setSwitch($('titlePrintBtn'), d.showTitle);
     notesInput.value = d.notes;
     setSwitch($('printNotesBtn'), d.showNotes);
-    $('notesDot').hidden = !d.notes.trim();
+    syncNotesUI();
   }
   function syncEventUI() {
     var e = S.event;
-    dateInput.value = e.date; endInput.value = e.endDate; endInput.min = e.date || '';
-    setSwitch($('multiBtn'), e.multi); endInput.hidden = !e.multi;
+    dateInput.value = e.date;
     hide($('stdBackBtn'), !S.viaNext);
   }
   nameInput.addEventListener('input', function () { if (S.all) S.event.name = nameInput.value.slice(0, 60); else doc().name = nameInput.value.slice(0, 60); S.dirty = S.stale = true; save(); });
   nameInput.addEventListener('change', commit);
-  dateInput.addEventListener('input', function () { S.event.date = dateInput.value; endInput.min = dateInput.value || ''; S.dirty = S.stale = true; syncDocUI(); save(); });
-  endInput.addEventListener('input', function () { S.event.endDate = endInput.value; S.dirty = S.stale = true; save(); });
-  $('multiBtn').addEventListener('click', function () { S.event.multi = !S.event.multi; S.dirty = S.stale = true; syncEventUI(); save(); });
-  $('titlePrintBtn').addEventListener('click', function () { doc().showTitle = !doc().showTitle; setSwitch($('titlePrintBtn'), doc().showTitle); commit(); });
-  function openNotes() { notesPanel.hidden = false; notesBtn.setAttribute('aria-expanded', 'true'); notesInput.focus(); }
-  function closeNotes() { notesPanel.hidden = true; notesBtn.setAttribute('aria-expanded', 'false'); }
-  notesBtn.addEventListener('click', function () { if (notesPanel.hidden) openNotes(); else closeNotes(); });
-  $('notesClose').addEventListener('click', closeNotes);
-  notesInput.addEventListener('input', function () { doc().notes = notesInput.value; $('notesDot').hidden = !notesInput.value.trim(); save(); });
+  dateInput.addEventListener('input', function () { S.event.date = dateInput.value; S.dirty = S.stale = true; syncDocUI(); save(); });
+  notesInput.addEventListener('input', function () { doc().notes = notesInput.value; syncNotesUI(); save(); });
   notesInput.addEventListener('change', commit);
   $('printNotesBtn').addEventListener('click', function () { doc().showNotes = !doc().showNotes; setSwitch($('printNotesBtn'), doc().showNotes); commit(); });
 
@@ -2244,7 +2266,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!rooms.length) rooms = visibleRooms();
       var odate = '';
       Object.keys(ROOMS).forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
-      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), share: String(ev && ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
+      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), share: String(ev && ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev && ev.notes || '').slice(0, 4000), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
       return { event: event, dirty: d.dirty === true, room: has(ROOMS, d.room) ? d.room : rooms[0], snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
@@ -2262,7 +2284,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
+      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', notes: S.event.notes || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
@@ -2304,7 +2326,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!keys.length) return 'That file has no rooms this app knows.';
     var ev = o.event || {};
     var ps = cleanPos(ev.pos, keys);
-    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), share: String(ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
+    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), share: String(ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev.notes || '').slice(0, 4000), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
     keys.forEach(function (k) {
       var r = o.rooms[k];
       S.docs[k] = cleanDoc(r); delete hist[k];
@@ -2414,10 +2436,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     bits.push(st.tables + (st.tables === 1 ? ' table' : ' tables'));
     bits.push('Printed ' + new Date().toLocaleDateString());
     $('ph2').textContent = bits.join(' • ');
-    var pn = !S.all && PP.notes && d.showNotes && d.notes.trim();
-    document.body.classList.toggle('pn', !!pn);
-    $('pnt').textContent = d.notes;
-    return !!pn;
+    var nbk = S.all ? [] : notesBlocks(S.room), pnb = $('printNotes');
+    pnb.replaceChildren();
+    nbk.forEach(function (b) { pnb.appendChild(dm('div', 'pnh', b.h)); pnb.appendChild(dm('div', 'pnt', b.t)); });
+    document.body.classList.toggle('pn', nbk.length > 0);
+    return nbk.length > 0;
   }
   window.addEventListener('beforeprint', function () {
     if (document.body.classList.contains('pall')) { pageStyle.textContent = '@page { size: letter landscape; margin: 0.25in; }'; return; }
@@ -2681,7 +2704,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function leaveAll() {
     if (!S.all) return;
     S.all = false; document.body.classList.remove('allv');
-    hide(allSvg, true); hide(svg, false); statusP.textContent = STATUS_TXT;
+    hide(allSvg, true); hide(svg, false);
   }
   roomSel.addEventListener('change', function () { if (roomSel.value === '__all') showAll(); else setRoom(roomSel.value); });
   function buildRoomSelect() {
@@ -2763,7 +2786,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function syncArrUI() {
     setSwitch($('arrLock'), S.event.locked);
     $('autoBtn').disabled = !S.event.pos || S.event.locked;
-    statusP.textContent = S.event.locked ? 'Arrangement locked. Click a room to edit it. Print shows this page.' : 'Drag rooms to arrange them, then lock. Click a room to edit it. Print shows this page.';
   }
   $('arrLock').addEventListener('click', function () {
     if (!S.all) return;
@@ -2864,7 +2886,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     keys = sortRooms(keys);
     if (!keys.length) return;
     meta = meta || {};
-    S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', pos: null, locked: false, setRooms: [] };
+    S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', notes: '', pos: null, locked: false, setRooms: [] };
     S.dirty = false; S.stale = false; S.viaNext = false; setSaveInd('');
     keys.forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
@@ -3297,7 +3319,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function openEvDlg() {
     var e = S.event;
     $('evTitle').value = e.name; $('evHost').value = e.host || ''; $('evDate').value = e.date;
-    $('evMulti').checked = e.multi; $('evEnd').value = e.endDate; $('evEndRow').hidden = !e.multi;
+    $('evMulti').checked = e.multi; $('evEnd').value = e.endDate; evMultiSync();
     var box = $('evRooms'); box.replaceChildren();
     var seen = {}, keys = sortRooms(ROOM_ORDER.filter(function (k) { return !ROOMS[k].hidden; }).concat(e.rooms)).filter(function (k) { if (seen[k]) return false; seen[k] = 1; return true; });
     keys.forEach(function (k) {
@@ -3311,7 +3333,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     $('evDlg').showModal();
   }
   $('evSetBtn').addEventListener('click', openEvDlg);
-  $('evMulti').addEventListener('change', function () { $('evEndRow').hidden = !$('evMulti').checked; });
+  function evMultiSync() { var m = $('evMulti').checked; $('evEndRow').hidden = !m; $('evDateL').textContent = m ? 'Start date' : 'Date'; }
+  $('evMulti').addEventListener('change', evMultiSync);
   $('evCancel').addEventListener('click', function () { $('evDlg').close(); });
   $('evGo').addEventListener('click', function () {
     var e = S.event, chosen = [].map.call($('evRooms').querySelectorAll('input[data-k]:checked'), function (c) { return c.getAttribute('data-k'); });
@@ -3357,7 +3380,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- print, PDF and share ---------- */
   function pageInfo(k) {
-    var inf = { show: true, ttl: '', date: '', bits: ['Applebrook'], notes: '' }, st, d, R;
+    var inf = { show: true, ttl: '', date: '', bits: ['Applebrook'], notes: [] }, st, d, R;
     var dateOn = PP.date && !!S.event.date;
     if (k === '__master') {
       st = eventStats();
@@ -3369,7 +3392,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       inf.date = dateOn ? eventDateText() : '';
       if (S.event.name && PP.title && !S.event.date) inf.bits.push(S.event.name);
       inf.bits.push(R.name);
-      if (PP.notes && d.showNotes && d.notes.trim()) inf.notes = d.notes;
+      inf.notes = notesBlocks(k);
     }
     if (S.event.host) inf.bits.push('Host: ' + S.event.host);
     if (PP.seats) inf.bits.push(seatWord(st.seats));
@@ -3396,10 +3419,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       }
       sec.appendChild(head);
       var body = dm('div', 'psbody'), vb = fillPageSvg(sv, k);
-      var aw = 10.5 - (inf.notes ? 2.52 : 0), ah = 7.2, kf = Math.min(aw / vb.w, ah / vb.h);
+      var aw = 10.5 - (inf.notes.length ? 2.52 : 0), ah = 7.2, kf = Math.min(aw / vb.w, ah / vb.h);
       sv.style.width = (vb.w * kf).toFixed(3) + 'in'; sv.style.height = (vb.h * kf).toFixed(3) + 'in';
       body.appendChild(sv);
-      if (inf.notes) { var nb = dm('div', 'psnotes'); nb.appendChild(dm('div', 'pnh', 'Setup notes')); nb.appendChild(dm('div', 'pnt', inf.notes)); body.appendChild(nb); }
+      if (inf.notes.length) { var nb = dm('div', 'psnotes'); inf.notes.forEach(function (b) { nb.appendChild(dm('div', 'pnh', b.h)); nb.appendChild(dm('div', 'pnt', b.t)); }); body.appendChild(nb); }
       sec.appendChild(body);
       box.appendChild(sec);
     });
@@ -3437,7 +3460,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var inf = pageInfo(k), stage = pageStage(), sv = document.createElementNS(NS, 'svg'), vb, clone;
     stage.replaceChildren(); stage.appendChild(sv);
     document.body.classList.add('pdfmode');
-    var aw = 2016 - (inf.notes ? 484 : 0), ah = 1382, w, h, kf;
+    var aw = 2016 - (inf.notes.length ? 484 : 0), ah = 1382, w, h, kf;
     try {
       vb = fillPageSvg(sv, k);
       kf = Math.min(aw / vb.w, ah / vb.h); w = Math.round(vb.w * kf); h = Math.round(vb.h * kf);
@@ -3461,13 +3484,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         ctx.textAlign = 'center'; ctx.font = '400 24px ' + ff; ctx.fillStyle = '#444'; ctx.fillText(inf.bits.join(' • '), PW / 2, 128, 1900);
       }
       ctx.drawImage(im, 48 + (aw - w) / 2, 167 + (ah - h) / 2, w, h);
-      if (inf.notes) {
-        var nx = PW - 48 - 461;
+      if (inf.notes.length) {
+        var nx = PW - 48 - 461, y = 167 + 24;
         ctx.strokeStyle = '#bbb'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(nx, 167); ctx.lineTo(nx, 167 + ah); ctx.stroke();
-        ctx.textAlign = 'left'; ctx.fillStyle = '#444'; ctx.font = '700 24px ' + ff; ctx.fillText('SETUP NOTES', nx + 23, 167 + 24);
-        ctx.fillStyle = '#111'; ctx.font = '400 32px ' + ff;
-        var lines = wrapLines(ctx, inf.notes, 461 - 23 - 4), y = 167 + 24 + 52;
-        for (var i = 0; i < lines.length && y < 167 + ah; i++, y += 45) ctx.fillText(lines[i], nx + 23, y);
+        ctx.textAlign = 'left';
+        inf.notes.forEach(function (b) {
+          if (y > 167 + ah) return;
+          ctx.fillStyle = '#444'; ctx.font = '700 24px ' + ff; ctx.fillText(b.h.toUpperCase(), nx + 23, y, 430);
+          ctx.fillStyle = '#111'; ctx.font = '400 32px ' + ff; y += 52;
+          var lines = wrapLines(ctx, b.t, 461 - 23 - 4);
+          for (var i = 0; i < lines.length && y < 167 + ah; i++, y += 45) ctx.fillText(lines[i], nx + 23, y);
+          y += 40;
+        });
       }
       return c.toDataURL('image/jpeg', 0.85);
     });
@@ -3848,6 +3876,63 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     guardDirty(function () { var rk = S.room; newEvent([rk]); toast('Back to the standard layout for ' + rName(rk) + '.'); });
   });
 
+  /* ---------- side panels: left tools, right table and notes ---------- */
+  var workEl = document.querySelector('.work'), rpEl = $('rightPanel'), rpTab = 'table', lastSelKey = '';
+  function syncRP() {
+    var open = workEl.classList.contains('rpan');
+    rpEl.inert = !open;
+    $('rpToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
+    $('notesBtn').setAttribute('aria-expanded', open && rpTab === 'notes' ? 'true' : 'false');
+    [['table', 'rpTabTable', 'rpTable'], ['notes', 'rpTabNotes', 'rpNotes']].forEach(function (t) {
+      var on = rpTab === t[0];
+      $(t[1]).setAttribute('aria-selected', on ? 'true' : 'false'); $(t[1]).tabIndex = on ? 0 : -1;
+      $(t[2]).hidden = !on;
+    });
+  }
+  function setRP(open, tab) {
+    if (tab) rpTab = tab;
+    workEl.classList.toggle('rpan', !!open);
+    syncRP();
+  }
+  function syncLP() {
+    workEl.classList.toggle('lcol', !!UI.lcol);
+    $('palette').inert = !!UI.lcol;
+    $('lpToggle').setAttribute('aria-expanded', UI.lcol ? 'false' : 'true');
+    $('lpToggle').title = UI.lcol ? 'Show tables and tools' : 'Hide tables and tools';
+  }
+  $('lpToggle').addEventListener('click', function () { UI.lcol = !UI.lcol; saveUI(); syncLP(); });
+  $('rpToggle').addEventListener('click', function () { setRP(!workEl.classList.contains('rpan')); });
+  $('rpClose').addEventListener('click', function () { setRP(false); });
+  $('rpTabTable').addEventListener('click', function () { setRP(true, 'table'); });
+  $('rpTabNotes').addEventListener('click', function () { setRP(true, 'notes'); });
+  $('notesBtn').addEventListener('click', function () {
+    if (workEl.classList.contains('rpan') && rpTab === 'notes') setRP(false);
+    else { setRP(true, 'notes'); }
+  });
+  function noteSel(key) {
+    if (key && key !== lastSelKey) setRP(true, 'table');
+    lastSelKey = key;
+  }
+  /* notes: event notes (several rooms only) and notes for the room being edited */
+  function notesBlocks(k) {
+    var d = S.docs[k], out = [], many = S.event.rooms.length > 1;
+    if (!(PP.notes && d.showNotes)) return out;
+    if (many && (S.event.notes || '').trim()) out.push({ h: 'Event notes', t: S.event.notes });
+    if (d.notes.trim()) out.push({ h: many ? ROOMS[k].name + ' notes' : 'Event notes', t: d.notes });
+    return out;
+  }
+  function syncNotesUI() {
+    var many = S.event.rooms.length > 1;
+    hide($('notesEv'), !many);
+    $('evNotesInput').value = S.event.notes || '';
+    $('rmNotesLbl').textContent = many ? room().name + ' notes' : 'Event notes';
+    $('notesDot').hidden = !((S.event.notes || '').trim() || doc().notes.trim());
+  }
+  $('evNotesInput').addEventListener('input', function () {
+    S.event.notes = $('evNotesInput').value.slice(0, 4000); S.dirty = S.stale = true; syncNotesUI(); save();
+  });
+  syncRP();
+
   /* ---------- start ---------- */
   loadConfigLocal();
   buildPalette();
@@ -3861,6 +3946,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   buildRoomSelect(); syncEventUI();
   if (saved && saved.cloud) Object.keys(saved.cloud).forEach(function (k) { var c = saved.cloud[k]; if ((ROOMS[k] || k === '__event') && c && typeof c.id === 'string') cloudRef[k] = { id: c.id, kind: c.kind === 'standard' ? 'standard' : 'layout', name: String(c.name || '') }; });
   applyPP();
+  syncLP();
   setRoom(S.room);
 
   /* ---------- pages, theme, settings lists ---------- */
