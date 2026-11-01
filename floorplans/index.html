@@ -171,6 +171,7 @@ body.allv .allonly { display: inline-flex; }
 .allroom .item { pointer-events: none; }
 .allroom:hover .wall, .allroom:focus-visible .wall { stroke: var(--accent); stroke-width: 4; }
 body.allv .work { grid-template-columns: minmax(0, 1fr); }
+body.allv #nextEvBtn, body.allv #stdBackBtn { display: none !important; }
 body.allv .palette, body.allv .inspector, body.allv #titlePrintBtn, body.allv #notesBtn, body.allv #fixPill, body.allv #fixBtn, body.allv #clearBtn, body.allv #defaultBtn { display: none !important; }
 .mcap { margin: 6px 10px 2px; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); }
 .cloudlist { display: grid; gap: 6px; max-height: 52vh; overflow-y: auto; margin-bottom: 4px; }
@@ -312,6 +313,34 @@ dialog.wide { width: min(780px, calc(100vw - 32px)); }
 .cap-near { color: #b7791f; }
 .cap-over { color: var(--danger); }
 #printAll { display: none; }
+.calbar { display: flex; align-items: center; gap: 10px; }
+.calbar h2 { margin: 0; font-size: 20px; min-width: 190px; text-align: center; }
+.callegend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13px; color: var(--muted); }
+.callegend span { display: inline-flex; align-items: center; gap: 6px; }
+.calgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.calh { text-align: center; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 4px 0; }
+.calc { min-height: 74px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 7px 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.calc.empty { background: transparent; border-color: transparent; cursor: default; }
+.calc:not(.empty):hover { border-color: var(--accent); }
+.calc.today .cn { background: var(--accent); color: #fff; border-radius: 999px; padding: 0 7px; }
+.calc.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft) inset; }
+.calc .cn { font-size: 13px; font-weight: 600; }
+.cdots { display: flex; flex-wrap: wrap; gap: 4px; }
+.cmore { font-size: 11px; color: var(--muted); }
+.cdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.cdot.big { width: 14px; height: 14px; }
+.cdot.r { background: #c4524a; } .cdot.y { background: #d19a2a; } .cdot.g { background: #3d8b63; } .cdot.x { background: #9aa39d; opacity: .7; }
+.calday { display: grid; gap: 10px; }
+.calh2 { margin: 6px 0 0; font-size: 18px; }
+.evcard { padding: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: grid; gap: 10px; }
+.evhead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.evrooms { display: grid; gap: 6px; }
+.evroom { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--floor); }
+.evroom .rn2 { flex: 1; font-size: 14px; font-weight: 500; }
+.evroom .btn { padding: 5px 10px; font-size: 13px; }
+.btn.isset { background: #3d8b63; color: #fff; border-color: #3d8b63; }
+.calnew { margin-top: 2px; }
+@media (max-width: 600px) { .calc { min-height: 58px; padding: 5px; } .calbar h2 { min-width: 0; flex: 1; } }
 .wall { stroke-linejoin: round; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
 .seg button { min-width: 44px; padding: 8px 10px; font-size: 13px; font-weight: 600; background: var(--floor); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
@@ -422,6 +451,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="hero"><h1>Floor Plans</h1></div>
   <div class="cards">
     <button class="card" type="button" id="goNew"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 4v14M4 11h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New Floorplan</h2><p>Pick the rooms and start laying out.</p></button>
+    <button class="card" type="button" data-go="calendar"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="5" width="15" height="13.5" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h15M7.5 3v4M14.5 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Events Calendar</h2><p>See scheduled floor plans by date.</p></button>
     <button class="card" type="button" id="goLoad"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 15V4M6.5 8.5L11 4l4.5 4.5M4 15v3h14v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Load</h2><p>Open a saved layout from this device.</p></button>
     <button class="card" type="button" data-go="settings"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 7h9M17 7h1M4 15h1M9 15h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="15" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><h2>Settings</h2><p>Room sizes, standard layouts, and table sizes.</p></button>
   </div>
@@ -433,6 +463,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Add, edit and arrange rooms, and manage standard layouts.</p></button>
     <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Add and edit table sizes, shapes and defaults.</p></button>
   </div>
+</main>
+
+<main class="page" id="viewCalendar" hidden>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Events Calendar</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <div class="calbar"><button class="btn" id="calPrev" type="button" aria-label="Previous month">&larr;</button><h2 id="calTitle"></h2><button class="btn" id="calNext" type="button" aria-label="Next month">&rarr;</button><button class="btn" id="calToday" type="button">Today</button></div>
+  <div class="callegend" aria-label="Dot colors"><span><i class="cdot r"></i>Nothing set</span><span><i class="cdot y"></i>Partly set</span><span><i class="cdot g"></i>All rooms set</span><span><i class="cdot x"></i>Past</span></div>
+  <p class="fine" id="calMsg" role="status"></p>
+  <div class="calgrid" id="calGrid"></div>
+  <div class="calday" id="calDay"></div>
 </main>
 
 <main class="page" id="viewRooms" hidden>
@@ -527,6 +566,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="pill allonly" id="arrLock" type="button" role="switch" aria-checked="false" title="Lock the room arrangement"><span>Lock layout</span><span class="sw"></span></button>
           <button class="pill allonly" id="autoBtn" type="button" title="Go back to the automatic arrangement"><span>Auto-arrange</span></button>
           <button class="pill" id="evSetBtn" type="button" title="Event title, host, date and rooms"><span>Event settings</span></button>
+          <button class="pill" id="nextEvBtn" type="button" title="Jump to the next scheduled event that uses this room"><span>Next event</span></button>
+          <button class="pill" id="stdBackBtn" type="button" title="Start over from the standard layout" hidden><span>Back to standard</span></button>
         </div>
         <div class="hr">
           <span class="fixpill" id="fixPill" hidden>Editing fixtures</span>
@@ -992,7 +1033,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- state ---------- */
   var S = { room: 'bistro', snap: true, grid: false, dims: false, docs: {}, fix: {}, editFix: false, all: false, allVB: null,
-    event: { rooms: ROOM_ORDER.slice(), name: '', host: '', date: '', multi: false, endDate: '', pos: null, locked: false }, dirty: false };
+    event: { rooms: ROOM_ORDER.slice(), name: '', host: '', date: '', multi: false, endDate: '', pos: null, locked: false, setRooms: [] }, dirty: false, viaNext: false };
   var hist = {};
   var sel = null, multi = [], curView = 'home';
   var drag = null;
@@ -2040,6 +2081,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var e = S.event;
     dateInput.value = e.date; endInput.value = e.endDate; endInput.min = e.date || '';
     setSwitch($('multiBtn'), e.multi); endInput.hidden = !e.multi;
+    hide($('stdBackBtn'), !S.viaNext);
   }
   nameInput.addEventListener('input', function () { if (S.all) S.event.name = nameInput.value.slice(0, 60); else doc().name = nameInput.value.slice(0, 60); S.dirty = true; save(); });
   nameInput.addEventListener('change', commit);
@@ -2134,7 +2176,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!rooms.length) rooms = visibleRooms();
       var odate = '';
       Object.keys(ROOMS).forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
-      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
+      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
       return { event: event, dirty: d.dirty === true, room: has(ROOMS, d.room) ? d.room : rooms[0], snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
@@ -2152,7 +2194,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), pos: S.event.pos, locked: S.event.locked },
+      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
@@ -2208,7 +2250,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!keys.length) return 'That file has no rooms this app knows.';
     var ev = o.event || {};
     var ps = cleanPos(ev.pos, keys);
-    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
+    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
     keys.forEach(function (k) {
       var r = o.rooms[k];
       S.docs[k] = cleanDoc(r); delete hist[k];
@@ -2220,7 +2262,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return '';
   }
   function applyLayout(text) {
-    var o;
+    var o; S.viaNext = false;
     try { o = JSON.parse(text); } catch (e) { return 'That is not valid layout text.'; }
     if (o && o.app === 'applebrook-floorplan' && o.rooms && typeof o.rooms === 'object' && !Array.isArray(o.rooms)) return applyEvent(o);
     if (!o || o.app !== 'applebrook-floorplan' || !Array.isArray(o.items)) return 'That file is not an Applebrook floor plan layout.';
@@ -2706,8 +2748,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     keys = sortRooms(keys);
     if (!keys.length) return;
     meta = meta || {};
-    S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', pos: null, locked: false };
-    S.dirty = false;
+    S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', pos: null, locked: false, setRooms: [] };
+    S.dirty = false; S.viaNext = false;
     keys.forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
     leaveAll(); sel = null; multi = [];
@@ -3164,7 +3206,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     e.date = vDate(sd); e.multi = multi; e.endDate = multi ? vDate($('evEnd').value) : '';
     var next = sortRooms(chosen);
     if (next.join() !== e.rooms.join()) {
-      e.rooms = next; e.pos = null; e.locked = false;
+      e.rooms = next; e.pos = null; e.locked = false; e.setRooms = (e.setRooms || []).filter(function (k) { return next.indexOf(k) >= 0; });
       ensureRoomData();
       if (next.indexOf(S.room) < 0) { leaveAll(); S.room = next[0]; }
       if (S.all && next.length < 2) leaveAll();
@@ -3226,6 +3268,158 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   $('printAllBtn').addEventListener('click', function () { closeMenu(); printAllRooms(); });
 
+  /* ---------- events calendar and next event ---------- */
+  var evCache = null, calMonth = null, calSel = '', DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function p2(n) { return (n < 10 ? '0' : '') + n; }
+  function ymd(d) { return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); }
+  function ymdDate(v) { var a = v.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
+  function todayStr() { return ymd(new Date()); }
+  function evFromRow(r) {
+    var e = r.ev || (r.data && r.data.event) || null, d = r.data || {}, o = { id: r.id, name: r.name || 'Untitled event', author: r.author || '' };
+    if (e) {
+      o.start = vDate(e.date); o.host = String(e.host || '');
+      o.end = e.multi && vDate(e.endDate) >= o.start ? vDate(e.endDate) : o.start;
+      o.rooms = Array.isArray(e.rooms) ? e.rooms.slice() : [];
+      o.set = Array.isArray(e.setRooms) ? e.setRooms.slice() : [];
+    } else {
+      o.start = vDate(r.d1 || d.date); o.end = o.start; o.host = '';
+      o.rooms = []; o.set = Array.isArray(r.s1) ? r.s1.slice() : (Array.isArray(d.setRooms) ? d.setRooms.slice() : []);
+    }
+    if (!o.rooms.length) o.rooms = String(r.room || '').split(',').filter(Boolean);
+    o.legacy = !e;
+    return o;
+  }
+  function fetchEvents(force) {
+    if (evCache && !force) return Promise.resolve(evCache);
+    return sb('GET', '?kind=eq.layout&select=id,name,author,room,updated_at,ev:data->event,d1:data->date,s1:data->setRooms&order=updated_at.desc&limit=500').then(function (rows) {
+      evCache = rows.map(evFromRow).filter(function (e) { return e.start; });
+      return evCache;
+    });
+  }
+  function evStatus(e) {
+    if (e.end < todayStr()) return 'x';
+    var n = e.rooms.filter(function (k) { return e.set.indexOf(k) >= 0; }).length;
+    return n === 0 ? 'r' : (n >= e.rooms.length ? 'g' : 'y');
+  }
+  var EV_STATUS = { r: 'Nothing set yet', y: 'Partly set', g: 'All rooms set', x: 'Past event' };
+  function rName(k) { return has(ROOMS, k) ? ROOMS[k].name : k; }
+  function eventsOn(day) { return (evCache || []).filter(function (e) { return e.start <= day && day <= e.end; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); }); }
+  function buildCalendar(force) {
+    if (!calMonth) { var t = new Date(); calMonth = new Date(t.getFullYear(), t.getMonth(), 1); }
+    $('calMsg').textContent = 'Loading...';
+    fetchEvents(force).then(function () { $('calMsg').textContent = ''; renderCal(); }, function (e) { $('calMsg').textContent = cloudMsg(e); renderCal(); });
+    renderCal();
+  }
+  function renderCal() {
+    var m = calMonth, y = m.getFullYear(), mo = m.getMonth(), grid = $('calGrid'), today = todayStr();
+    $('calTitle').textContent = m.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+    grid.replaceChildren();
+    DOW.forEach(function (d) { grid.appendChild(dm('div', 'calh', d)); });
+    var first = new Date(y, mo, 1), lead = first.getDay(), days = new Date(y, mo + 1, 0).getDate(), i;
+    for (i = 0; i < lead; i++) grid.appendChild(dm('div', 'calc empty'));
+    for (i = 1; i <= days; i++) (function (n) {
+      var ds = y + '-' + p2(mo + 1) + '-' + p2(n), evs = eventsOn(ds);
+      var c = dm('button', 'calc' + (ds === today ? ' today' : '') + (ds === calSel ? ' sel' : '')); c.type = 'button'; c.setAttribute('data-day', ds);
+      c.setAttribute('aria-label', ymdDate(ds).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) + (evs.length ? ', ' + evs.length + (evs.length === 1 ? ' event' : ' events') : ''));
+      c.appendChild(dm('span', 'cn', String(n)));
+      if (evs.length) {
+        var dots = dm('span', 'cdots');
+        evs.slice(0, 6).forEach(function (e) { var d = dm('span', 'cdot ' + evStatus(e)); d.title = e.name; dots.appendChild(d); });
+        if (evs.length > 6) dots.appendChild(dm('span', 'cmore', '+' + (evs.length - 6)));
+        c.appendChild(dots);
+      }
+      c.addEventListener('click', function () { calSel = ds; renderCal(); });
+      grid.appendChild(c);
+    })(i);
+    renderDay();
+  }
+  function renderDay() {
+    var box = $('calDay'); box.replaceChildren();
+    if (!calSel) { box.appendChild(dm('p', 'fine', 'Pick a day to see its floor plans.')); return; }
+    var evs = eventsOn(calSel);
+    box.appendChild(dm('h2', 'calh2', ymdDate(calSel).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })));
+    if (!evs.length) box.appendChild(dm('p', 'fine', 'No alternate floor plans scheduled.'));
+    evs.forEach(function (e) { box.appendChild(calEventCard(e)); });
+    var nb = dm('div', 'calnew'); nb.appendChild(mkBtn('New floorplan for this day', 'btn', function () { openNew(); $('nwDate').value = calSel; }));
+    box.appendChild(nb);
+  }
+  function calEventCard(e) {
+    var st = evStatus(e), card = dm('div', 'evcard'), head = dm('div', 'evhead');
+    head.appendChild(dm('span', 'cdot big ' + st));
+    var info = dm('div', 'sinfo');
+    info.appendChild(dm('div', 'sn', e.name));
+    var range = e.end !== e.start ? ymdDate(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' to ' + ymdDate(e.end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
+    info.appendChild(dm('div', 'sm', [EV_STATUS[st], e.host ? 'Host: ' + e.host : '', range, e.author].filter(Boolean).join(' · ')));
+    head.appendChild(info);
+    head.appendChild(mkBtn('Open', 'btn primary', function () { openEventRow(e); }));
+    card.appendChild(head);
+    var rl = dm('div', 'evrooms');
+    e.rooms.forEach(function (k) {
+      var on = e.set.indexOf(k) >= 0, row = dm('div', 'evroom'), sw = dm('span', 'sdot');
+      if (has(ROOMS, k) && ROOMS[k].color) sw.style.background = COLORS[ROOMS[k].color];
+      row.appendChild(sw); row.appendChild(dm('span', 'rn2', rName(k)));
+      var b = mkBtn(on ? 'Set ✓' : 'Mark as set', 'btn' + (on ? ' isset' : ''), function () {
+        b.disabled = true;
+        markRoomSet(e, k, !on).then(function () { renderCal(); }, function (x) { $('calMsg').textContent = cloudMsg(x); b.disabled = false; });
+      });
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      row.appendChild(b); rl.appendChild(row);
+    });
+    card.appendChild(rl);
+    return card;
+  }
+  function markRoomSet(e, k, on) {
+    return sb('GET', '?id=eq.' + encodeURIComponent(e.id) + '&select=data').then(function (rows) {
+      if (!rows || !rows[0]) throw new Error('That event is gone.');
+      var d = rows[0].data || {}, holder = d.event || d, s = Array.isArray(holder.setRooms) ? holder.setRooms.slice() : [];
+      var i = s.indexOf(k);
+      if (on && i < 0) s.push(k); if (!on && i >= 0) s.splice(i, 1);
+      holder.setRooms = s;
+      return sb('PATCH', '?id=eq.' + encodeURIComponent(e.id), { data: d }, 'return=representation').then(function (r) {
+        if (!r || !r[0]) throw new Error('The save did not go through.');
+        e.set = s;
+        if (cloudRef.__event && cloudRef.__event.id === e.id) { S.event.setRooms = s.filter(function (x) { return S.event.rooms.indexOf(x) >= 0; }); save(); }
+      });
+    });
+  }
+  function openEventRow(e, then) {
+    guardDirty(function () {
+      sb('GET', '?id=eq.' + encodeURIComponent(e.id) + '&select=data').then(function (rows) {
+        if (!rows || !rows[0]) { toast('That event is gone.'); return; }
+        var err = applyLayout(JSON.stringify(rows[0].data));
+        if (err) { toast(err); return; }
+        cloudRef.__event = { id: e.id, kind: 'layout', name: e.name }; save();
+        showView('editor');
+        if (then) then(); else toast('Opened ' + e.name + '.');
+      }, function (x) { toast(cloudMsg(x)); });
+    });
+  }
+  $('calPrev').addEventListener('click', function () { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() - 1, 1); renderCal(); });
+  $('calNext').addEventListener('click', function () { calMonth = new Date(calMonth.getFullYear(), calMonth.getMonth() + 1, 1); renderCal(); });
+  $('calToday').addEventListener('click', function () { var t = new Date(); calMonth = new Date(t.getFullYear(), t.getMonth(), 1); calSel = todayStr(); renderCal(); });
+
+  /* Next event: jump to the next upcoming alternate floor plan that uses this room. */
+  $('nextEvBtn').addEventListener('click', function () {
+    var rk = S.room;
+    fetchEvents(true).then(function (list) {
+      var t = todayStr();
+      var c = list.filter(function (e) { return e.rooms.indexOf(rk) >= 0 && e.end >= t; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); });
+      if (!c.length) { toast('No upcoming events for ' + rName(rk) + '.'); return; }
+      var cur = cloudRef.__event ? cloudRef.__event.id : null, idx = -1, i;
+      for (i = 0; i < c.length; i++) if (c[i].id === cur) idx = i;
+      var n = idx >= 0 ? c[idx + 1] : c[0], pos = idx >= 0 ? idx + 2 : 1;
+      if (!n) { toast('That is the last upcoming event for ' + rName(rk) + '.'); return; }
+      openEventRow(n, function () {
+        if (S.event.rooms.indexOf(rk) >= 0) { leaveAll(); setRoom(rk); }
+        S.viaNext = true; syncEventUI();
+        toast(n.name + ', ' + ymdDate(n.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' (' + pos + ' of ' + c.length + ')');
+      });
+    }, function (e) { toast(cloudMsg(e)); });
+  });
+  $('stdBackBtn').addEventListener('click', function () {
+    guardDirty(function () { var rk = S.room; newEvent([rk]); toast('Back to the standard layout for ' + rName(rk) + '.'); });
+  });
+
   /* ---------- start ---------- */
   loadConfigLocal();
   buildPalette();
@@ -3242,11 +3436,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   setRoom(S.room);
 
   /* ---------- pages, theme, settings lists ---------- */
-  var VIEWS = { home: 'viewHome', settings: 'viewSettings', rooms: 'viewRooms', tables: 'viewTables', editor: 'viewEditor' };
+  var VIEWS = { home: 'viewHome', calendar: 'viewCalendar', settings: 'viewSettings', rooms: 'viewRooms', tables: 'viewTables', editor: 'viewEditor' };
   function showView(name, fromHash) {
     if (!VIEWS[name]) name = 'home';
     Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== name; });
     curView = name;
+    if (name === 'calendar') buildCalendar(true);
     if (name === 'rooms') { buildRoomSettings(); setCfgStatus(''); fetchConfig(); }
     if (name === 'tables') { buildTableSettings(); setCfgStatus(''); fetchConfig(); }
     if (name === 'editor') { fitSize(); renderHandles(); } else { closeMenu(); }
