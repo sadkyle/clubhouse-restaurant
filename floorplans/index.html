@@ -369,13 +369,15 @@ body.pdfmode { --bg: #fff; --panel: #fff; --ink: #111; --muted: #444; --line: #b
 .chooseopts .card { text-align: left; }
 .calgrid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 .calh { text-align: center; font-size: 11px; font-weight: 600; letter-spacing: .09em; text-transform: uppercase; color: var(--muted); padding: 4px 0; }
-.calc { min-height: 74px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 7px 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.calc { min-height: 92px; min-width: 0; overflow: hidden; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; padding: 7px 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: inherit; color: inherit; cursor: pointer; text-align: left; }
 .calc.empty { background: transparent; border-color: transparent; cursor: default; }
 .calc:not(.empty):hover { border-color: var(--accent); }
 .calc.today .cn { background: var(--accent); color: #fff; border-radius: 999px; padding: 0 7px; }
 .calc.sel { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft) inset; }
 .calc .cn { font-size: 13px; font-weight: 600; }
-.cdots { display: flex; flex-wrap: wrap; gap: 4px; }
+.cdots { display: flex; flex-direction: column; gap: 3px; width: 100%; min-width: 0; }
+.cev { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.cevn { font-size: 12px; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; text-align: left; }
 .cmore { font-size: 11px; color: var(--muted); }
 .cdot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; flex: none; }
 .cdot.big { width: 14px; height: 14px; }
@@ -4107,8 +4109,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       c.appendChild(dm('span', 'cn', String(n)));
       if (evs.length) {
         var dots = dm('span', 'cdots');
-        evs.slice(0, 6).forEach(function (e) { var d = dm('span', 'cdot ' + evStatus(e)); d.title = e.name; dots.appendChild(d); });
-        if (evs.length > 6) dots.appendChild(dm('span', 'cmore', '+' + (evs.length - 6)));
+        evs.slice(0, 4).forEach(function (e) {
+          var row = dm('span', 'cev'); row.title = e.name;
+          row.appendChild(dm('span', 'cdot ' + evStatus(e))); row.appendChild(dm('span', 'cevn', e.name)); dots.appendChild(row);
+        });
+        if (evs.length > 4) dots.appendChild(dm('span', 'cmore', '+' + (evs.length - 4) + ' more'));
         c.appendChild(dots);
       }
       c.addEventListener('click', function () { calSel = ds; renderCal(); });
