@@ -696,6 +696,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         <p class="sub">Drag to move them together.</p>
         <div class="actions">
           <button class="btn primary full" id="mergeBtn" type="button">Merge into one table</button>
+          <button class="btn full" id="groupBtn" type="button">Group tables</button>
+          <button class="btn full" id="ungroupMultiBtn" type="button" hidden>Ungroup</button>
           <button class="btn danger full" id="mDelBtn" type="button">Delete selected</button>
         </div>
         <p class="fine" id="mergeWhy" style="margin-top:10px"></p>
@@ -703,6 +705,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       <div id="inspBody" hidden>
         <h2 id="inspTitle"></h2>
         <p class="sub" id="inspSub"></p>
+        <div id="grpInfo" hidden style="margin:-4px 0 10px"><span class="fine" id="grpTxt"></span> <button class="btn" id="ungroupOneBtn" type="button">Ungroup</button></div>
 
         <div id="blkTable">
           <div class="field">
@@ -1169,8 +1172,146 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function norm(d) { return ((Math.round(d * 10) / 10) % 360 + 360) % 360; }
   function aabb(a, b, deg) { var c = Math.abs(Math.cos(rad(deg))), s = Math.abs(Math.sin(rad(deg))); return { x: a * c + b * s, y: a * s + b * c }; }
 
+  /* ---------- combo (free) merges and snapping ---------- */
+  function partShape(p, x, y, rot) {
+    var T = TYPES[p.type];
+    if (isRound(T)) return { c: true, x: x, y: y, r: T.w / 2 };
+    var pts = [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(function (k) { var v = rotVec(k[0] * T.w / 2, k[1] * T.h / 2, rot); return { x: x + v.x, y: y + v.y }; });
+    return { c: false, pts: pts };
+  }
+  function segDist(p, a, b) {
+    var dx = b.x - a.x, dy = b.y - a.y, L = dx * dx + dy * dy, t = L ? clamp(((p.x - a.x) * dx + (p.y - a.y) * dy) / L, 0, 1) : 0;
+    return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+  }
+  function ptPolyDist(p, pts) {
+    var inside = true, i, md = Infinity;
+    for (i = 0; i < 4; i++) {
+      var a = pts[i], b = pts[(i + 1) % 4];
+      if ((b.x - a.x) * (p.y - a.y) - (b.y - a.y) * (p.x - a.x) < 0) inside = false;
+      md = Math.min(md, segDist(p, a, b));
+    }
+    return inside ? 0 : md;
+  }
+  function polyOverlap(A, B) {
+    var polys = [A, B], i, k, j;
+    for (k = 0; k < 2; k++) for (i = 0; i < 4; i++) {
+      var a = polys[k][i], b = polys[k][(i + 1) % 4], nx = a.y - b.y, ny = b.x - a.x, m0 = Infinity, m1 = -Infinity, o0 = Infinity, o1 = -Infinity;
+      for (j = 0; j < 4; j++) { var d1 = A[j].x * nx + A[j].y * ny, d2 = B[j].x * nx + B[j].y * ny; m0 = Math.min(m0, d1); m1 = Math.max(m1, d1); o0 = Math.min(o0, d2); o1 = Math.max(o1, d2); }
+      if (m1 < o0 || o1 < m0) return false;
+    }
+    return true;
+  }
+  function shapeDist(a, b) {
+    var i;
+    if (a.c && b.c) return Math.max(0, Math.hypot(a.x - b.x, a.y - b.y) - a.r - b.r);
+    if (a.c) return Math.max(0, ptPolyDist(a, b.pts) - a.r);
+    if (b.c) return Math.max(0, ptPolyDist(b, a.pts) - b.r);
+    if (polyOverlap(a.pts, b.pts)) return 0;
+    var md = Infinity;
+    for (i = 0; i < 4; i++) for (var j = 0; j < 4; j++) {
+      md = Math.min(md, segDist(a.pts[i], b.pts[j], b.pts[(j + 1) % 4]), segDist(b.pts[i], a.pts[j], a.pts[(j + 1) % 4]));
+    }
+    return md;
+  }
+  var comboCache = typeof WeakMap === 'function' ? new WeakMap() : null;
+  function comboCalc(it) {
+    var parts = it.parts, hit = comboCache && comboCache.get(parts);
+    if (hit && hit.k === it.seats + '|' + it.parts.length) return hit;
+    var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+    parts.forEach(function (p) {
+      var sh = partShape(p, p.ox, p.oy, p.rot);
+      var pts = sh.c ? [{ x: p.ox - sh.r, y: p.oy - sh.r }, { x: p.ox + sh.r, y: p.oy + sh.r }] : sh.pts;
+      pts.forEach(function (q) { minx = Math.min(minx, q.x); maxx = Math.max(maxx, q.x); miny = Math.min(miny, q.y); maxy = Math.max(maxy, q.y); });
+    });
+    var all = [];
+    parts.forEach(function (p, pi) {
+      var T = TYPES[p.type]; if (!T || isSvc(T)) return;
+      seatSlots(T, geoMax(T), p.seatRot || 0).forEach(function (sl) {
+        var v = rotVec(sl.x, sl.y, p.rot), px = p.ox + v.x, py = p.oy + v.y, inside = false;
+        parts.forEach(function (q, qi) {
+          if (qi === pi || inside) return;
+          var QT = TYPES[q.type], u = rotVec(px - q.ox, py - q.oy, -q.rot);
+          if (isRound(QT) ? Math.hypot(u.x, u.y) < QT.w / 2 + 4 : (Math.abs(u.x) < QT.w / 2 + 4 && Math.abs(u.y) < QT.h / 2 + 4)) inside = true;
+        });
+        if (inside) return;
+        for (var k = 0; k < all.length; k++) if (Math.hypot(all[k].x - px, all[k].y - py) < 12) return;
+        all.push({ x: px, y: py, rot: sl.rot + p.rot });
+      });
+    });
+    var res = { k: it.seats + '|' + it.parts.length, w: Math.max(12, maxx - minx), h: Math.max(12, maxy - miny), slots: all };
+    if (comboCache) comboCache.set(parts, res);
+    return res;
+  }
+  function comboChairs(it) {
+    var all = comboCalc(it).slots, n = Math.min(it.seats, all.length), out = [];
+    for (var i = 0; i < n; i++) out.push(all[Math.floor((i + 0.5) * all.length / n)]);
+    return out;
+  }
+  function rigidParts(t) {
+    var out;
+    if (t.type === 'merged') {
+      var cum = -t.w / 2;
+      out = t.parts.map(function (p) { var c = cum + p.ext / 2, v = rotVec(c, 0, t.rot); cum += p.ext; return { type: p.type, x: t.x + v.x, y: t.y + v.y, rot: norm(t.rot + p.rel), label: p.label, seats: p.seats, seatRot: p.seatRot || 0 }; });
+    } else if (t.type === 'combo') {
+      out = t.parts.map(function (p) { var v = rotVec(p.ox, p.oy, t.rot || 0); return { type: p.type, x: t.x + v.x, y: t.y + v.y, rot: norm((t.rot || 0) + p.rot), label: p.label, seats: p.seats, seatRot: p.seatRot || 0 }; });
+    } else out = [{ type: t.type, x: t.x, y: t.y, rot: t.rot || 0, label: t.label, seats: t.seats, seatRot: t.seatRot || 0 }];
+    return out;
+  }
+  function rigDist(a, b, ta, tb) {
+    var md = Infinity;
+    a.forEach(function (p) {
+      var sa = partShape(p, p.x + ta.x, p.y + ta.y, p.rot);
+      b.forEach(function (q) { md = Math.min(md, shapeDist(sa, partShape(q, q.x + tb.x, q.y + tb.y, q.rot))); });
+    });
+    return md;
+  }
+  /* Slide each group of tables toward the nearest placed one until the edges touch. Returns offsets per rigid. */
+  function snapRigids(rigs) {
+    var cx = 0, cy = 0, n = 0, Z = { x: 0, y: 0 };
+    rigs.forEach(function (r) { r.parts.forEach(function (p) { cx += p.x; cy += p.y; n++; }); r.off = { x: 0, y: 0 }; });
+    cx /= n; cy /= n;
+    function cen(r) { var a = 0, b = 0; r.parts.forEach(function (p) { a += p.x; b += p.y; }); return { x: a / r.parts.length + r.off.x, y: b / r.parts.length + r.off.y }; }
+    var anchor = rigs.slice().sort(function (a, b) { return Math.hypot(cen(a).x - cx, cen(a).y - cy) - Math.hypot(cen(b).x - cx, cen(b).y - cy); })[0];
+    var placed = [anchor], rest = rigs.filter(function (r) { return r !== anchor; });
+    rest.sort(function (a, b) { return Math.hypot(cen(a).x - cen(anchor).x, cen(a).y - cen(anchor).y) - Math.hypot(cen(b).x - cen(anchor).x, cen(b).y - cen(anchor).y); });
+    rest.forEach(function (r) {
+      var best = null;
+      placed.forEach(function (pl) { var d = rigDist(r.parts, pl.parts, r.off, pl.off); if (!best || d < best.d) best = { d: d, pl: pl }; });
+      var near = null;
+      r.parts.forEach(function (p) { best.pl.parts.forEach(function (q) {
+        var d = Math.hypot(p.x + r.off.x - q.x - best.pl.off.x, p.y + r.off.y - q.y - best.pl.off.y);
+        if (!near || d < near.d) near = { d: d, vx: (q.x + best.pl.off.x) - (p.x + r.off.x), vy: (q.y + best.pl.off.y) - (p.y + r.off.y) };
+      }); });
+      var L = near.d || 1, vx = near.vx / L, vy = near.vy / L, base = { x: r.off.x, y: r.off.y };
+      function f(t) {
+        var o = { x: base.x + vx * t, y: base.y + vy * t }, md = Infinity;
+        placed.forEach(function (pl) { md = Math.min(md, rigDist(r.parts, pl.parts, o, pl.off)); });
+        return md;
+      }
+      var lo, hi, i, T0 = 0.3;
+      if (f(0) > T0) {
+        lo = 0; hi = L; var g = 0; while (f(hi) > T0 && g++ < 8) hi *= 1.6;
+        for (i = 0; i < 30; i++) { var mid = (lo + hi) / 2; if (f(mid) > T0) lo = mid; else hi = mid; }
+        r.off = { x: base.x + vx * hi, y: base.y + vy * hi };
+      } else {
+        hi = 6; var g2 = 0; while (f(-hi) <= T0 && g2++ < 12) hi *= 2;
+        lo = 0;
+        for (i = 0; i < 30; i++) { var mid2 = (lo + hi) / 2; if (f(-mid2) > T0) hi = mid2; else lo = mid2; }
+        r.off = { x: base.x - vx * hi, y: base.y - vy * hi };
+      }
+      placed.push(r);
+    });
+  }
+  function geoMax(T) {
+    if (isSvc(T)) return 0;
+    if (isRound(T)) return Math.min(16, Math.floor(2 * Math.PI * (T.w / 2 + GAP) / 21));
+    var L = Math.max(T.w, T.h), S0 = Math.min(T.w, T.h);
+    return 2 * Math.floor(L / CHAIR_PITCH) + 2 * Math.floor(S0 / CHAIR_PITCH);
+  }
+
   /* Table info for an item. Merged tables synthesize one long rectangle from their parts. */
   function tinfo(it) {
+    if (it.type === 'combo') { var cg = comboCalc(it); return { name: 'Merged table', group: it.svc ? 'service' : 'dining', shape: 'rect', w: cg.w, h: cg.h, seats: 0, short: Math.round(Math.max(cg.w, cg.h) / 12) + "'", merged: true, combo: true, max: it.max > 0 ? it.max : cg.slots.length }; }
     if (it.type === 'merged') return { name: 'Merged table', group: it.svc ? 'service' : 'dining', shape: 'rect', w: it.w, h: it.h, seats: 0, short: Math.round(it.w / 12) + "'", merged: true, max: it.max > 0 ? it.max : undefined };
     return TYPES[it.type];
   }
@@ -1330,15 +1471,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     liveAttrs(g, t, live, (isSvc(T) ? '' : 'Table ' + (t.label || 'unlabeled') + ', ') + T.name + (t.seats ? ', ' + seatLabel(cc0.n, cc0.hc) : ''));
     var editing = live && CE.id === t.id;
     if (editing) g.classList.add('cedit');
-    seatSlots(T, t.seats, t.seatRot, t.sides).forEach(function (sl, i) {
+    (T.combo ? comboChairs(t) : seatSlots(T, t.seats, t.seatRot, t.sides)).forEach(function (sl, i) {
       var st = t.cs && t.cs[i];
       if (st === 'x') { if (editing) { var gh = addChair(g, sl.x, sl.y, sl.rot, '', 'ghostc'); gh.setAttribute('data-ci', i); } return; }
       var ch = addChair(g, sl.x, sl.y, sl.rot, st);
       if (editing) ch.setAttribute('data-ci', i);
     });
-    if (isRound(T)) el('circle', { 'class': 'tbody', r: T.w / 2 }, g);
+    if (T.combo) {
+      t.parts.forEach(function (p) {
+        var PT = TYPES[p.type], pg = el('g', { transform: 'translate(' + p.ox + ' ' + p.oy + ') rotate(' + p.rot + ')' }, g);
+        if (isRound(PT)) el('circle', { 'class': 'tbody', r: PT.w / 2 }, pg);
+        else el('rect', { 'class': 'tbody', x: -PT.w / 2, y: -PT.h / 2, width: PT.w, height: PT.h, rx: 4 }, pg);
+      });
+    } else if (isRound(T)) el('circle', { 'class': 'tbody', r: T.w / 2 }, g);
     else el('rect', { 'class': 'tbody', x: -T.w / 2, y: -T.h / 2, width: T.w, height: T.h, rx: 4 }, g);
-    if (T.merged) {
+    if (T.merged && !T.combo) {
       var cum = -T.w / 2;
       t.parts.forEach(function (p, i) {
         cum += p.ext;
@@ -1467,13 +1614,20 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     while (k < lines.length && k < maxL && lines[k].length * fs * 0.6 <= av.w * 1.05) k++;
     return { fs: fs, lines: lines.slice(0, k), over: lines.slice(k) };
   }
-  function gboxInfo(t) {
+  function gboxHost(t, arr) { if (!t || !t.grp) return t; var m = grpMembers(t.grp, arr); return m.length ? m[0] : t; }
+  function gboxInfo(t, arr) {
+    if (t.grp && gboxHost(t, arr) !== t) return null;
     var T = tinfo(t), fs = clamp(Math.min(T.w, T.h) * 0.34, 9, 14);
     var fit = fitLabel(isSvc(T) ? (t.label || T.short) : t.label, t, T, fs);
-    var rows = [];
+    var rows = [], gm = t.grp ? grpMembers(t.grp, arr) : null;
+    if (gm && gm.length > 1) {
+      var gs = 0, ghc = 0; gm.forEach(function (x) { var cc = chairCounts(x); gs += cc.n; ghc += cc.hc; });
+      rows.push({ t: 'Group of ' + gm.length + ': ' + seatLabel(gs, ghc), b: true });
+      if (t.guests && String(t.guests).trim()) rows.push({ t: '', gap: true });
+    }
     if (fit.over.length) wrapLinesTxt(fit.over.join(' '), GB_MAXCH + 4).forEach(function (l) { rows.push({ t: l, b: true }); });
     if (t.guests && String(t.guests).trim()) {
-      if (rows.length) rows.push({ t: '', gap: true });
+      if (rows.length && !(gm && gm.length > 1 && !fit.over.length)) rows.push({ t: '', gap: true });
       wrapLinesTxt(String(t.guests).trim(), GB_MAXCH).forEach(function (l) { rows.push({ t: l }); });
     }
     if (!rows.length) return null;
@@ -1495,17 +1649,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (t.x + hx + bx.w / 2 > R.w && t.x - hx - bx.w / 2 > 0) hx = -hx;
     return { x: clamp(t.x + hx, Math.min(bx.w / 2, R.w / 2), Math.max(R.w - bx.w / 2, R.w / 2)), y: clamp(t.y, Math.min(bx.h / 2, R.h / 2), Math.max(R.h - bx.h / 2, R.h / 2)) };
   }
-  function gboxNode(t, live, R) {
-    var bx = gboxInfo(t); if (!bx) return null;
+  function gboxNode(t, live, R, arr) {
+    var bx = gboxInfo(t, arr); if (!bx) return null;
     var c = gboxCenter(t, bx, R), h = half(t);
     var gr = t.grot || 0;
     var g = el('g', { 'class': 'gbox' + (live && isSel(t.id) ? ' sel' : ''), transform: 'translate(' + c.x.toFixed(2) + ' ' + c.y.toFixed(2) + ')' + (gr ? ' rotate(' + gr + ')' : '') });
     if (live) g.setAttribute('data-gid', t.id);
-    var dx = t.x - c.x, dy = t.y - c.y, dist = Math.hypot(dx, dy);
-    if (Math.abs(dx) - h.x - bx.w / 2 > 14 || Math.abs(dy) - h.y - bx.h / 2 > 14) {
-      var k = Math.max(h.x, h.y) / (dist || 1), lv = rotVec(dx - dx * k, dy - dy * k, -gr);
-      el('line', { 'class': 'gbl', x1: 0, y1: 0, x2: lv.x, y2: lv.y }, g);
-    }
+    (t.grp ? grpMembers(t.grp, arr) : [t]).forEach(function (mt) {
+      var mh = half(mt), dx = mt.x - c.x, dy = mt.y - c.y, dist = Math.hypot(dx, dy);
+      if (mt !== t || Math.abs(dx) - mh.x - bx.w / 2 > 14 || Math.abs(dy) - mh.y - bx.h / 2 > 14) {
+        var k = Math.max(mh.x, mh.y) / (dist || 1), lv = rotVec(dx - dx * k, dy - dy * k, -gr);
+        el('line', { 'class': 'gbl', x1: 0, y1: 0, x2: lv.x, y2: lv.y }, g);
+      }
+    });
     el('rect', { 'class': 'gbr' + (t.gfill ? ' fill-' + t.gfill : ''), x: -bx.w / 2, y: -bx.h / 2, width: bx.w, height: bx.h, rx: 3 }, g);
     var y = -bx.h / 2 + 4;
     bx.rows.forEach(function (r) {
@@ -1516,11 +1672,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return g;
   }
   function gboxFor(id) { return gboxL.querySelector('.gbox[data-gid="' + id + '"]'); }
-  function refreshGbox(t) {
+  function refreshGbox(t0) {
+    var t = gboxHost(t0);
+    if (t !== t0) { var o0 = gboxFor(t0.id); if (o0) o0.remove(); }
     var old = gboxFor(t.id), g = gboxNode(t, true);
     if (old) { if (g) old.replaceWith(g); else old.remove(); } else if (g) gboxL.appendChild(g);
   }
-  function gbEdit(fn) { var t = byId(sel); if (!t || t.kind !== 'table') return; fn(t); refreshGbox(t); renderHandles(); commit(); }
+  function gbEdit(fn) { var t = gboxHost(byId(sel)); if (!t || t.kind !== 'table') return; fn(t); refreshGbox(t); renderHandles(); commit(); }
   $('gbRow').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-gf]'); if (!b) return;
     gbEdit(function (t) { var f = b.getAttribute('data-gf'); if (f === 'none') delete t.gfill; else t.gfill = f; });
@@ -1534,7 +1692,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     asgOpen = !asgOpen; $('asgWrap').hidden = !asgOpen; this.setAttribute('aria-expanded', asgOpen ? 'true' : 'false');
     if (asgOpen) guestInput.focus();
   });
-  guestInput.addEventListener('input', function () { var t = byId(sel); if (!t || t.kind !== 'table') return; t.guests = guestInput.value.slice(0, 2000); if (!t.guests) delete t.guests; refreshGbox(t); });
+  guestInput.addEventListener('input', function () { var t = gboxHost(byId(sel)); if (!t || t.kind !== 'table') return; t.guests = guestInput.value.slice(0, 2000); if (!t.guests) delete t.guests; refreshGbox(t); });
   guestInput.addEventListener('change', commit);
 
   function stopChairEdit() { if (CE.id) { var p0 = byId(CE.id); CE.id = null; if (p0) refreshItem(p0); } }
@@ -1600,8 +1758,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var tb = textBox(it, items());
       boxHandles(it.x, it.y, tb.w, tb.h, it.rot || 0, '', r);
     } else if (it.kind === 'table') {
-      var gi = gboxInfo(it);
-      if (gi) { var gc = gboxCenter(it, gi); boxHandles(gc.x, gc.y, gi.w, gi.h, it.grot || 0, 'g', r); }
+      var ht = gboxHost(it), gi = gboxInfo(ht);
+      if (gi) { var gc = gboxCenter(ht, gi); boxHandles(gc.x, gc.y, gi.w, gi.h, ht.grot || 0, 'g', r); }
     }
   }
 
@@ -1832,7 +1990,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (multi.length >= 2) { inspBody.hidden = true; syncMulti(); return; }
     inspBody.hidden = !it;
     if (!it) return;
-    unmergeBtn.hidden = true; seatRotField.hidden = true;
+    unmergeBtn.hidden = true; seatRotField.hidden = true; $('grpInfo').hidden = true;
     blkTable.hidden = it.kind !== 'table';
     (function () {
       var rf = $('rotField'), act = document.querySelector('#inspBody > .actions');
@@ -1851,21 +2009,23 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (it.kind === 'table') {
       var T = tinfo(it), mx = maxSeats(T);
       inspTitle.textContent = T.name + (isRound(T) ? ' round' : '');
-      inspSub.textContent = T.merged ? it.parts.length + ' tables joined, ' + ftin(T.w) + ' × ' + inch(T.h)
+      inspSub.textContent = T.combo ? it.parts.length + ' tables joined' : T.merged ? it.parts.length + ' tables joined, ' + ftin(T.w) + ' × ' + inch(T.h)
         : isRound(T) ? inch(T.w) + ' diameter' : inch(T.h) + ' × ' + inch(T.w);
       unmergeBtn.hidden = !T.merged;
+      $('grpInfo').hidden = !it.grp; if (it.grp) $('grpTxt').textContent = 'Grouped with ' + (grpMembers(it.grp).length - 1) + ' other table' + (grpMembers(it.grp).length === 2 ? '' : 's') + '.';
       seatRotField.hidden = !(isRound(T) && mx > 0);
       if (document.activeElement !== seatRotInput) seatRotInput.value = r2(it.seatRot || 0);
       if (document.activeElement !== labelInput) labelInput.value = it.label;
       labelInput.placeholder = isSvc(T) ? 'Optional' : 'Table number';
-      if (document.activeElement !== guestInput) guestInput.value = it.guests || '';
-      if (asgFor !== it.id) { asgFor = it.id; asgOpen = !!it.guests; }
+      var gh0 = gboxHost(it);
+      if (document.activeElement !== guestInput) guestInput.value = gh0.guests || '';
+      if (asgFor !== it.id) { asgFor = it.id; asgOpen = !!gh0.guests; }
       $('asgWrap').hidden = !asgOpen; $('asgBtn').setAttribute('aria-expanded', asgOpen ? 'true' : 'false');
       seatField.hidden = mx === 0;
       seatInput.max = mx;
       if (document.activeElement !== seatInput) seatInput.value = it.seats;
       seatMax.textContent = 'Max ' + mx + ' chairs';
-      var rectT = !isRound(T) && !isSvc(T);
+      var rectT = !isRound(T) && !isSvc(T) && !T.combo;
       $('sidesField').hidden = !rectT;
       if (rectT) {
         var sc = sideCounts(T, it.seats, it.sides);
@@ -1953,12 +2113,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function duplicate(it) {
     var c = clone(it); c.id = uid();
-    if (c.kind === 'table') { var T = tinfo(c); c.label = isSvc(T) ? c.label : nextLabel(); delete c.guests; delete c.gbox; }
+    if (c.kind === 'table') { var T = tinfo(c); c.label = isSvc(T) ? c.label : nextLabel(); delete c.guests; delete c.gbox; delete c.grp; }
     moveItem(c, it, 24, 24, false);
     if (blocked(c)) { var p = findFree(c); c.x = p.x; c.y = p.y; }
     addNode(c);
   }
   function remove(it) {
+    if (it.grp) ungroupTable(it);
     var a = isFix(it) ? fix() : items(), i = a.indexOf(it);
     if (i >= 0) a.splice(i, 1);
     var n = nodeFor(it.id); if (n) n.remove();
@@ -2178,23 +2339,91 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     m.seats = allSvc ? 0 : Math.min(seats, maxSeats(tinfo(m)));
     return { ok: true, item: m, L: L, seats: m.seats, n: rows.length };
   }
+  function allTables(ids) { var ts = ids.map(byId).filter(Boolean); return ts.length >= 2 && ts.every(function (t) { return t.kind === 'table'; }) ? ts : null; }
   function syncMulti() {
-    var plan = mergePlan(multi);
+    var ts = allTables(multi), plan = ts ? mergePlan(multi) : null;
     $('mTitle').textContent = multi.length + ' items selected';
-    mergeBtn.disabled = !plan.ok;
-    $('mergeWhy').textContent = plan.ok ? 'Joins ' + plan.n + ' tables end to end into one ' + ftin(plan.L) + ' table' + (plan.seats ? ' with ' + seatWord(plan.seats) + ', spaced evenly.' : '.') : plan.msg;
-    $('mergeWhy').className = 'fine' + (plan.ok ? '' : ' warn');
+    mergeBtn.disabled = !ts; $('groupBtn').disabled = !ts;
+    $('ungroupMultiBtn').hidden = !(ts && ts.some(function (t) { return t.grp; }));
+    $('mergeWhy').textContent = !ts ? 'Merge and group work on tables only. Deselect the other items.'
+      : plan.ok ? 'Merge joins ' + plan.n + ' tables end to end into one ' + ftin(plan.L) + ' table' + (plan.seats ? ' with ' + seatWord(plan.seats) + ', spaced evenly.' : '.') + ' Group keeps them separate but shares one names box and seat total.'
+      : 'Merge snaps the tables edge to edge into one table. Group keeps them where they are and shares one names box and seat total.';
+    $('mergeWhy').className = 'fine';
+  }
+  function comboFrom(ts) {
+    var rigs = ts.map(function (t) { return { t: t, parts: rigidParts(t) }; });
+    snapRigids(rigs);
+    var all = [];
+    rigs.forEach(function (r) { r.parts.forEach(function (p) { all.push({ type: p.type, x: p.x + r.off.x, y: p.y + r.off.y, rot: p.rot, label: p.label, seats: p.seats, seatRot: p.seatRot }); }); });
+    var minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+    all.forEach(function (p) {
+      var sh = partShape(p, p.x, p.y, p.rot), pts = sh.c ? [{ x: p.x - sh.r, y: p.y - sh.r }, { x: p.x + sh.r, y: p.y + sh.r }] : sh.pts;
+      pts.forEach(function (q) { minx = Math.min(minx, q.x); maxx = Math.max(maxx, q.x); miny = Math.min(miny, q.y); maxy = Math.max(maxy, q.y); });
+    });
+    var C = { x: (minx + maxx) / 2, y: (miny + maxy) / 2 }, allSvc = ts.every(function (t) { return isSvc(tinfo(t)); });
+    var labs = ts.map(function (t) { return t.label; }).filter(Boolean);
+    var m = { id: uid(), kind: 'table', type: 'combo', svc: allSvc, x: r2(C.x), y: r2(C.y), rot: 0, seats: 0, seatRot: 0, label: allSvc ? '' : labs.join('/'),
+      parts: all.map(function (p) { return { type: p.type, label: p.label, seats: p.seats, seatRot: p.seatRot || 0, ox: r2(p.x - C.x), oy: r2(p.y - C.y), rot: norm(p.rot) }; }) };
+    var want = ts.reduce(function (a, t) { return a + (isSvc(tinfo(t)) ? 0 : t.seats); }, 0);
+    m.seats = allSvc ? 0 : Math.min(want, maxSeats(tinfo(m)));
+    return m;
   }
   function doMerge() {
-    var plan = mergePlan(multi);
-    if (!plan.ok) { toast(plan.msg); return; }
-    var m = plan.item; clampCenter(m);
+    var ts = allTables(multi);
+    if (!ts) { toast('Select two or more tables.'); return; }
+    var plan = mergePlan(multi), m;
+    if (plan.ok) m = plan.item; else m = comboFrom(ts);
+    clampCenter(m);
     if (blocked(m)) { toast('A room fixture is in the way.'); return; }
     var ids = multi.slice();
+    ts.forEach(function (t) { if (t.grp) ungroupTable(t); });
     doc().items = items().filter(function (x) { return ids.indexOf(x.id) < 0; });
     doc().items.push(m);
     sel = null; multi = []; render(); select(m.id); commit();
     toast('Tables merged. Unmerge any time from the side panel.');
+  }
+  function unmergeCombo(m) {
+    var arr = items(), ids = [];
+    rigidParts(m).forEach(function (p) {
+      var t = { id: uid(), kind: 'table', type: p.type, x: r2(p.x), y: r2(p.y), rot: norm(p.rot), seats: p.seats, seatRot: p.seatRot || 0, label: p.label };
+      arr.push(t); ids.push(t.id);
+    });
+    arr.splice(arr.indexOf(m), 1);
+    sel = null; multi = []; render(); selectMulti(ids); commit();
+    toast('Unmerged into ' + ids.length + ' tables.');
+  }
+  /* groups: tables stay independent, share one names box and a combined seat total */
+  function grpMembers(g, arr) { return (arr || items()).filter(function (x) { return x.grp === g; }); }
+  var GB_KEYS = ['guests', 'gbox', 'gfs', 'gfill', 'grot', 'gw', 'gh'];
+  function ungroupTable(t) {
+    var g = t.grp; if (!g) return;
+    var mem = grpMembers(g), lead = mem[0] === t;
+    delete t.grp;
+    if (lead && mem.length > 1) {
+      var nl = mem[1];
+      GB_KEYS.forEach(function (k) { if (t[k] !== undefined) { nl[k] = t[k]; delete t[k]; } });
+      refreshGbox(nl);
+    }
+    var rest = grpMembers(g);
+    if (rest.length < 2) rest.forEach(function (x) { delete x.grp; });
+    refreshItem(t); refreshGbox(t); rest.forEach(function (x) { refreshGbox(x); });
+  }
+  function doGroup() {
+    var ts = allTables(multi); if (!ts) return;
+    var ordered = items().filter(function (x) { return multi.indexOf(x.id) >= 0; });
+    var lines = [];
+    ordered.forEach(function (t) { if (t.guests && String(t.guests).trim()) lines.push(String(t.guests).trim()); });
+    ordered.forEach(function (t) { if (t.grp) ungroupTable(t); });
+    var gid = uid(), lead = ordered[0];
+    ordered.forEach(function (t) { t.grp = gid; if (t !== lead) { GB_KEYS.forEach(function (k) { if (k !== 'gbox') delete t[k]; }); delete t.gbox; } });
+    if (lines.length) lead.guests = lines.join('\n').slice(0, 2000); else delete lead.guests;
+    ordered.forEach(function (t) { refreshItem(t); });
+    refreshGbox(lead); syncMulti(); commit();
+    toast('Grouped ' + ordered.length + ' tables. They share one names box.');
+  }
+  function ungroupAll(g) {
+    var mem = grpMembers(g); mem.forEach(function (x) { delete x.grp; });
+    mem.forEach(function (x) { refreshItem(x); refreshGbox(x); });
   }
   function unmerge(m) {
     var cum = -m.w / 2, ids = [], arr = items();
@@ -2210,12 +2439,20 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function deleteMulti() {
     var ids = multi.slice();
+    ids.forEach(function (id) { var x = byId(id); if (x && x.grp) ungroupTable(x); });
     doc().items = items().filter(function (x) { return ids.indexOf(x.id) < 0; });
     if (S.editFix) S.fix[S.room] = fix().filter(function (x) { return ids.indexOf(x.id) < 0; });
     sel = null; multi = []; render(); syncInspector(); commit();
   }
   mergeBtn.addEventListener('click', doMerge);
-  unmergeBtn.addEventListener('click', function () { var m = byId(sel); if (m && m.type === 'merged') unmerge(m); });
+  $('groupBtn').addEventListener('click', doGroup);
+  $('ungroupMultiBtn').addEventListener('click', function () {
+    var ts = allTables(multi); if (!ts) return;
+    var gs = {}; ts.forEach(function (t) { if (t.grp) gs[t.grp] = 1; });
+    Object.keys(gs).forEach(ungroupAll); syncMulti(); commit(); toast('Ungrouped.');
+  });
+  $('ungroupOneBtn').addEventListener('click', function () { var t = byId(sel); if (!t || !t.grp) return; ungroupAll(t.grp); syncInspector(); commit(); toast('Ungrouped.'); });
+  unmergeBtn.addEventListener('click', function () { var m = byId(sel); if (!m) return; if (m.type === 'merged') unmerge(m); else if (m.type === 'combo') unmergeCombo(m); });
   $('mDelBtn').addEventListener('click', deleteMulti);
   /* ---------- pointer interaction ---------- */
   function toWorld(e) {
@@ -2231,7 +2468,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var hd = e.target.closest ? e.target.closest('.hdl') : null;
     if (hd && sel) {
       var it0 = byId(sel);
-      if (hd.getAttribute('data-h').charAt(0) === 'g' && !it0.gbox) { var gi0 = gboxInfo(it0), gc0 = gi0 && gboxCenter(it0, gi0); if (gc0) it0.gbox = { dx: r2(gc0.x - it0.x), dy: r2(gc0.y - it0.y) }; }
+      if (hd.getAttribute('data-h').charAt(0) === 'g') { var hh0 = gboxHost(it0); if (!hh0.gbox) { var gi0 = gboxInfo(hh0), gc0 = gi0 && gboxCenter(hh0, gi0); if (gc0) hh0.gbox = { dx: r2(gc0.x - hh0.x), dy: r2(gc0.y - hh0.y) }; } }
       drag = { mode: 'handle', id: sel, h: hd.getAttribute('data-h'), o: clone(it0) };
       try { svg.setPointerCapture(e.pointerId); } catch (err) {}
       return;
@@ -2296,7 +2533,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       return;
     }
     if (drag.mode === 'handle' && drag.h.charAt(0) === 'g') {
-      var gt3 = byId(drag.id), gi3 = gt3 && gboxInfo(gt3); if (!gi3) return;
+      var gt3 = gboxHost(byId(drag.id)), gi3 = gt3 && gboxInfo(gt3); if (!gi3) return;
       var gc3 = gboxCenter(gt3, gi3);
       if (drag.h === 'grot') {
         var ang = Math.atan2(p.y - gc3.y, p.x - gc3.x) * 180 / Math.PI + 90;
@@ -2588,6 +2825,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (Object.keys(cs).length) dst.cs = cs;
     }
     if (o.dcNo) dst.dcNo = true;
+    if (typeof o.grp === 'string' && /^[a-z0-9]{3,12}$/.test(o.grp)) dst.grp = o.grp;
   }
   function gbClean(dst, o) {
     var g = String(o.guests == null ? '' : o.guests).slice(0, 2000);
@@ -2602,6 +2840,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!o || typeof o !== 'object') return null;
     var id = String(o.id || uid());
     function num(v, d) { v = parseFloat(v); return isFinite(v) ? v : d; }
+    if (o.kind === 'table' && o.type === 'combo') {
+      var cparts = (Array.isArray(o.parts) ? o.parts : []).map(function (p) {
+        if (!p || !TYPES[p.type]) return null;
+        return { type: p.type, label: String(p.label == null ? '' : p.label).slice(0, 400), seats: clamp(Math.round(num(p.seats, 0)), 0, 40), seatRot: num(p.seatRot, 0),
+          ox: num(p.ox, 0), oy: num(p.oy, 0), rot: norm(num(p.rot, 0)) };
+      }).filter(Boolean);
+      if (cparts.length < 2) return null;
+      var ct = { id: id, kind: 'table', type: 'combo', svc: !!o.svc, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)), seats: 0, seatRot: 0, label: String(o.label == null ? '' : o.label).slice(0, 400), parts: cparts };
+      if (+o.max > 0) ct.max = Math.min(60, Math.round(+o.max));
+      ct.seats = ct.svc ? 0 : clamp(Math.round(num(o.seats, 0)), 0, maxSeats(tinfo(ct)));
+      gbClean(ct, o); tbClean(ct, o);
+      return ct;
+    }
     if (o.kind === 'table' && o.type === 'merged') {
       var parts = (Array.isArray(o.parts) ? o.parts : []).map(function (p) {
         if (!p || !TYPES[p.type]) return null;
@@ -3269,7 +3520,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     el('path', { 'class': 'wall', d: pd }, g);
     S.fix[k].forEach(function (it) { var n = buildNode(it, false, d.items); n.classList.add('fixture'); g.appendChild(n); });
     d.items.forEach(function (it) { g.appendChild(buildNode(it, false, d.items)); });
-    d.items.forEach(function (it) { if (it.kind === 'table') { var gn = gboxNode(it, false, R); if (gn) g.appendChild(gn); } });
+    d.items.forEach(function (it) { if (it.kind === 'table') { var gn = gboxNode(it, false, R, d.items); if (gn) g.appendChild(gn); } });
   }
   function renderAll(tight, target) {
     var pk = allPlan(tight), pad = 20, locked = S.event.locked, T = target || allSvg;
