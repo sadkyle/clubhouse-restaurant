@@ -932,8 +932,20 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       <div class="field"><label for="rdName">Name</label><input id="rdName" type="text" maxlength="40" autocomplete="off"></div>
       <div class="field"><span class="lbl">Width</span><div class="ftin"><input id="rdWf" type="number" min="0" step="1" inputmode="numeric" aria-label="Width feet"><span>ft</span><input id="rdWi" type="number" min="0" step="0.5" inputmode="decimal" aria-label="Width inches"><span>in</span></div></div>
       <div class="field"><span class="lbl">Depth</span><div class="ftin"><input id="rdHf" type="number" min="0" step="1" inputmode="numeric" aria-label="Depth feet"><span>ft</span><input id="rdHi" type="number" min="0" step="0.5" inputmode="decimal" aria-label="Depth inches"><span>in</span></div></div>
+      <div class="field" id="rdScopeRow"><span class="lbl">Where it lives</span>
+        <div class="radios">
+          <label><input type="radio" name="rdScope" value="std" checked> Standard room, shared with everyone</label>
+          <label><input type="radio" name="rdScope" value="local"> One-off, this layout only</label>
+        </div>
+      </div>
       <div class="field"><label for="rdCap">Max seats (blank for no limit)</label><input id="rdCap" type="number" min="0" step="1" inputmode="numeric"></div>
       <div class="field"><span class="lbl">Color</span><div class="swrow" id="rdColors"></div></div>
+      <div class="field"><label for="rdRr">Rounded corners (radius in inches, 0 for square)</label><input id="rdRr" type="number" min="0" max="240" step="1" inputmode="numeric"></div>
+      <details id="rdPolyBox"><summary>Shape: draw the walls</summary>
+        <label class="chk2"><input type="checkbox" id="rdPolyOn"><span>Draw the walls with points</span></label>
+        <p class="fine">Drag a point in the preview to move it. Click a small plus on a wall to add a point. Select a point and press Remove point to take it out.</p>
+        <div class="rdfix"><button class="btn" id="rdPolyDel" type="button" disabled>Remove point</button><button class="btn" id="rdPolyReset" type="button">Back to rectangle</button></div>
+      </details>
       <details id="rdShape"><summary>Shape: cut corners</summary>
         <p class="fine">Cut a rectangle out of a corner for an L or notched room. Sizes in inches. Leave blank for none.</p>
         <div class="cutrow"><span>Top left</span><input id="cut_nw_w" type="number" min="0" placeholder="width" aria-label="Top left cut width"><input id="cut_nw_h" type="number" min="0" placeholder="depth" aria-label="Top left cut depth"></div>
@@ -950,7 +962,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     </div>
   </div>
   <div class="err" id="rdErr" role="alert"></div>
-  <div class="dlgfoot"><button class="btn" id="rdCancel" type="button">Cancel</button><button class="btn primary" id="rdGo" type="button">Save</button></div>
+  <div class="dlgfoot"><button class="btn" id="rdDel" type="button" hidden style="margin-right:auto">Remove room</button><button class="btn" id="rdCancel" type="button">Cancel</button><button class="btn primary" id="rdGo" type="button">Save</button></div>
 </dialog>
 
 <dialog id="ttDlg" aria-labelledby="ttTitle" class="wide">
@@ -958,6 +970,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="rdgrid">
     <div class="rdform">
       <div class="field"><label for="ttName">Name</label><input id="ttName" type="text" maxlength="40" autocomplete="off"></div>
+      <div class="field" id="ttScopeRow"><span class="lbl">Where it lives</span>
+        <div class="radios">
+          <label><input type="radio" name="ttScope" value="std" checked> Standard table, shared with everyone</label>
+          <label><input type="radio" name="ttScope" value="local"> One-off, this layout only</label>
+        </div>
+      </div>
       <div class="field"><span class="lbl">Kind</span>
         <div class="radios">
           <label><input type="radio" name="ttKind" value="round"> Round</label>
@@ -980,7 +998,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     </div>
   </div>
   <div class="err" id="ttErr" role="alert"></div>
-  <div class="dlgfoot"><button class="btn" id="ttCancel" type="button">Cancel</button><button class="btn primary" id="ttGo" type="button">Save</button></div>
+  <div class="dlgfoot"><button class="btn" id="ttDel" type="button" hidden style="margin-right:auto">Remove table</button><button class="btn" id="ttCancel" type="button">Cancel</button><button class="btn primary" id="ttGo" type="button">Save</button></div>
 </dialog>
 
 <dialog id="evDlg" aria-labelledby="evTitleH">
@@ -991,7 +1009,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="field"><label for="evDate" id="evDateL">Date</label><input id="evDate" type="date"></div>
   <label class="chk2"><input type="checkbox" id="evMulti"><span>Multi-day event</span></label>
   <div class="field" id="evEndRow" hidden><label for="evEnd">End date</label><input id="evEnd" type="date"></div>
-  <div class="field"><span class="lbl">Rooms</span><div class="checks" id="evRooms"></div></div>
+  <div class="field"><span class="lbl">Rooms</span><div class="checks" id="evRooms"></div><button class="btn" id="evNewRoom" type="button" style="margin-top:8px">New room for this layout</button></div>
   <p class="fine warn" id="evWarn"></p>
   <div class="dlgfoot"><button class="btn" id="evCancel" type="button">Cancel</button><button class="btn primary" id="evGo" type="button">Save</button></div>
 </dialog>
@@ -2750,6 +2768,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var wrap = category(g, GROUP_CAPS[g], iconSvg(keys[0], TYPES[keys[0]]));
       keys.forEach(function (k) { var T = TYPES[k]; tile(wrap, iconSvg(k, T), T.name, dimText(T), 'tbl', function (at) { addTable(k, at); }); });
     });
+    var lcl = Object.keys(TYPES).filter(function (k) { return TYPES[k].local && !TYPES[k].hidden; });
+    var lw = category('local', 'This layout', iconSvg(lcl.length ? lcl[0] : 'chairs', lcl.length ? TYPES[lcl[0]] : undefined));
+    lcl.forEach(function (k) { var T = TYPES[k]; tile(lw, iconSvg(k, T), T.name, dimText(T), 'tbl', function (at) { addTable(k, at); }); });
+    tile(lw, iconSvg('chairs'), 'New table', 'this layout only', '', function () { openTtDlg(null, 'local'); });
+    lcl.forEach(function (k) {
+      var eb = dm('button', 'btn'); eb.type = 'button'; eb.textContent = 'Edit ' + TYPES[k].name; eb.style.cssText = 'margin:2px 8px 6px;font-size:12px';
+      eb.addEventListener('click', function () { openTtDlg(k); }); lw.appendChild(eb);
+    });
     var cw = category('chairs', 'Chairs', iconSvg('chairs'));
     tile(cw, iconSvg('chairs'), 'Chair row', 'bar, high-top', 'tbl', addChairs);
     var dw = category('draw', 'Tools / Draw', iconSvg(DRAW[0].k));
@@ -2908,12 +2934,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
 
   function save() {
-    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix, cloud: cloudRef, event: S.event, dirty: S.dirty })); } catch (e) {}
+    try { localStorage.setItem(KEY, JSON.stringify({ room: S.room, snap: S.snap, gridOn: S.grid, dimsOn: S.dims, docs: S.docs, fix: S.fix, cloud: cloudRef, event: S.event, dirty: S.dirty, typeDefs: localDefs().types, roomDefs: localDefs().rooms })); } catch (e) {}
   }
   function loadSaved() {
     try {
       var d = JSON.parse(localStorage.getItem(KEY));
       if (!d || !d.docs) return null;
+      regLocal(d.typeDefs, d.roomDefs);
       var docs = {}, fx = {};
       Object.keys(ROOMS).forEach(function (k) {
         if (d.docs[k] && Array.isArray(d.docs[k].items)) docs[k] = cleanDoc(d.docs[k]);
@@ -2942,7 +2969,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      roomDefs: roomDefs(), event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', notes: S.event.notes || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
+      roomDefs: roomDefs(), typeDefs: localDefs().types, event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', notes: S.event.notes || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
@@ -2976,12 +3003,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     buildRoomSelect();
   }
   function applyEvent(o) {
+    dropLocals(); regLocal(o.typeDefs, null);
     if (o.roomDefs && typeof o.roomDefs === 'object') Object.keys(o.roomDefs).forEach(function (k) {
       if (!has(ROOMS, k) && /^[a-z0-9_]{1,24}$/i.test(k)) { var r = cleanRoom(o.roomDefs[k]); if (r) { r.gone = true; ROOMS[k] = r; } }
     });
     ensureRoomData();
     var keys = sortRooms(Object.keys(o.rooms).filter(function (k) { return has(ROOMS, k) && o.rooms[k] && Array.isArray(o.rooms[k].items); }));
     if (!keys.length) return 'That file has no rooms this app knows.';
+    buildPalette();
     var ev = o.event || {};
     var ps = cleanPos(ev.pos, keys);
     S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), share: String(ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev.notes || '').slice(0, 4000), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
@@ -3640,7 +3669,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     newDlg.showModal();
   }
   function newEvent(keys, meta) {
-    keys = sortRooms(keys);
+    dropLocals(); keys = sortRooms(keys);
     if (!keys.length) return;
     meta = meta || {};
     S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', notes: '', pos: null, locked: false, setRooms: [] };
@@ -3682,18 +3711,50 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return b;
   }
   function has(o, k) { return Object.prototype.hasOwnProperty.call(o, k); }
-  function roomPath(R) {
+  function polyArea(p) { var a = 0, i; for (i = 0; i < p.length; i++) { var q = p[(i + 1) % p.length]; a += p[i][0] * q[1] - q[0] * p[i][1]; } return a / 2; }
+  function roomPts(R) {
+    if (R.poly) return R.poly.map(function (q) { return [q[0], q[1]]; });
     var W = R.w, H = R.h, c = R.cuts || {}, nw = c.nw, ne = c.ne, sw = c.sw, se = c.se, p = [];
     if (nw) p.push([nw.w, 0]); else p.push([0, 0]);
     if (ne) p.push([W - ne.w, 0], [W - ne.w, ne.h], [W, ne.h]); else p.push([W, 0]);
     if (se) p.push([W, H - se.h], [W - se.w, H - se.h], [W - se.w, H]); else p.push([W, H]);
     if (sw) p.push([sw.w, H], [sw.w, H - sw.h], [0, H - sw.h]); else p.push([0, H]);
     if (nw) p.push([0, nw.h], [nw.w, nw.h]);
-    return 'M' + p.map(function (a) { return a[0] + ' ' + a[1]; }).join('L') + 'Z';
+    return p;
+  }
+  function roomPath(R) {
+    var p = roomPts(R), rr = R.rr || 0, n = p.length;
+    if (!(rr > 0)) return 'M' + p.map(function (a) { return a[0] + ' ' + a[1]; }).join('L') + 'Z';
+    var d = '', i;
+    for (i = 0; i < n; i++) {
+      var a = p[(i + n - 1) % n], b = p[i], c = p[(i + 1) % n];
+      var l1 = Math.hypot(a[0] - b[0], a[1] - b[1]) || 1, l2 = Math.hypot(c[0] - b[0], c[1] - b[1]) || 1, r = Math.min(rr, l1 / 2, l2 / 2);
+      var sx = b[0] + (a[0] - b[0]) * r / l1, sy = b[1] + (a[1] - b[1]) * r / l1, ex = b[0] + (c[0] - b[0]) * r / l2, ey = b[1] + (c[1] - b[1]) * r / l2;
+      d += (i ? 'L' : 'M') + sx + ' ' + sy + 'Q' + b[0] + ' ' + b[1] + ' ' + ex + ' ' + ey;
+    }
+    return d + 'Z';
   }
   function cutsOk(r, c) {
     function s(a, b, k) { return (a ? a[k] : 0) + (b ? b[k] : 0); }
     return s(c.nw, c.ne, 'w') < r.w - 11 && s(c.sw, c.se, 'w') < r.w - 11 && s(c.nw, c.sw, 'h') < r.h - 11 && s(c.ne, c.se, 'h') < r.h - 11;
+  }
+  /* One-off tables and rooms live in this layout only. They carry local:true. */
+  function localKeys(map) { return Object.keys(map).filter(function (k) { return map[k].local; }); }
+  function localDefs() { var t = {}, r = {}; localKeys(TYPES).forEach(function (k) { t[k] = TYPES[k]; }); localKeys(ROOMS).forEach(function (k) { r[k] = ROOMS[k]; }); return { types: t, rooms: r }; }
+  function regLocal(td, rd) {
+    if (td && typeof td === 'object') Object.keys(td).forEach(function (k) {
+      if (!/^[a-z0-9_]{1,24}$/i.test(k) || has(TYPES, k)) return;
+      var t = cleanType(td[k]); if (t) { t.local = true; TYPES[k] = t; }
+    });
+    if (rd && typeof rd === 'object') Object.keys(rd).forEach(function (k) {
+      if (!/^[a-z0-9_]{1,24}$/i.test(k) || has(ROOMS, k)) return;
+      var r = cleanRoom(rd[k]); if (r && r.local) { r.gone = true; ROOMS[k] = r; }
+    });
+  }
+  function dropLocals() {
+    localKeys(TYPES).forEach(function (k) { delete TYPES[k]; });
+    localKeys(ROOMS).forEach(function (k) { delete ROOMS[k]; delete S.docs[k]; delete S.fix[k]; delete hist[k]; });
+    buildPalette();
   }
   function cleanRoom(o) {
     if (!o || typeof o !== 'object') return null;
@@ -3706,6 +3767,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (c && +c.w > 0 && +c.h > 0) { cuts[k] = { w: Math.round(+c.w), h: Math.round(+c.h) }; any = true; }
     });
     if (any && cutsOk(r, cuts)) r.cuts = cuts;
+    if (Array.isArray(o.poly) && o.poly.length >= 3 && o.poly.length <= 60) {
+      var pl = o.poly.map(function (q) { return Array.isArray(q) ? [Math.round(clamp(+q[0] || 0, 0, r.w) * 2) / 2, Math.round(clamp(+q[1] || 0, 0, r.h) * 2) / 2] : null; });
+      if (pl.every(Boolean) && Math.abs(polyArea(pl)) > 100) { r.poly = pl; delete r.cuts; }
+    }
+    if (+o.rr > 0) r.rr = Math.min(240, Math.round(+o.rr));
+    if (o.local) r.local = true;
     var cap = Math.round(+o.cap || 0); if (cap > 0) r.cap = Math.min(9999, cap);
     if (o.color && has(COLORS, o.color)) r.color = o.color;
     if (o.hidden) r.hidden = true;
@@ -3726,15 +3793,21 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (g === 'service') t.short = String(o.short || t.name).slice(0, 10);
     if (o.hidden) t.hidden = true;
     if (o.gone) t.gone = true;
+    if (o.local) t.local = true;
     return t;
   }
   function resetObj(o, src) { Object.keys(o).forEach(function (k) { delete o[k]; }); Object.keys(src).forEach(function (k) { o[k] = src[k]; }); }
-  function cfgData() { return { v: 1, rooms: ROOMS, roomOrder: ROOM_ORDER, types: TYPES, typeOrder: TYPE_ORDER }; }
+  function cfgData() {
+    var r = {}, t = {};
+    Object.keys(ROOMS).forEach(function (k) { if (!ROOMS[k].local) r[k] = ROOMS[k]; });
+    Object.keys(TYPES).forEach(function (k) { if (!TYPES[k].local) t[k] = TYPES[k]; });
+    return { v: 1, rooms: r, roomOrder: ROOM_ORDER, types: t, typeOrder: TYPE_ORDER };
+  }
   function applyConfig(c) {
-    var rooms = clone(DEF.rooms), types = clone(DEF.types), ro = DEF.roomOrder.slice(), to = DEF.typeOrder.slice();
+    var lk = localDefs(), rooms = clone(DEF.rooms), types = clone(DEF.types), ro = DEF.roomOrder.slice(), to = DEF.typeOrder.slice();
     if (c && typeof c === 'object') {
-      if (c.rooms && typeof c.rooms === 'object') Object.keys(c.rooms).forEach(function (k) { var r = cleanRoom(c.rooms[k]); if (r) rooms[k] = r; });
-      if (c.types && typeof c.types === 'object') Object.keys(c.types).forEach(function (k) { var t = cleanType(c.types[k]); if (t) types[k] = t; });
+      if (c.rooms && typeof c.rooms === 'object') Object.keys(c.rooms).forEach(function (k) { var r = cleanRoom(c.rooms[k]); if (r && !r.local) rooms[k] = r; });
+      if (c.types && typeof c.types === 'object') Object.keys(c.types).forEach(function (k) { var t = cleanType(c.types[k]); if (t && !t.local) types[k] = t; });
       if (Array.isArray(c.roomOrder)) ro = c.roomOrder.slice();
       if (Array.isArray(c.typeOrder)) to = c.typeOrder.slice();
     }
@@ -3746,6 +3819,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     ro = fin(ro, rooms); to = fin(to, types);
     resetObj(ROOMS, rooms); resetObj(TYPES, types);
+    Object.keys(lk.types).forEach(function (k) { if (!has(TYPES, k)) TYPES[k] = lk.types[k]; });
+    Object.keys(lk.rooms).forEach(function (k) { if (!has(ROOMS, k)) ROOMS[k] = lk.rooms[k]; });
     ROOM_ORDER.length = 0; ro.forEach(function (k) { ROOM_ORDER.push(k); });
     TYPE_ORDER.length = 0; to.forEach(function (k) { TYPE_ORDER.push(k); });
   }
@@ -3820,7 +3895,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       row.appendChild(dot);
       var info = dm('div', 'sinfo');
       info.appendChild(dm('div', 'sn', R.name + (R.hidden ? ' (hidden)' : '')));
-      info.appendChild(dm('div', 'sm', [ftin(R.w) + ' × ' + ftin(R.h), R.cuts ? 'shaped' : '', R.cap ? 'max ' + R.cap + ' seats' : ''].filter(Boolean).join(' · ')));
+      info.appendChild(dm('div', 'sm', [ftin(R.w) + ' × ' + ftin(R.h), R.cuts || R.poly ? 'shaped' : '', R.cap ? 'max ' + R.cap + ' seats' : ''].filter(Boolean).join(' · ')));
       row.appendChild(info);
       var bs = dm('div', 'sb');
       bs.appendChild(mkBtn('Edit', 'btn primary', function () { openRoomDlg(k); }));
@@ -3850,7 +3925,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }).then(function () {}, function () {});
     toast('Duplicated as ' + R.name + '.');
   }
-  var rdKey = null, rdColor = '';
+  var rdKey = null, rdColor = '', rdPoly = null, rdPolyBase = null, rdSelPt = -1, rdPolyDrag = -1, rdLocalEdit = false;
   function rdNum(id) { return Math.max(0, parseFloat($(id).value) || 0); }
   function rdParse() {
     var w = rdNum('rdWf') * 12 + rdNum('rdWi'), h = rdNum('rdHf') * 12 + rdNum('rdHi');
@@ -3861,8 +3936,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var cw = rdNum('cut_' + k + '_w'), ch = rdNum('cut_' + k + '_h');
       if (cw > 0 || ch > 0) { if (!(cw > 0 && ch > 0)) bad = true; else { cuts[k] = { w: cw, h: ch }; any = true; } }
     });
-    if (bad) return { err: 'A corner cut needs both a width and a depth.' };
-    if (any) { if (!cutsOk(R, cuts)) return { err: 'The corner cuts are too big for this room.' }; R.cuts = cuts; }
+    if (rdPoly) {
+      if (rdPolyBase && (rdPolyBase.w !== w || rdPolyBase.h !== h)) {
+        rdPoly = rdPoly.map(function (q) { return [Math.round(q[0] * w / rdPolyBase.w * 2) / 2, Math.round(q[1] * h / rdPolyBase.h * 2) / 2]; });
+        rdPolyBase = { w: w, h: h };
+      }
+      if (Math.abs(polyArea(rdPoly)) < 100) return { err: 'The wall points need to enclose an area.' };
+      R.poly = rdPoly.map(function (q) { return [q[0], q[1]]; });
+    } else {
+      if (bad) return { err: 'A corner cut needs both a width and a depth.' };
+      if (any) { if (!cutsOk(R, cuts)) return { err: 'The corner cuts are too big for this room.' }; R.cuts = cuts; }
+    }
+    var rr = Math.round(rdNum('rdRr')); if (rr > 0) R.rr = Math.min(240, rr);
     var cap = Math.round(rdNum('rdCap')); if (cap > 0) R.cap = cap;
     if (rdColor) R.color = rdColor;
     return { R: R };
@@ -3870,7 +3955,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function rdPreview() {
     var p = rdParse(), t = $('rdPrevTxt');
     if (p.err) { t.textContent = p.err; t.className = 'fine warn'; return p; }
-    t.className = 'fine'; t.textContent = ftin(p.R.w) + ' × ' + ftin(p.R.h) + (p.R.cuts ? ', shaped' : '');
+    t.className = 'fine'; t.textContent = ftin(p.R.w) + ' × ' + ftin(p.R.h) + (p.R.cuts || p.R.poly ? ', shaped' : '') + (p.R.rr ? ', rounded' : '');
     var sv = $('rdPrev'), R = p.R, m = Math.max(R.w, R.h) * 0.06 + 6;
     sv.replaceChildren();
     sv.setAttribute('viewBox', (-m) + ' ' + (-m) + ' ' + (R.w + 2 * m) + ' ' + (R.h + 2 * m));
@@ -3878,6 +3963,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     el('path', { 'class': 'floor', d: d }, sv);
     if (rdKey && S.fix[rdKey]) { try { S.fix[rdKey].forEach(function (it) { var n = buildNode(it, false, []); n.classList.add('fixture'); sv.appendChild(n); }); } catch (e) {} }
     el('path', { 'class': 'wall', d: d, 'vector-effect': 'non-scaling-stroke' }, sv);
+    if (rdPoly) {
+      var hr = Math.max(R.w, R.h) * 0.016 + 2.5, n = rdPoly.length;
+      rdPoly.forEach(function (q, i) {
+        var nx = rdPoly[(i + 1) % n];
+        var add = el('circle', { 'class': 'rdadd', cx: (q[0] + nx[0]) / 2, cy: (q[1] + nx[1]) / 2, r: hr * 0.7, 'data-add': i }, sv);
+        add.setAttribute('style', 'fill:#fff;stroke:#2a7;stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:copy;opacity:.85');
+      });
+      rdPoly.forEach(function (q, i) {
+        var c = el('circle', { 'class': 'rdpt', cx: q[0], cy: q[1], r: hr, 'data-pt': i }, sv);
+        c.setAttribute('style', 'fill:' + (i === rdSelPt ? '#e8590c' : '#2a6fdb') + ';stroke:#fff;stroke-width:1.5;vector-effect:non-scaling-stroke;cursor:grab');
+      });
+    }
+    $('rdPolyDel').disabled = !(rdPoly && rdSelPt >= 0 && rdPoly.length > 3);
     return p;
   }
   (function () {
@@ -3890,9 +3988,49 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     ['rdName', 'rdWf', 'rdWi', 'rdHf', 'rdHi', 'rdCap', 'cut_nw_w', 'cut_nw_h', 'cut_ne_w', 'cut_ne_h', 'cut_sw_w', 'cut_sw_h', 'cut_se_w', 'cut_se_h'].forEach(function (id) { $(id).addEventListener('input', rdPreview); });
   })();
+  function rdSvgPt(e) {
+    var sv = $('rdPrev'), pt = sv.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+    var m = sv.getScreenCTM(); return m ? pt.matrixTransform(m.inverse()) : { x: 0, y: 0 };
+  }
+  $('rdPrev').addEventListener('pointerdown', function (e) {
+    if (!rdPoly) return;
+    var t = e.target, pi = t.getAttribute && t.getAttribute('data-pt'), ai = t.getAttribute && t.getAttribute('data-add');
+    if (ai !== null && ai !== undefined && ai !== '') {
+      var i = +ai, q = rdPoly[i], nx = rdPoly[(i + 1) % rdPoly.length];
+      rdPoly.splice(i + 1, 0, [Math.round((q[0] + nx[0]) / 2 * 2) / 2, Math.round((q[1] + nx[1]) / 2 * 2) / 2]);
+      rdSelPt = i + 1; rdPreview(); e.preventDefault(); return;
+    }
+    if (pi !== null && pi !== undefined && pi !== '') {
+      rdSelPt = +pi; rdPolyDrag = +pi;
+      try { $('rdPrev').setPointerCapture(e.pointerId); } catch (x) {}
+      rdPreview(); e.preventDefault();
+    }
+  });
+  $('rdPrev').addEventListener('pointermove', function (e) {
+    if (rdPolyDrag < 0 || !rdPoly) return;
+    var P = rdSvgPt(e), w = rdPolyBase.w, h = rdPolyBase.h;
+    rdPoly[rdPolyDrag] = [Math.round(clamp(P.x, 0, w) * 2) / 2, Math.round(clamp(P.y, 0, h) * 2) / 2];
+    rdPreview();
+  });
+  function rdPolyEnd() { rdPolyDrag = -1; }
+  $('rdPrev').addEventListener('pointerup', rdPolyEnd); $('rdPrev').addEventListener('pointercancel', rdPolyEnd);
+  function rdPolyToggle(on) {
+    if (on) {
+      var base = { name: 'x', w: Math.max(24, rdNum('rdWf') * 12 + rdNum('rdWi')), h: Math.max(24, rdNum('rdHf') * 12 + rdNum('rdHi')) };
+      var cuts = {}, any = false;
+      ['nw', 'ne', 'sw', 'se'].forEach(function (k) { var cw = rdNum('cut_' + k + '_w'), ch = rdNum('cut_' + k + '_h'); if (cw > 0 && ch > 0) { cuts[k] = { w: cw, h: ch }; any = true; } });
+      if (any && cutsOk(base, cuts)) base.cuts = cuts;
+      rdPoly = roomPts(base); rdPolyBase = { w: base.w, h: base.h };
+    } else { rdPoly = null; rdPolyBase = null; }
+    rdSelPt = -1; $('rdPolyOn').checked = !!rdPoly; $('rdShape').hidden = !!rdPoly;
+  }
+  $('rdPolyOn').addEventListener('change', function () { rdPolyToggle($('rdPolyOn').checked); rdPreview(); });
+  $('rdPolyDel').addEventListener('click', function () { if (rdPoly && rdSelPt >= 0 && rdPoly.length > 3) { rdPoly.splice(rdSelPt, 1); rdSelPt = -1; rdPreview(); } });
+  $('rdPolyReset').addEventListener('click', function () { rdPolyToggle(false); rdPreview(); });
+  $('rdRr').addEventListener('input', rdPreview);
   function rdSyncColor() { [].forEach.call($('rdColors').children, function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-c') === rdColor ? 'true' : 'false'); }); }
-  function openRoomDlg(k) {
-    rdKey = k || null;
+  function openRoomDlg(k, scope) {
+    rdKey = k || null; rdLocalEdit = !!(k && ROOMS[k].local);
     var R = k ? ROOMS[k] : { name: 'New room', w: 240, h: 240 };
     $('rdTitle').textContent = k ? 'Edit room' : 'Add room';
     $('rdName').value = R.name;
@@ -3903,9 +4041,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       $('cut_' + c + '_w').value = R.cuts && R.cuts[c] ? R.cuts[c].w : ''; $('cut_' + c + '_h').value = R.cuts && R.cuts[c] ? R.cuts[c].h : '';
     });
     $('rdShape').open = !!R.cuts;
+    $('rdRr').value = R.rr || '';
+    rdPoly = R.poly ? R.poly.map(function (q) { return [q[0], q[1]]; }) : null; rdPolyBase = rdPoly ? { w: R.w, h: R.h } : null; rdSelPt = -1;
+    $('rdPolyOn').checked = !!rdPoly; $('rdShape').hidden = !!rdPoly; $('rdPolyBox').open = !!rdPoly;
     rdColor = R.color || ''; rdSyncColor();
     $('rdErr').textContent = '';
-    $('rdFixRow').hidden = !k; $('rdStdRow').hidden = !k;
+    $('rdScopeRow').hidden = !!k;
+    document.querySelector('input[name="rdScope"][value="' + (scope === 'local' ? 'local' : 'std') + '"]').checked = true;
+    $('rdDel').hidden = !rdLocalEdit;
+    $('rdFixRow').hidden = false; $('rdStdRow').hidden = !k || rdLocalEdit;
+    $('rdFixTxt').textContent = k ? S.fix[k].length + (S.fix[k].length === 1 ? ' fixture' : ' fixtures') + ' set in this browser' : 'Save the room first, then fixtures open.';
     if (k) { $('rdFixTxt').textContent = S.fix[k].length + (S.fix[k].length === 1 ? ' fixture' : ' fixtures') + ' set in this browser'; loadStds(k); }
     rdPreview();
     $('roomDlg').showModal();
@@ -3916,22 +4061,40 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var p = rdParse();
     if (p.err) { $('rdErr').textContent = p.err; return; }
     var key = rdKey || ('r' + uid()), prev = ROOMS[key] || {}, R = p.R;
+    var loc = rdKey ? !!prev.local : document.querySelector('input[name="rdScope"]:checked').value === 'local';
     if (prev.hidden) R.hidden = true;
+    if (loc) {
+      R.local = true; R.gone = true; ROOMS[key] = R; ensureRoomData(); ensureInEvent(key);
+      $('roomDlg').close(); S.dirty = S.stale = true; save(); buildRoomSelect();
+      if (!rdKey && curView === 'editor') { leaveAll(); setRoom(key); }
+      else if (S.room === key) { setRoom(key); }
+      toast(rdKey ? 'Room saved.' : R.name + ' added to this layout only.');
+      return;
+    }
     ROOMS[key] = R;
     if (!rdKey) ROOM_ORDER.push(key);
     $('roomDlg').close(); cfgChanged();
     toast(rdKey ? 'Room saved.' : R.name + ' added.');
   });
   $('rdFixBtn').addEventListener('click', function () {
-    var k = rdKey; if (!k) return;
     var p = rdParse(); if (p.err) { $('rdErr').textContent = p.err; return; }
-    var R = p.R; if (ROOMS[k].hidden) R.hidden = true; ROOMS[k] = R; storeConfigLocal();
+    var k = rdKey, R = p.R, newLoc = !k && document.querySelector('input[name="rdScope"]:checked').value === 'local';
+    if (!k) { k = 'r' + uid(); R.gone = newLoc; if (newLoc) R.local = true; ROOMS[k] = R; if (!newLoc) ROOM_ORDER.push(k); }
+    else { if (ROOMS[k].hidden) R.hidden = true; if (ROOMS[k].local) { R.local = true; R.gone = true; } ROOMS[k] = R; }
+    if (!R.local) storeConfigLocal(); else { S.dirty = S.stale = true; save(); }
     $('roomDlg').close();
     var added = S.event.rooms.indexOf(k) < 0;
     if (added) ensureInEvent(k);
     ensureRoomData(); leaveAll(); buildRoomSelect(); setRoom(k); showView('editor'); setEditFix(true);
     toast((added ? ROOMS[k].name + ' added to this floorplan. ' : '') + 'Editing fixtures. Add shapes, lines, or text.');
-    clearTimeout(cfgTimer); cfgTimer = setTimeout(pushConfig, 500);
+    if (!R.local) { clearTimeout(cfgTimer); cfgTimer = setTimeout(pushConfig, 500); }
+  });
+  $('rdDel').addEventListener('click', function () {
+    var k = rdKey; if (!k || !ROOMS[k] || !ROOMS[k].local) return;
+    if (S.event.rooms.length < 2) { $('rdErr').textContent = 'A layout needs at least one room.'; return; }
+    S.event.rooms = S.event.rooms.filter(function (x) { return x !== k; }); S.event.pos = null; S.event.locked = false;
+    delete ROOMS[k]; delete S.docs[k]; delete S.fix[k]; delete hist[k];
+    $('roomDlg').close(); leaveAll(); buildRoomSelect(); setRoom(S.event.rooms[0]); S.dirty = S.stale = true; save(); toast('Room removed.');
   });
   function loadStds(k) {
     var box = $('rdStd'); box.replaceChildren(dm('p', 'fine', 'Loading...'));
@@ -4048,10 +4211,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   document.querySelectorAll('input[name="ttKind"]').forEach(function (r) { r.addEventListener('change', function () { ttSync(); ttPreview(); }); });
   ['ttName', 'ttW', 'ttH', 'ttSeats', 'ttMax', 'ttSeatRot', 'ttRot', 'ttEnds', 'ttShort'].forEach(function (id) { $(id).addEventListener('input', ttPreview); $(id).addEventListener('change', ttPreview); });
-  function openTtDlg(k) {
+  function openTtDlg(k, scope) {
     ttKey = k || null;
     var T = k ? TYPES[k] : { name: 'New table', group: 'dining', shape: 'rect', w: 48, h: 30, seats: 4 };
     $('ttTitle').textContent = k ? 'Edit table' : 'Add table';
+    $('ttScopeRow').hidden = !!k;
+    document.querySelector('input[name="ttScope"][value="' + (scope === 'local' ? 'local' : 'std') + '"]').checked = true;
+    $('ttDel').hidden = !(k && T.local);
     $('ttName').value = T.name;
     document.querySelector('input[name="ttKind"][value="' + (T.group === 'round' ? 'round' : T.group === 'service' ? 'svc' : 'rect') + '"]').checked = true;
     $('ttW').value = T.w; $('ttH').value = T.h; $('ttSeats').value = T.seats || 0; $('ttMax').value = T.max || '';
@@ -4062,11 +4228,25 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   $('tableAdd').addEventListener('click', function () { openTtDlg(null); });
   $('ttCancel').addEventListener('click', function () { $('ttDlg').close(); });
+  $('ttDel').addEventListener('click', function () {
+    var k = ttKey; if (!k || !TYPES[k] || !TYPES[k].local) return;
+    var used = 0; Object.keys(S.docs).forEach(function (r) { S.docs[r].items.forEach(function (it) { if (it.type === k) used++; else if (it.parts && it.parts.some(function (p) { return p.type === k; })) used++; }); });
+    if (used) { $('ttErr').textContent = 'Used on ' + used + ' table' + (used === 1 ? '' : 's') + ' in this layout. Delete those first.'; return; }
+    delete TYPES[k]; $('ttDlg').close(); buildPalette(); S.dirty = S.stale = true; save(); toast('Table removed.');
+  });
   $('ttGo').addEventListener('click', function () {
     var p = ttParse();
     if (p.err) { $('ttErr').textContent = p.err; return; }
     var key = ttKey || ('t' + uid()), prev = TYPES[key] || {}, T = p.T;
+    var loc = ttKey ? !!prev.local : document.querySelector('input[name="ttScope"]:checked').value === 'local';
     if (prev.hidden) T.hidden = true;
+    if (loc) {
+      T.local = true; TYPES[key] = T;
+      $('ttDlg').close(); buildPalette(); render(); S.dirty = S.stale = true; save();
+      if (!ttKey) { UI.cats.local = true; saveUI(); buildPalette(); }
+      toast(ttKey ? 'Table saved.' : T.name + ' added under This layout. It saves with this layout only.');
+      return;
+    }
     TYPES[key] = T;
     if (!ttKey) TYPE_ORDER.push(key);
     $('ttDlg').close(); cfgChanged();
@@ -4084,13 +4264,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var l = dm('label', 'chk'), i = document.createElement('input'); i.type = 'checkbox'; i.setAttribute('data-k', k); i.checked = e.rooms.indexOf(k) >= 0;
       i.addEventListener('change', function () { $('evGo').removeAttribute('data-confirm'); $('evWarn').textContent = ''; $('evGo').textContent = 'Save'; });
       l.appendChild(i); l.appendChild(dm('span', '', ROOMS[k].name));
-      var m = dm('span', 'fine', ftin(ROOMS[k].w) + ' × ' + ftin(ROOMS[k].h)); m.style.marginLeft = 'auto'; l.appendChild(m);
+      var m = dm('span', 'fine', (ROOMS[k].local ? 'This layout · ' : '') + ftin(ROOMS[k].w) + ' × ' + ftin(ROOMS[k].h)); m.style.marginLeft = 'auto'; l.appendChild(m);
+      if (ROOMS[k].local) { var eb = dm('button', 'btn'); eb.type = 'button'; eb.textContent = 'Edit'; eb.style.marginLeft = '8px'; eb.addEventListener('click', function (ev) { ev.preventDefault(); $('evDlg').close(); openRoomDlg(k); }); l.appendChild(eb); }
       box.appendChild(l);
     });
     $('evWarn').textContent = ''; $('evGo').removeAttribute('data-confirm'); $('evGo').textContent = 'Save';
     $('evDlg').showModal();
   }
   $('evSetBtn').addEventListener('click', openEvDlg);
+  $('evNewRoom').addEventListener('click', function () { $('evDlg').close(); openRoomDlg(null, 'local'); });
   function evMultiSync() { var m = $('evMulti').checked; $('evEndRow').hidden = !m; $('evDateL').textContent = m ? 'Start date' : 'Date'; }
   $('evMulti').addEventListener('change', evMultiSync);
   $('evCancel').addEventListener('click', function () { $('evDlg').close(); });
@@ -4143,6 +4325,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   });
   /* Throw the open project away and go back to a blank start. */
   function resetProject() {
+    dropLocals();
     var dr = cloudRef.__draft;
     if (dr) sb('DELETE', '?id=eq.' + encodeURIComponent(dr.id)).catch(function () {});
     S.event = { rooms: sortRooms(visibleRooms()), name: '', host: '', date: '', multi: false, endDate: '', notes: '', pos: null, locked: false, setRooms: [] };
@@ -4748,8 +4931,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- start ---------- */
   loadConfigLocal();
-  buildPalette();
   var saved = loadSaved();
+  buildPalette();
   Object.keys(ROOMS).forEach(function (k) {
     S.docs[k] = saved && saved.docs[k] ? saved.docs[k] : freshDoc();
     S.fix[k] = saved && saved.fix[k] ? saved.fix[k] : newItems(BUILTIN_FIXTURES[k] || []);
