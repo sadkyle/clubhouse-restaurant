@@ -3153,10 +3153,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function doPrint() { try { window.print(); } catch (e) { toast('Printing is not available here.'); } }
 
   /* ---------- cloud (Supabase REST, open access for now) ---------- */
-  var SB_URL = 'https://ucfiplykbardbbtvyvgh.supabase.co', SB_KEY = 'sb_publishable_KwqmJ4Gr9clERJzKYnC0Ng_vvoQrl8y';
+  var SB_URL = 'https://rwwequdlmndyitlsyhjb.supabase.co', SB_KEY = 'sb_publishable_d_xblB57nnyjJkdNSCcjGQ_mqXH0tfI', SB_SCHEMA = 'floorplans';
   var AUTHOR_KEY = 'applebrook-author', cloudRef = {};
   function sb(method, query, body, prefer) {
     var h = { apikey: SB_KEY };
+    h[method === 'GET' || method === 'HEAD' ? 'Accept-Profile' : 'Content-Profile'] = SB_SCHEMA;
     if (body) h['Content-Type'] = 'application/json';
     if (prefer) h.Prefer = prefer;
     return fetch(SB_URL + '/rest/v1/layouts' + query, { method: method, headers: h, body: body ? JSON.stringify(body) : undefined }).then(function (r) {
