@@ -513,16 +513,29 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   .txt.sel .thit { stroke: transparent; fill: transparent; }
   .chguide { opacity: 0 !important; }
 }
+.hdbtns { display: flex; gap: 6px; align-items: center; }
+.hdbtns .btn { padding: 7px 12px; }
+.table.mvedit .chg { pointer-events: all; cursor: grab; }
+.chg.mvdrag { cursor: grabbing; }
+.chg.mvdrag .chair, .chg.mvdrag .chairback { opacity: .65; }
+.banner { margin: 0 0 16px; padding: 12px 14px; border: 1px solid var(--accent); border-radius: 12px; background: var(--accent-soft); display: grid; gap: 8px; }
+.banner h2 { margin: 0; font-size: 15px; }
+.banner .brow { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.banner .brow span { flex: 1; min-width: 140px; }
+.cdot.w { background: repeating-linear-gradient(45deg, var(--muted) 0 2px, transparent 2px 4px); border: 1px solid var(--muted); box-sizing: border-box; }
+.fbrow { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--floor); cursor: pointer; font: inherit; color: inherit; text-align: left; width: 100%; }
+.fbrow:hover { border-color: var(--accent); }
 </style>
 <script>try{var __t=localStorage.getItem('applebrook-theme');if(__t==='light'||__t==='dark')document.documentElement.setAttribute('data-theme',__t)}catch(e){}</script>
 
 <main class="page" id="viewHome">
   <header class="phead"><div class="club">Applebrook Golf Club</div><div style="display:flex;gap:8px;align-items:center"><button class="btn installBtn" type="button" hidden>Install app</button><button class="iconbtn themeBtn" type="button"></button></div></header>
   <div class="hero"><h1>Floor Plans</h1></div>
+  <div class="banner" id="needFileBox" hidden><h2 id="needFileH"></h2><div id="needFileList"></div></div>
   <div class="cards">
-    <button class="card" type="button" id="goResume" hidden><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M7 4.5l11 6.5-11 6.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Resume</h2><p id="resumeTxt"></p></button>
+    <button class="card" type="button" data-go="calendar"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="5" width="15" height="13.5" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h15M7.5 3v4M14.5 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Club Events Calendar</h2><p>See scheduled floor plans by date.</p></button>
+    <button class="card" type="button" data-go="drafts"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 3.5h8l4 4V18.5H5zM13 3.5v4h4M8 11h6M8 14.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Draft Events</h2><p id="draftsTxt">Work in progress that is not saved as an event yet.</p></button>
     <button class="card" type="button" id="goNew"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 4v14M4 11h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New</h2><p>Start an event or a single floor plan.</p></button>
-    <button class="card" type="button" data-go="calendar"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3.5" y="5" width="15" height="13.5" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 9.5h15M7.5 3v4M14.5 3v4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Events Calendar</h2><p>See scheduled floor plans by date.</p></button>
     <button class="card" type="button" id="goLoad"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 15V4M6.5 8.5L11 4l4.5 4.5M4 15v3h14v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Load</h2><p>Open a saved layout from this device.</p></button>
     <button class="card" type="button" data-go="settings"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 7h9M17 7h1M4 15h1M9 15h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="15" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><h2>Settings</h2><p>Room sizes, standard layouts, and table sizes.</p></button>
   </div>
@@ -533,6 +546,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="cards">
     <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Add, edit and arrange rooms, and manage standard layouts.</p></button>
     <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Add and edit table sizes, shapes and defaults.</p></button>
+    <button class="card" type="button" id="goFolder"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3.5 6.5a1.5 1.5 0 011.5-1.5h4l2 2.5h6a1.5 1.5 0 011.5 1.5v7.5a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Floor plans folder</h2><p id="folderTxt"></p></button>
     <button class="card" type="button" id="goEmail"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3" y="5" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 6.5L11 12l7.5-5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Email Text</h2><p>The wording used when you share a floor plan by email.</p></button>
   </div>
 </main>
@@ -545,11 +559,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="shbye" id="shBye" hidden><h1>We hope you enjoyed your event with Applebrook Golf Club.</h1></div>
 </main>
 <main class="page" id="viewCalendar" hidden>
-  <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Events Calendar</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Club Events Calendar</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
   <div class="calbar"><button class="btn" id="calPrev" type="button" aria-label="Previous month">&larr;</button><h2 id="calTitle"></h2><button class="btn" id="calNext" type="button" aria-label="Next month">&rarr;</button><button class="btn" id="calToday" type="button">Today</button></div>
   <p class="fine" id="calMsg" role="status"></p>
   <div class="calgrid" id="calGrid"></div>
   <div class="calday" id="calDay"></div>
+</main>
+
+<main class="page" id="viewDrafts" hidden>
+  <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Draft Events</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
+  <p class="lead2">Anything being worked on that is not saved as an event yet. Everyone can see every draft for now.</p>
+  <p class="fine" id="draftMsg" role="status"></p>
+  <div class="slist" id="draftList"></div>
+  <div class="toolrow" id="draftFoot" hidden></div>
 </main>
 
 <main class="page" id="viewRooms" hidden>
@@ -582,6 +604,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         <span id="seatStat"></span>
         <span id="tableStat"></span>
       </div>
+      <div class="hdbtns"><button class="btn" id="hdSave" type="button" title="Save floor plan (Ctrl+S)">Save</button><button class="btn" id="hdClose" type="button" title="Close and go back">Close</button></div>
       <button class="iconbtn" id="undoBtn" type="button" aria-label="Undo" title="Undo (Ctrl+Z)">
         <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M6.5 3.5L3 7l3.5 3.5M3.5 7H11a4 4 0 010 8H8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
       </button>
@@ -597,9 +620,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <button class="mi" id="newMenuBtn" type="button"><span>New</span></button>
           <button class="mi" id="defaultBtn" type="button"><span>Load room default</span></button>
           <button class="mi" id="openBtn" type="button"><span>Open file</span></button>
-          <button class="mi" id="cloudSaveBtn" type="button"><span>Save</span><kbd>Ctrl+S</kbd></button>
-          <button class="mi" id="saveBtn" type="button"><span>Save to file</span></button>
-          <button class="mi" id="saveCopyBtn" type="button"><span>Save a copy to cloud</span></button>
+          <button class="mi" id="cloudSaveBtn" type="button"><span>Save floor plan</span><kbd>Ctrl+S</kbd></button>
+          <button class="mi" id="saveBtn" type="button"><span>Download a copy</span></button>
+          <button class="mi" id="saveCopyBtn" type="button"><span>Save a copy as a new event</span></button>
           <button class="mi" id="saveStdBtn" type="button"><span>Save as room standard</span></button>
           <button class="mi installBtn" type="button" hidden><span>Install app</span></button>
           <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
@@ -725,15 +748,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
             <label for="seatRotInput">Seat ring rotation (degrees)</label>
             <input id="seatRotInput" type="number" step="0.5" inputmode="decimal">
           </div>
-          <div class="field" id="sidesField" hidden>
-            <span class="lbl">Chairs per side</span>
-            <div class="sides4">
-              <div><label for="sdTop">Top</label><input id="sdTop" type="number" min="0" max="40" step="1" inputmode="numeric"></div>
-              <div><label for="sdRight">Right</label><input id="sdRight" type="number" min="0" max="40" step="1" inputmode="numeric"></div>
-              <div><label for="sdBottom">Bottom</label><input id="sdBottom" type="number" min="0" max="40" step="1" inputmode="numeric"></div>
-              <div><label for="sdLeft">Left</label><input id="sdLeft" type="number" min="0" max="40" step="1" inputmode="numeric"></div>
-            </div>
-            <button class="btn" id="sidesReset" type="button" style="margin-top:6px" hidden>Even spacing</button>
+          <div class="field" id="mvField" hidden>
+            <button class="btn full" id="mvBtn" type="button" aria-pressed="false">Move chairs</button>
+            <p class="fine" id="mvHint" hidden>Drag a chair to any side of the table. It snaps to that side and the chairs on it space out evenly. Change the seat count to start over.</p>
           </div>
           <div class="field" id="ceField">
             <button class="btn full" id="ceBtn" type="button" aria-expanded="false" aria-controls="ceWrap">Edit chairs</button>
@@ -880,7 +897,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <h2 id="openTitle">Open a layout</h2>
   <p class="lead">Choose a saved layout file.</p>
   <div class="openbox">
-    <div class="field" style="margin:0"><label for="fileInput">Layout file</label><input id="fileInput" type="file" accept=".floorplan,.json,application/json"></div>
+    <div id="openFs" hidden>
+      <button class="btn primary" id="openPick" type="button">Choose a file</button>
+      <div id="openFolderBox" style="margin-top:12px" hidden>
+        <span class="lbl">Floor plans folder</span>
+        <div class="crumbs" id="ofCrumbs"></div>
+        <div class="folders" id="ofList"></div>
+      </div>
+    </div>
+    <div class="field" id="openPlain" style="margin:0"><label for="fileInput">Layout file</label><input id="fileInput" type="file" accept=".floorplan,.json,application/json"></div>
     <div class="err" id="openErr" role="alert"></div>
   </div>
   <div class="dlgfoot">
@@ -1015,9 +1040,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 </dialog>
 
 <dialog id="unsDlg" aria-labelledby="unsTitle">
-  <h2 id="unsTitle">Unsaved changes</h2>
-  <p class="lead">This project has changes that are not saved. Save it as an event first, or discard it.</p>
-  <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Discard changes</button><button class="btn primary" id="unsSave" type="button">Save</button></div>
+  <h2 id="unsTitle">Save this event?</h2>
+  <p class="lead">This event has changes since the last save.</p>
+  <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Don't save</button><button class="btn primary" id="unsSave" type="button">Save event</button></div>
+</dialog>
+
+<dialog id="closeDlg" aria-labelledby="clTitle">
+  <h2 id="clTitle">Close this event?</h2>
+  <p class="lead" id="clLead">This event is not saved yet.</p>
+  <div class="dlgfoot"><button class="btn" id="clCancel" type="button">Cancel</button><button class="btn danger" id="clDiscard" type="button">Discard</button><button class="btn" id="clDraft" type="button">Save to drafts</button><button class="btn primary" id="clSave" type="button">Save event</button></div>
+</dialog>
+
+<dialog id="cfDlg" aria-labelledby="cfTitle">
+  <h2 id="cfTitle">Two versions of this event</h2>
+  <p class="lead" id="cfLead"></p>
+  <div class="err" id="cfErr" role="alert"></div>
+  <div class="dlgfoot"><button class="btn" id="cfCancel" type="button">Decide later</button><button class="btn" id="cfCloud" type="button">Keep cloud version</button><button class="btn primary" id="cfMine" type="button">Keep this version</button></div>
 </dialog>
 
 <dialog id="chooseDlg" aria-labelledby="chooseTitle">
@@ -1243,7 +1281,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     var all = [];
     parts.forEach(function (p, pi) {
-      var T = TYPES[p.type]; if (!T || isSvc(T)) return;
+      var T = TYPES[p.type]; if (!T) return;
       seatSlots(T, geoMax(T), p.seatRot || 0).forEach(function (sl) {
         var v = rotVec(sl.x, sl.y, p.rot), px = p.ox + v.x, py = p.oy + v.y, inside = false;
         parts.forEach(function (q, qi) {
@@ -1321,7 +1359,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
   }
   function geoMax(T) {
-    if (isSvc(T)) return 0;
     if (isRound(T)) return Math.min(16, Math.floor(2 * Math.PI * (T.w / 2 + GAP) / 21));
     var L = Math.max(T.w, T.h), S0 = Math.min(T.w, T.h);
     return 2 * Math.floor(L / CHAIR_PITCH) + 2 * Math.floor(S0 / CHAIR_PITCH);
@@ -1337,7 +1374,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function maxSeats(a) {
     var T = typeof a === 'string' ? TYPES[a] : a;
-    if (isSvc(T)) return 0;
     if (T.max > 0) return Math.min(60, Math.round(T.max));
     if (isRound(T)) return Math.min(16, Math.floor(2 * Math.PI * (T.w / 2 + GAP) / 21));
     var L = Math.max(T.w, T.h), S = Math.min(T.w, T.h);
@@ -1385,7 +1421,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function seatLabel(seats, hc) { return hc > 0 ? (seats - hc) + ' + ' + hc + ' HC' : seatWord(seats); }
   function chairCounts(t) {
-    var T = tinfo(t); if (isSvc(T)) return { n: 0, hc: 0 };
+    var T = tinfo(t);
     var hc = 0, dc = 0, cs = t.cs || {};
     Object.keys(cs).forEach(function (k) { if (+k < t.seats) { if (cs[k] === 'h') hc++; else if (cs[k] === 'd') dc++; } });
     return { n: t.seats - (t.dcNo ? dc : 0), hc: hc };
@@ -1436,7 +1472,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (it.kind === 'chairs') { if (it.counts) { seats += it.count; if (it.ctype === 'h') hc += it.count; } return; }
       if (it.kind !== 'table') return;
       var T = tinfo(it);
-      if (isSvc(T)) return;
+      if (isSvc(T) && !(it.seats > 0)) return;
       var cc = chairCounts(it);
       tables++; seats += cc.n; hc += cc.hc;
     });
@@ -1481,19 +1517,20 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     g.setAttribute('data-id', it.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label);
   }
 
-  var CE = { id: null, mode: 'x' };
+  var CE = { id: null, mode: 'x' }, MV = { id: null };
   function tableNode(t, live) {
     var T = tinfo(t);
     var g = el('g', { 'class': 'item table' + (isSvc(T) ? ' svc' : '') + (live && isSel(t.id) ? ' sel' : ''), transform: 'translate(' + t.x + ' ' + t.y + ') rotate(' + t.rot + ')' });
     var cc0 = chairCounts(t);
-    liveAttrs(g, t, live, (isSvc(T) ? '' : 'Table ' + (t.label || 'unlabeled') + ', ') + T.name + (t.seats ? ', ' + seatLabel(cc0.n, cc0.hc) : ''));
-    var editing = live && CE.id === t.id;
+    liveAttrs(g, t, live, (isSvc(T) && !t.seats ? '' : 'Table ' + (t.label || 'unlabeled') + ', ') + T.name + (t.seats ? ', ' + seatLabel(cc0.n, cc0.hc) : ''));
+    var editing = live && CE.id === t.id, moving = live && MV.id === t.id;
     if (editing) g.classList.add('cedit');
-    (T.combo ? comboChairs(t) : seatSlots(T, t.seats, t.seatRot, t.sides)).forEach(function (sl, i) {
+    if (moving) g.classList.add('mvedit');
+    (T.combo && !t.sides ? comboChairs(t) : seatSlots(T, t.seats, t.seatRot, t.sides)).forEach(function (sl, i) {
       var st = t.cs && t.cs[i];
       if (st === 'x') { if (editing) { var gh = addChair(g, sl.x, sl.y, sl.rot, '', 'ghostc'); gh.setAttribute('data-ci', i); } return; }
       var ch = addChair(g, sl.x, sl.y, sl.rot, st);
-      if (editing) ch.setAttribute('data-ci', i);
+      if (editing || moving) ch.setAttribute('data-ci', i);
     });
     if (T.combo) {
       t.parts.forEach(function (p) {
@@ -1514,7 +1551,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var fs = clamp(minD * 0.34, 9, 14);
     var tg = el('g', { transform: 'rotate(' + (-t.rot) + ')' }, g);
     var fit = fitLabel(isSvc(T) ? (t.label || T.short) : t.label, t, T, fs), nl = fit.lines.length;
-    var showSub = !isSvc(T) && minD >= 40 && t.seats > 0 && nl <= 1 && !fit.over.length;
+    var showSub = (!isSvc(T) || t.seats > 0) && minD >= 40 && t.seats > 0 && nl <= 1 && !fit.over.length;
     fs = fit.fs;
     fit.lines.forEach(function (ln, i) {
       var lab = el('text', { 'class': 'tlabel' + (isSvc(T) ? '' : ' num'), 'font-size': fs, y: nl > 1 ? (i - (nl - 1) / 2) * fs * 1.15 : (showSub ? -fs * 0.35 : 0) }, tg);
@@ -2043,14 +2080,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       seatInput.max = mx;
       if (document.activeElement !== seatInput) seatInput.value = it.seats;
       seatMax.textContent = 'Max ' + mx + ' chairs';
-      var rectT = !isRound(T) && !isSvc(T) && !T.combo;
-      $('sidesField').hidden = !rectT;
-      if (rectT) {
-        var sc = sideCounts(T, it.seats, it.sides);
-        [['sdTop', 'top'], ['sdRight', 'right'], ['sdBottom', 'bottom'], ['sdLeft', 'left']].forEach(function (a) { if (document.activeElement !== $(a[0])) $(a[0]).value = sc[a[1]]; });
-        $('sidesReset').hidden = !it.sides;
-      }
-      $('ceField').hidden = isSvc(T);
+      var canMv = canMoveChairs(it);
+      $('mvField').hidden = !canMv;
+      if (!canMv && MV.id === it.id) MV.id = null;
+      if (MV.id && MV.id !== it.id) { var oldMv = byId(MV.id); MV.id = null; if (oldMv) refreshItem(oldMv); }
+      $('mvBtn').setAttribute('aria-pressed', MV.id === it.id ? 'true' : 'false'); $('mvHint').hidden = MV.id !== it.id;
+      $('ceField').hidden = isSvc(T) && !(it.seats > 0);
       if (CE.id && CE.id !== it.id) CE.id = null;
       $('ceWrap').hidden = CE.id !== it.id; $('ceBtn').setAttribute('aria-expanded', CE.id === it.id ? 'true' : 'false');
       pressed($('ceMode'), 'data-cm', CE.mode); $('dcCount').checked = !it.dcNo;
@@ -2163,22 +2198,62 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   /* ---------- inspector wiring ---------- */
   labelInput.addEventListener('input', function () { var t = byId(sel); if (!t) return; t.label = labelInput.value.slice(0, 400); refreshItem(t); });
   labelInput.addEventListener('change', commit);
-  ['sdTop', 'sdRight', 'sdBottom', 'sdLeft'].forEach(function (id, ix) {
-    var key = ['top', 'right', 'bottom', 'left'][ix];
-    $(id).addEventListener('input', function () {
-      var t = byId(sel); if (!t || t.kind !== 'table') return;
-      var v = parseInt($(id).value, 10); if (!isFinite(v)) return;
-      var sc = sideCounts(tinfo(t), t.seats, t.sides); sc[key] = clamp(v, 0, 40);
-      var tot = sc.top + sc.right + sc.bottom + sc.left, mx = maxSeats(tinfo(t));
-      if (mx && tot > mx) { sc[key] -= tot - mx; tot = mx; }
-      t.sides = sc; t.seats = tot; refreshItem(t); updateStats(); renderHandles();
-      seatInput.value = t.seats; seatMinus.disabled = t.seats <= 0; seatPlus.disabled = t.seats >= mx; $('sidesReset').hidden = false;
-    });
-    $(id).addEventListener('change', function () { commit(); syncInspector(); });
+  /* Move chairs: drag any chair to another side. It snaps there and that side re-spaces evenly. */
+  var SIDE_ORDER = ['top', 'right', 'bottom', 'left'];
+  function rectBlock(t) {
+    if (t.type !== 'combo') return false;
+    var cg = comboCalc(t), area = 0;
+    for (var i = 0; i < t.parts.length; i++) {
+      var p = t.parts[i], T = TYPES[p.type];
+      if (!T || isRound(T) || Math.abs(Math.sin(rad(p.rot))) > 0.02 && Math.abs(Math.cos(rad(p.rot))) > 0.02) return false;
+      area += T.w * T.h;
+    }
+    return Math.abs(area - cg.w * cg.h) <= Math.max(60, cg.w * cg.h * 0.02);
+  }
+  function canMoveChairs(t) {
+    if (!t || t.kind !== 'table' || !(t.seats > 0)) return false;
+    var T = tinfo(t);
+    if (isRound(T)) return false;
+    return T.combo ? rectBlock(t) : true;
+  }
+  function chairSide(T, t, idx) {
+    var c = sideCounts(T, t.seats, t.sides), acc = 0;
+    for (var i = 0; i < 4; i++) { var sd = SIDE_ORDER[i]; if (idx < acc + c[sd]) return { side: sd, c: c }; acc += c[sd]; }
+    return null;
+  }
+  function nearestSide(T, lx, ly) {
+    var hw = T.w / 2, hh = T.h / 2, d = { top: Math.abs(ly + hh), bottom: Math.abs(ly - hh), left: Math.abs(lx + hw), right: Math.abs(lx - hw) }, best = 'top';
+    SIDE_ORDER.forEach(function (k) { if (d[k] < d[best]) best = k; });
+    return best;
+  }
+  function moveChair(t, idx, side, lx, ly) {
+    var T = tinfo(t), cur = chairSide(T, t, idx); if (!cur) return false;
+    var c = cur.c, n = t.seats, i, states = [];
+    for (i = 0; i < n; i++) states.push((t.cs && t.cs[i]) || null);
+    var st = states.splice(idx, 1)[0];
+    c[cur.side]--;
+    var start = 0; for (i = 0; i < 4; i++) { if (SIDE_ORDER[i] === side) break; start += c[SIDE_ORDER[i]]; }
+    var slots = seatSlots(T, n - 1, 0, c), before = 0;
+    for (i = 0; i < c[side]; i++) {
+      var sl = slots[start + i];
+      if (side === 'top' ? sl.x < lx : side === 'right' ? sl.y < ly : side === 'bottom' ? sl.x > lx : sl.y > ly) before++;
+    }
+    states.splice(start + before, 0, st); c[side]++;
+    t.sides = c;
+    var cs = {}; states.forEach(function (v, j) { if (v) cs[j] = v; });
+    if (Object.keys(cs).length) t.cs = cs; else delete t.cs;
+    return true;
+  }
+  $('mvBtn').addEventListener('click', function () {
+    var t = byId(sel); if (!t || t.kind !== 'table' || !canMoveChairs(t)) return;
+    var prev = MV.id; MV.id = MV.id === t.id ? null : t.id;
+    if (MV.id && CE.id) { var pc = byId(CE.id); CE.id = null; if (pc) refreshItem(pc); }
+    refreshItem(t); if (prev && prev !== t.id) { var pt = byId(prev); if (pt) refreshItem(pt); }
+    syncInspector();
   });
-  $('sidesReset').addEventListener('click', function () { var t = byId(sel); if (!t) return; delete t.sides; refreshItem(t); updateStats(); syncInspector(); commit(); });
   $('ceBtn').addEventListener('click', function () {
     var t = byId(sel); if (!t || t.kind !== 'table') return;
+    if (MV.id) { var pm = byId(MV.id); MV.id = null; if (pm) refreshItem(pm); }
     var prev = CE.id; CE.id = CE.id === t.id ? null : t.id;
     refreshItem(t); if (prev && prev !== t.id) { var pt = byId(prev); if (pt) refreshItem(pt); }
     syncInspector();
@@ -2354,7 +2429,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       x: r2(sm * best.c - pm * best.sn), y: r2(sm * best.sn + pm * best.c), rot: norm(best.ax), w: r2(L), h: r2(W),
       seats: 0, seatRot: 0, label: label,
       parts: rows.map(function (r) { return { type: r.t.type, label: r.t.label, seats: r.t.seats, seatRot: r.t.seatRot || 0, ext: r.ext, rel: r.rel }; }) };
-    m.seats = allSvc ? 0 : Math.min(seats, maxSeats(tinfo(m)));
+    m.seats = Math.min(seats, maxSeats(tinfo(m)));
     return { ok: true, item: m, L: L, seats: m.seats, n: rows.length };
   }
   function allTables(ids) { var ts = ids.map(byId).filter(Boolean); return ts.length >= 2 && ts.every(function (t) { return t.kind === 'table'; }) ? ts : null; }
@@ -2382,8 +2457,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var labs = ts.map(function (t) { return t.label; }).filter(Boolean);
     var m = { id: uid(), kind: 'table', type: 'combo', svc: allSvc, x: r2(C.x), y: r2(C.y), rot: 0, seats: 0, seatRot: 0, label: allSvc ? '' : labs.join('/'),
       parts: all.map(function (p) { return { type: p.type, label: p.label, seats: p.seats, seatRot: p.seatRot || 0, ox: r2(p.x - C.x), oy: r2(p.y - C.y), rot: norm(p.rot) }; }) };
-    var want = ts.reduce(function (a, t) { return a + (isSvc(tinfo(t)) ? 0 : t.seats); }, 0);
-    m.seats = allSvc ? 0 : Math.min(want, maxSeats(tinfo(m)));
+    var want = ts.reduce(function (a, t) { return a + t.seats; }, 0);
+    m.seats = Math.min(want, maxSeats(tinfo(m)));
     return m;
   }
   function doMerge() {
@@ -2491,6 +2566,18 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       try { svg.setPointerCapture(e.pointerId); } catch (err) {}
       return;
     }
+    var mvc = MV.id && e.target.closest ? e.target.closest('.chg[data-ci]') : null;
+    if (mvc) {
+      var mt = byId(MV.id), mit = e.target.closest('.item');
+      if (mt && mit && mit.getAttribute('data-id') === mt.id) {
+        drag = { mode: 'chair', id: mt.id, ci: +mvc.getAttribute('data-ci'), node: mvc, lx: 0, ly: 0 };
+        mvc.classList.add('mvdrag');
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        svg.classList.add('dragging');
+        e.preventDefault();
+        return;
+      }
+    }
     var chg = CE.id && e.target.closest ? e.target.closest('.chg[data-ci]') : null;
     if (chg) {
       var ct = byId(CE.id), ci = chg.getAttribute('data-ci');
@@ -2542,6 +2629,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!drag.box && (w0 > 3 || h0 > 3)) drag.box = el('rect', { 'class': 'marq' }, handlesL);
       if (drag.box) { drag.box.setAttribute('x', x0); drag.box.setAttribute('y', y0); drag.box.setAttribute('width', w0); drag.box.setAttribute('height', h0); }
       drag.r = { x0: x0, y0: y0, x1: x0 + w0, y1: y0 + h0 };
+      return;
+    }
+    if (drag.mode === 'chair') {
+      var ct2 = byId(drag.id); if (!ct2) return;
+      var lv2 = rotVec(p.x - ct2.x, p.y - ct2.y, -(ct2.rot || 0)), cur2 = drag.node.getAttribute('transform') || '', rm = /rotate\(([-\d.]+)\)/.exec(cur2);
+      drag.lx = lv2.x; drag.ly = lv2.y; drag.moved = true;
+      drag.node.setAttribute('transform', 'translate(' + lv2.x.toFixed(2) + ' ' + lv2.y.toFixed(2) + ') rotate(' + (rm ? rm[1] : 0) + ')');
       return;
     }
     if (drag.mode === 'gbox') {
@@ -2626,6 +2720,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var d = drag; drag = null;
     svg.classList.remove('dragging');
     if (d.mode === 'marquee') { finishMarquee(d); return; }
+    if (d.mode === 'chair') {
+      var ct3 = byId(d.id);
+      if (ct3 && d.moved) {
+        var T3 = tinfo(ct3);
+        moveChair(ct3, d.ci, nearestSide(T3, d.lx, d.ly), d.lx, d.ly);
+        refreshItem(ct3);
+      }
+    }
     syncInspector();
     updateStats();
     commit();
@@ -2875,7 +2977,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (cparts.length < 2) return null;
       var ct = { id: id, kind: 'table', type: 'combo', svc: !!o.svc, x: num(o.x, 0), y: num(o.y, 0), rot: norm(num(o.rot, 0)), seats: 0, seatRot: 0, label: String(o.label == null ? '' : o.label).slice(0, 400), parts: cparts };
       if (+o.max > 0) ct.max = Math.min(60, Math.round(+o.max));
-      ct.seats = ct.svc ? 0 : clamp(Math.round(num(o.seats, 0)), 0, maxSeats(tinfo(ct)));
+      ct.seats = clamp(Math.round(num(o.seats, 0)), 0, maxSeats(tinfo(ct)));
       gbClean(ct, o); tbClean(ct, o);
       return ct;
     }
@@ -2951,7 +3053,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (!rooms.length) rooms = visibleRooms();
       var odate = '';
       Object.keys(ROOMS).forEach(function (k) { if (!odate && d.docs[k] && vDate(d.docs[k].date)) odate = d.docs[k].date; });
-      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), share: String(ev && ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev && ev.notes || '').slice(0, 4000), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
+      var event = { rooms: rooms, name: String(ev && ev.name || '').slice(0, 60), host: String(ev && ev.host || '').slice(0, 60), share: String(ev && ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev && ev.notes || '').slice(0, 4000), cid: idClean(ev && ev.cid), sync: idClean(ev && ev.sync), cname: String(ev && ev.cname || '').slice(0, 200), needsFile: !!(ev && ev.needsFile), setRooms: ev && Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return rooms.indexOf(k) >= 0; }) : [], date: ev ? vDate(ev.date) : odate, multi: !!(ev && ev.multi), endDate: ev ? vDate(ev.endDate) : '', pos: ev ? cleanPos(ev.pos, rooms) : null, locked: !!(ev && ev.locked && cleanPos(ev.pos, rooms)) };
       return { event: event, dirty: d.dirty === true, room: has(ROOMS, d.room) ? d.room : rooms[0], snap: d.snap !== false, grid: d.gridOn === true, dims: d.dimsOn === true, docs: docs, fix: fx, cloud: d.cloud || {} };
     } catch (e) { return null; }
   }
@@ -2969,9 +3071,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rooms[k] = { name: d.name, showTitle: d.showTitle, notes: d.notes, showNotes: d.showNotes, items: d.items, fixtures: S.fix[k] };
     });
     return { app: 'applebrook-floorplan', version: 5, room: S.room,
-      roomDefs: roomDefs(), typeDefs: localDefs().types, event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', notes: S.event.notes || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [] },
+      roomDefs: roomDefs(), typeDefs: localDefs().types, event: { name: S.event.name, host: S.event.host, date: S.event.date, multi: S.event.multi, endDate: S.event.endDate, rooms: S.event.rooms.slice(), share: S.event.share || '', notes: S.event.notes || '', pos: S.event.pos, locked: S.event.locked, setRooms: S.event.setRooms || [], cid: S.event.cid || '', sync: S.event.sync || '', cname: S.event.cname || '' },
       savedAt: new Date().toISOString(), rooms: rooms };
   }
+  function idClean(v) { return String(v || '').replace(/[^a-f0-9-]/gi, '').slice(0, 40); }
   function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'layout'; }
 
   var FILE_TYPES = [{ description: 'Floor plan layout', accept: { 'application/x-applebrook-floorplan': ['.floorplan'] } }];
@@ -2988,13 +3091,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function saveFile(cb) {
     var d = doc(), text = JSON.stringify(payload(), null, 2);
     var name = (S.event.rooms.length > 1 ? (S.event.name ? slug(S.event.name) : 'event-' + S.event.rooms.length + '-rooms') : slug(room().name) + '-' + slug(d.name || 'layout')) + (S.event.date ? '-' + S.event.date : '') + '.floorplan';
-    if (window.showSaveFilePicker) {
-      window.showSaveFilePicker({ suggestedName: name, types: FILE_TYPES }).then(function (h) {
-        return h.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); }).then(function () { S.dirty = false; save(); toast('Saved ' + h.name); if (cb) cb(true); });
-      }).catch(function (e) { if (e && e.name === 'AbortError') { if (cb) cb(false); return; } downloadFile(text, name); S.dirty = false; save(); if (cb) cb(true); });
-      return;
-    }
-    downloadFile(text, name); S.dirty = false; save(); if (cb) cb(true);
+    downloadFile(text, name); if (cb) cb(true);
   }
   function ensureInEvent(k) {
     if (S.event.rooms.indexOf(k) >= 0) return;
@@ -3013,13 +3110,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     buildPalette();
     var ev = o.event || {};
     var ps = cleanPos(ev.pos, keys);
-    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), share: String(ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev.notes || '').slice(0, 4000), setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
+    S.event = { rooms: keys, name: String(ev.name || '').slice(0, 60), host: String(ev.host || '').slice(0, 60), share: String(ev.share || '').replace(/[^a-f0-9]/g, '').slice(0, 40), notes: String(ev.notes || '').slice(0, 4000), cid: idClean(ev.cid), sync: idClean(ev.sync), cname: String(ev.cname || '').slice(0, 200), needsFile: !!ev.needsFile, setRooms: Array.isArray(ev.setRooms) ? ev.setRooms.filter(function (k) { return keys.indexOf(k) >= 0; }) : [], date: vDate(ev.date), multi: !!ev.multi, endDate: vDate(ev.endDate), pos: ps, locked: !!(ev.locked && ps) };
     keys.forEach(function (k) {
       var r = o.rooms[k];
       S.docs[k] = cleanDoc(r); delete hist[k];
       if (Array.isArray(r.fixtures) && !S.fix[k].length) { var f = cleanItems(r.fixtures, true); if (f.length) S.fix[k] = f; }
     });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
+    fileHandle = null;
+    if (S.event.cid) { cloudRef.__event = { id: S.event.cid, kind: 'layout', name: S.event.cname || S.event.name || 'Untitled' }; recallHandle(S.event.cid); }
     var rk = keys.indexOf(o.room) >= 0 ? o.room : keys[0];
     buildRoomSelect(); setRoom(rk); syncEventUI(); syncDocUI(); commit(); S.dirty = false; S.stale = false; setSaveInd(''); save();
     return '';
@@ -3049,6 +3148,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   $('saveBtn').addEventListener('click', function () { closeMenu(); saveFile(); });
   function openLoad() {
     closeMenu(); $('openErr').textContent = ''; $('fileInput').value = '';
+    $('openFs').hidden = !FS_OK; $('openPlain').hidden = FS_OK;
+    if (FS_OK) { ofPath = []; renderBrowse(); }
     openDlg.showModal();
   }
   $('openBtn').addEventListener('click', openLoad);
@@ -3183,17 +3284,311 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function hasWork() { return !!(S.event.name || S.event.date || S.event.rooms.some(function (k) { return !S.docs[k].fresh || !!S.docs[k].name; })); }
   function layoutRow(kind, name) { return { kind: kind, room: S.event.rooms.join(','), name: name, author: authorName(), data: payload(), updated_at: new Date().toISOString() }; }
   function failInd(e) { setSaveInd(e instanceof TypeError ? 'Offline, will retry' : 'Save failed, will retry'); }
-  /* Update the existing cloud copy of this event. */
-  function saveToCloudSilent() {
-    var ref = cloudRef.__event; if (!ref) return Promise.resolve(false);
-    var name = ref.name || S.event.name || 'Untitled', row = layoutRow('layout', name);
-    if (!row.author) delete row.author;
-    setSaveInd('Saving...');
-    return sb('PATCH', '?id=eq.' + encodeURIComponent(ref.id), row, 'return=representation').then(function (rows) {
-      if (!rows || !rows[0]) { delete cloudRef.__event; setSaveInd(''); save(); return false; }
-      ref.name = name; S.dirty = false; S.stale = false; evCache = null; save(); setSaveInd('Saved ' + nowTime()); pushShare(); return true;
-    }, function (e) { failInd(e); return false; });
+  /* ---------- H drive: files on this computer are the master, the cloud holds the backup ---------- */
+  var FS_OK = !!(window.showDirectoryPicker && window.showOpenFilePicker && window.indexedDB);
+  var fileHandle = null, fsRoot = null, PEND_KEY = 'applebrook-pending-v1', lastWrote = false, saving = false, flushing = false, ofPath = [];
+  function newId() {
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    function h(n) { var o = ''; while (o.length < n) o += Math.floor(Math.random() * 16).toString(16); return o; }
+    return h(8) + '-' + h(4) + '-4' + h(3) + '-a' + h(3) + '-' + h(12);
   }
+  function idbOpen() {
+    return new Promise(function (res, rej) {
+      try { var r = indexedDB.open('applebrook-fp-files', 1); r.onupgradeneeded = function () { r.result.createObjectStore('kv'); }; r.onsuccess = function () { res(r.result); }; r.onerror = function () { rej(r.error); }; } catch (e) { rej(e); }
+    });
+  }
+  function idbGet(k) { return idbOpen().then(function (db) { return new Promise(function (res, rej) { var q = db.transaction('kv').objectStore('kv').get(k); q.onsuccess = function () { res(q.result); }; q.onerror = function () { rej(q.error); }; }); }); }
+  function idbSet(k, v) { return idbOpen().then(function (db) { return new Promise(function (res, rej) { var t = db.transaction('kv', 'readwrite'); t.objectStore('kv').put(v, k); t.oncomplete = function () { res(); }; t.onerror = function () { rej(t.error); }; }); }); }
+  function askPerm(h, quiet) {
+    var o = { mode: 'readwrite' };
+    return Promise.resolve().then(function () { return h.queryPermission(o); }).then(function (p) {
+      if (p === 'granted' || quiet) return p;
+      return h.requestPermission(o);
+    }).catch(function () { return 'denied'; });
+  }
+  function writeHandle(h, text) { return h.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); }); }
+  function fsName(t) { return String(t || '').replace(/[\\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 80) || 'Floor plan'; }
+  function planRel() { return (S.event.cname ? pathOf(S.event.cname) : defaultFolder(S.event.date)).map(fsName); }
+  function planFile() { return fsName(S.event.cname ? leafName(S.event.cname) : defaultFile(S.event.name || (S.event.rooms.length === 1 ? doc().name : '') || 'Untitled', S.event.date)) + '.floorplan'; }
+  function rootFileFor(rel, fname) {
+    var p = Promise.resolve(fsRoot);
+    rel.forEach(function (seg) { p = p.then(function (d) { return d.getDirectoryHandle(seg, { create: true }); }); });
+    return p.then(function (d) {
+      function tryName(i) {
+        var nm = i ? fname.replace(/\.floorplan$/, ' (' + (i + 1) + ').floorplan') : fname;
+        return d.getFileHandle(nm).then(function (fh) {
+          return fh.getFile().then(function (f) { return f.text(); }).then(function (t) {
+            var o = null; try { o = JSON.parse(t); } catch (e) {}
+            if (o && o.event && o.event.cid && o.event.cid === S.event.cid) return fh;
+            return i < 30 ? tryName(i + 1) : Promise.reject(new Error('name'));
+          });
+        }, function () { return d.getFileHandle(nm, { create: true }); });
+      }
+      return tryName(0);
+    });
+  }
+  function rememberHandle() { if (fileHandle && S.event.cid) idbSet('h:' + S.event.cid, fileHandle).catch(function () {}); }
+  function recallHandle(cid) { if (!FS_OK || !cid) return; idbGet('h:' + cid).then(function (h) { if (h && !fileHandle && S.event.cid === cid) fileHandle = h; }, function () {}); }
+  /* Where this save writes its file. Quiet saves (autosave) never ask for anything. */
+  function getTarget(quiet) {
+    if (!FS_OK) return Promise.resolve(null);
+    if (fileHandle) return askPerm(fileHandle, quiet).then(function (p) { return p === 'granted' ? fileHandle : null; });
+    if (quiet || !fsRoot) return Promise.resolve(null);
+    return askPerm(fsRoot).then(function (p) {
+      if (p !== 'granted') return null;
+      return rootFileFor(planRel(), planFile()).then(function (h) { fileHandle = h; rememberHandle(); return h; }, function () { return null; });
+    });
+  }
+  function listDir(d) {
+    var out = [], it = d.values();
+    function step() { return it.next().then(function (r) { if (r.done) return out; out.push(r.value); return step(); }); }
+    return step();
+  }
+  function syncFolderUI() {
+    var t = $('folderTxt');
+    if (!FS_OK) { t.textContent = 'This browser cannot save to a folder. Use Chrome or Edge on the computer that holds your files.'; return; }
+    if (!fsRoot) { t.textContent = 'Not set. Pick the folder your floor plans live in. Saves go there, with a backup copy in the cloud.'; return; }
+    fsRoot.queryPermission({ mode: 'readwrite' }).then(function (p) { t.textContent = fsRoot.name + (p === 'granted' ? ' (connected). Tap to change it.' : ' (tap to reconnect).'); }, function () { t.textContent = fsRoot.name; });
+  }
+  $('goFolder').addEventListener('click', function () {
+    if (!FS_OK) { toast('Folder saving works in Chrome or Edge.'); return; }
+    function pick() {
+      window.showDirectoryPicker({ mode: 'readwrite', id: 'applebrook-floorplans' }).then(function (h) {
+        fsRoot = h; idbSet('root', h).catch(function () {}); syncFolderUI(); refreshNeedFile(); toast('Floor plans folder set to ' + h.name + '.');
+      }, function () {});
+    }
+    if (!fsRoot) { pick(); return; }
+    fsRoot.queryPermission({ mode: 'readwrite' }).then(function (p) {
+      if (p === 'granted') { pick(); return; }
+      askPerm(fsRoot).then(function (q) { toast(q === 'granted' ? 'Reconnected to ' + fsRoot.name + '.' : 'Folder access was not allowed.'); syncFolderUI(); refreshNeedFile(); });
+    }, function () { pick(); });
+  });
+  /* Open a layout from the floor plans folder, or any file, keeping the file so Save writes back to it. */
+  function openHandle(h) {
+    return h.getFile().then(function (f) {
+      return f.text().then(function (t) {
+        guardDirty(function () {
+          var err = applyLayout(t);
+          if (err) { $('openErr').textContent = err; return; }
+          fileHandle = h; rememberHandle();
+          if (openDlg.open) openDlg.close();
+          showView('editor'); toast('Opened ' + f.name); checkCloudOnOpen();
+        });
+      });
+    }, function () { $('openErr').textContent = 'Could not read that file.'; });
+  }
+  function renderBrowse() {
+    var box = $('openFolderBox'), cr = $('ofCrumbs'), ls = $('ofList');
+    if (!fsRoot) { box.hidden = true; return; }
+    box.hidden = false; cr.replaceChildren(); ls.replaceChildren();
+    cr.appendChild(mkBtn(fsRoot.name, 'btn crumb', function () { ofPath = []; renderBrowse(); }));
+    ofPath.forEach(function (d, i) { cr.appendChild(dm('span', 'csep', '/')); cr.appendChild(mkBtn(d.name, 'btn crumb', function () { ofPath = ofPath.slice(0, i + 1); renderBrowse(); })); });
+    var cur = ofPath.length ? ofPath[ofPath.length - 1] : fsRoot;
+    askPerm(fsRoot, true).then(function (p) {
+      if (p !== 'granted') {
+        ls.appendChild(mkBtn('Reconnect to your folder', 'btn primary', function () { askPerm(fsRoot).then(function (q) { if (q === 'granted') renderBrowse(); else $('openErr').textContent = 'Folder access was not allowed.'; }); }));
+        return;
+      }
+      return listDir(cur).then(function (ents) {
+        var dirs = ents.filter(function (x) { return x.kind === 'directory'; }).sort(function (a, b) { return a.name < b.name ? 1 : -1; });
+        var files = ents.filter(function (x) { return x.kind === 'file' && /\.floorplan$/i.test(x.name); }).sort(function (a, b) { return a.name < b.name ? 1 : -1; });
+        if (!dirs.length && !files.length) ls.appendChild(dm('p', 'fine', 'Nothing here yet.'));
+        dirs.forEach(function (d) { var b = mkBtn(d.name, 'fbtn', function () { ofPath = ofPath.concat([d]); renderBrowse(); }); ls.appendChild(b); });
+        files.forEach(function (f) { var b = mkBtn(f.name.replace(/\.floorplan$/i, ''), 'fbrow', function () { $('openErr').textContent = 'Opening...'; openHandle(f).then(function () { if (openDlg.open) $('openErr').textContent = ''; }); }); ls.appendChild(b); });
+      });
+    }).catch(function () { ls.appendChild(dm('p', 'fine', 'Could not read that folder.')); });
+  }
+  $('openPick').addEventListener('click', function () {
+    var o = { types: FILE_TYPES, multiple: false };
+    if (fsRoot) o.startIn = fsRoot;
+    window.showOpenFilePicker(o).then(function (hs) { return openHandle(hs[0]); }, function () {});
+  });
+
+  /* ---------- the cloud backup: one row per event, a version token guards against overwrites ---------- */
+  function pendGet() { try { return JSON.parse(localStorage.getItem(PEND_KEY)) || {}; } catch (e) { return {}; } }
+  function pendSet(o) { try { localStorage.setItem(PEND_KEY, JSON.stringify(o)); } catch (e) {} }
+  function queuePending(cid, base, row) { var p = pendGet(); p[cid] = { cid: cid, base: p[cid] ? p[cid].base : base, row: row, at: Date.now() }; pendSet(p); }
+  function removePending(cid) { var p = pendGet(); if (p[cid]) { delete p[cid]; pendSet(p); } }
+  function pendingList() { var p = pendGet(); return Object.keys(p).map(function (k) { return p[k]; }); }
+  function cloudBody(wrote) {
+    var row = layoutRow('layout', S.event.cname || S.event.name || 'Untitled');
+    if (!row.author) delete row.author;
+    row.data.event.needsFile = !wrote;
+    return row;
+  }
+  function pushCloud(cid, row, base, create) {
+    if (create) return sb('POST', '', Object.assign({ id: cid }, row), 'return=representation').then(function (r) { return { ok: !!(r && r[0]) }; });
+    var q = '?id=eq.' + encodeURIComponent(cid) + (base ? '&data->event->>sync=eq.' + encodeURIComponent(base) : '');
+    return sb('PATCH', q, row, 'return=representation').then(function (rows) {
+      if (rows && rows[0]) return { ok: true };
+      return sb('GET', '?id=eq.' + encodeURIComponent(cid) + '&select=id,author,updated_at,data').then(function (cur) {
+        if (cur && cur[0]) return { ok: false, cloud: cur[0] };
+        return sb('POST', '', Object.assign({ id: cid }, row), 'return=representation').then(function (r) { return { ok: !!(r && r[0]) }; });
+      });
+    });
+  }
+  /* Has someone else saved this event in the cloud since this file last synced? */
+  function peekCloud(cid, base) {
+    return sb('GET', '?id=eq.' + encodeURIComponent(cid) + '&select=id,author,updated_at,ev:data->event').then(function (rows) {
+      var r = rows && rows[0]; if (!r) return { none: true };
+      var ev = r.ev || {}, sy = ev.sync || '';
+      if (base && sy && sy !== base) return { ahead: true, cloud: r };
+      return { same: true, sets: Array.isArray(ev.setRooms) ? ev.setRooms : null };
+    }, function () { return { offline: true }; });
+  }
+  function finishOk(wrote) {
+    lastWrote = wrote;
+    S.dirty = false; S.stale = false; S.conflict = false; evCache = null;
+    cloudRef.__event = { id: S.event.cid, kind: 'layout', name: S.event.cname || S.event.name || 'Untitled' };
+    delete cloudRef.__draft;
+    removePending(S.event.cid);
+    S.event.needsFile = !wrote;
+    save(); setSaveInd((wrote ? 'Saved ' : 'Saved to cloud ') + nowTime()); pushShare(); refreshNeedFile();
+    return 'ok';
+  }
+  function doWrite(h, base, cur, o) {
+    var cid = S.event.cid;
+    if (cur.sets) S.event.setRooms = cur.sets.filter(function (k) { return S.event.rooms.indexOf(k) >= 0; });
+    S.event.sync = newId();
+    var text = JSON.stringify(payload(), null, 2);
+    var wp = h ? writeHandle(h, text).then(function () { return true; }, function () { fileHandle = null; return false; }) : Promise.resolve(false);
+    return wp.then(function (wrote) {
+      var row = cloudBody(wrote);
+      function offline() {
+        if (!wrote) { S.event.sync = base; return 'fail'; }
+        lastWrote = true; queuePending(cid, base, row);
+        S.dirty = false; S.stale = false; save(); setSaveInd('Saved on this computer. Not backed up to the cloud yet.'); refreshPendingUI();
+        return 'queued';
+      }
+      if (cur.offline) return offline();
+      return pushCloud(cid, row, base, !!o.create && !!cur.none).then(function (res) {
+        if (res.ok) return finishOk(wrote);
+        if (o.quiet) { S.conflict = true; setSaveInd('Cloud copy changed. Press Save to choose a version.'); return 'conflict'; }
+        return askVersion('late', res.cloud, h, row);
+      }, offline);
+    });
+  }
+  /* One save: the file on this computer first (when it can), then the cloud backup. */
+  function runSave(o) {
+    o = o || {};
+    if (saving) return Promise.resolve('busy');
+    if (!S.event.cid) return Promise.resolve('fail');
+    saving = true;
+    var tp;
+    try { tp = getTarget(!!o.quiet); } catch (e) { tp = Promise.reject(e); }
+    return tp.then(function (h) { return h; }, function (e) { return (e && e.name === 'AbortError') ? 'cancel' : null; }).then(function (h) {
+      if (h === 'cancel') return 'cancel';
+      var base = S.event.sync || '', cid = S.event.cid;
+      return peekCloud(cid, base).then(function (cur) {
+        if (cur.ahead) {
+          if (o.quiet) { S.conflict = true; setSaveInd('Cloud copy changed. Press Save to choose a version.'); return 'conflict'; }
+          return askVersion('pre', cur.cloud, h, null, o);
+        }
+        return doWrite(h, base, cur, o);
+      });
+    }).then(function (r) { saving = false; return r; }, function () { saving = false; return 'fail'; });
+  }
+  function saveToast(r) {
+    if (r === 'queued') return 'Saved on this computer. The cloud backup sends when you are back online.';
+    if (lastWrote) return 'Saved to your H drive and the cloud.';
+    if (FS_OK && !fsRoot) return 'Saved to the cloud. Set your floor plans folder in Settings to save files too.';
+    return FS_OK ? 'Saved to the cloud. It still needs saving to your H drive.' : 'Saved to the cloud.';
+  }
+  /* Offline saves wait here and send themselves once the cloud answers. */
+  function flushPending() {
+    var list = pendingList(); if (!list.length || flushing) return Promise.resolve();
+    flushing = true;
+    var chain = Promise.resolve();
+    list.forEach(function (it) {
+      chain = chain.then(function () {
+        return pushCloud(it.cid, it.row, it.base, false).then(function (res) {
+          if (res.ok) { removePending(it.cid); if (S.event.cid === it.cid) { setSaveInd('Backed up ' + nowTime()); evCache = null; } }
+          else if (!it.conflict) {
+            var p = pendGet(); if (p[it.cid]) { p[it.cid].conflict = true; pendSet(p); }
+            toast('The cloud copy of ' + leafName(it.row.name) + ' changed. Open its file and press Save to choose a version.');
+          }
+        }, function () {});
+      });
+    });
+    return chain.then(function () { flushing = false; refreshPendingUI(); }, function () { flushing = false; });
+  }
+  function refreshPendingUI() { if (curView === 'calendar') renderCal(); }
+
+  /* ---------- two versions: pick one, the other is kept as a prior version ---------- */
+  var cfState = null, cfDlg = $('cfDlg');
+  function stampOf(iso) { var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+  function askVersion(mode, cloudRow, h, row, o) {
+    return new Promise(function (resolve) {
+      cfState = { mode: mode, cloud: cloudRow, h: h, row: row, o: o || {}, resolve: resolve, done: false };
+      var who = (cloudRow.author ? cloudRow.author + ', ' : '') + stampOf(cloudRow.updated_at);
+      $('cfLead').textContent = (mode === 'open'
+        ? 'The cloud copy has newer changes than this file (' + who + '). '
+        : 'The cloud copy changed after this file was last saved (' + who + '). ')
+        + 'Pick the version to keep. The other one is stored as a prior version in Open from cloud, so nothing is lost.';
+      $('cfErr').textContent = ''; $('cfMine').disabled = false; $('cfCloud').disabled = false;
+      $('cfCancel').textContent = mode === 'open' ? 'Decide later' : 'Cancel';
+      cfDlg.showModal();
+    });
+  }
+  function cfFinish(r) { var st = cfState; if (!st || st.done) return; st.done = true; cfState = null; if (cfDlg.open) cfDlg.close(); st.resolve(r); }
+  function storePrior(data, label, room, author) {
+    return sb('POST', '', { kind: 'version', room: room, name: 'Prior versions/' + leafName(S.event.cname || S.event.name || 'Untitled') + ' (' + label + ', ' + stampOf(new Date().toISOString()) + ')', author: author || '', data: data, updated_at: new Date().toISOString() }, 'return=minimal');
+  }
+  function cfFail(e) { $('cfErr').textContent = cloudMsg(e); $('cfMine').disabled = false; $('cfCloud').disabled = false; }
+  function fullCloud(cid) { return sb('GET', '?id=eq.' + encodeURIComponent(cid) + '&select=id,name,room,author,data').then(function (r) { if (!r || !r[0]) throw new Error('That event is gone from the cloud.'); return r[0]; }); }
+  $('cfMine').addEventListener('click', function () {
+    var st = cfState; if (!st) return;
+    $('cfMine').disabled = true; $('cfCloud').disabled = true; $('cfErr').textContent = 'Saving...';
+    var cid = S.event.cid;
+    fullCloud(cid).then(function (cur) {
+      return storePrior(cur.data, 'cloud', cur.room, cur.author).then(function () {
+        if (st.mode === 'pre') { cfFinish('pending'); return doWrite(st.h, '', { same: true }, st.o).then(function (r) { st.resolve(r); }); }
+        var row = st.row || cloudBody(true);
+        return pushCloud(cid, row, '', false).then(function (res) { if (!res.ok) throw new Error('The save did not go through.'); cfFinish(finishOk(!!st.h || st.mode === 'open')); });
+      });
+    }).then(null, cfFail);
+  });
+  $('cfCloud').addEventListener('click', function () {
+    var st = cfState; if (!st) return;
+    $('cfMine').disabled = true; $('cfCloud').disabled = true; $('cfErr').textContent = 'Saving...';
+    var cid = S.event.cid, mine = payload();
+    fullCloud(cid).then(function (cur) {
+      return storePrior(mine, 'file', S.event.rooms.join(','), authorName()).then(function () {
+        var keep = fileHandle, err = applyLayout(JSON.stringify(cur.data));
+        if (err) throw new Error(err);
+        fileHandle = keep; S.event.cid = cid; S.event.cname = S.event.cname || cur.name; S.event.sync = idClean(cur.data && cur.data.event && cur.data.event.sync);
+        cloudRef.__event = { id: cid, kind: 'layout', name: S.event.cname };
+        var h = st.h || keep;
+        cfFinish('pending');
+        return doWrite(h, S.event.sync, { same: true }, {}).then(function (r) { st.resolve(r); toast('Kept the cloud version. Your file version is stored as a prior version.'); });
+      });
+    }).then(null, cfFail);
+  });
+  $('cfCancel').addEventListener('click', function () { cfFinish(cfState && cfState.mode === 'open' ? 'later' : 'cancel'); });
+  cfDlg.addEventListener('close', function () { cfFinish(cfState && cfState.mode === 'open' ? 'later' : 'cancel'); });
+  /* Opened a file: is the cloud copy newer than it? */
+  function checkCloudOnOpen() {
+    var cid = S.event.cid; if (!cid || !S.event.sync) return;
+    peekCloud(cid, S.event.sync).then(function (cur) { if (cur.ahead) askVersion('open', cur.cloud, fileHandle); });
+  }
+  /* Events that are in the cloud but not on this computer's folder yet. */
+  function refreshNeedFile() {
+    var box = $('needFileBox'); box.hidden = true;
+    if (!FS_OK || !fsRoot) return;
+    sb('GET', '?kind=eq.layout&data->event->>needsFile=eq.true&select=id,name,author,updated_at&order=updated_at.desc&limit=50').then(function (rows) {
+      var list = $('needFileList'); list.replaceChildren();
+      rows = (rows || []).filter(function (r) { return !(S.event.cid === r.id && fileHandle && !S.event.needsFile); });
+      if (!rows.length) return;
+      $('needFileH').textContent = rows.length === 1 ? '1 event is in the cloud but not on your H drive yet.' : rows.length + ' events are in the cloud but not on your H drive yet.';
+      rows.forEach(function (r) {
+        var row = dm('div', 'brow'); row.appendChild(dm('span', '', leafName(r.name)));
+        row.appendChild(mkBtn('Open to save it', 'btn', function () { openEventRow({ id: r.id, name: leafName(r.name), rowName: r.name }); }));
+        list.appendChild(row);
+      });
+      box.hidden = false;
+    }, function () {});
+  }
+
   /* Before the first manual save, work goes to a draft that stays out of the calendar and lists. */
   function saveDraft() {
     var ref = cloudRef.__draft, name = eventLabel() || 'Untitled draft', row = layoutRow('draft', name);
@@ -3210,22 +3605,22 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }, function (e) { failInd(e); return false; });
   }
   function autoTick() {
-    if (curView !== 'editor' || !S.stale) return;
-    if (cloudRef.__event) saveToCloudSilent();
+    if (pendingList().length) flushPending();
+    if (curView !== 'editor' || !S.stale || S.conflict) return;
+    if (S.event.cid) runSave({ quiet: true });
     else if (hasWork()) saveDraft();
   }
   setInterval(autoTick, 60000);
   document.addEventListener('visibilitychange', function () { if (document.hidden) autoTick(); });
+  window.addEventListener('online', function () { flushPending(); });
   function doSave() {
-    if (cloudRef.__event) {
-      saveToCloudSilent().then(function (ok) {
-        if (ok) toast('Saved.');
-        else if (!cloudRef.__event) openSaveDlg(false);
-        else toast('Could not reach the cloud. Try again.');
-      });
-      return;
-    }
-    openSaveDlg(false);
+    if (!S.event.cid) { openSaveDlg(false); return; }
+    S.conflict = false;
+    runSave({}).then(function (r) {
+      if (r === 'ok' || r === 'queued') toast(saveToast(r));
+      else if (r === 'fail') toast('Could not save. Check the connection and try again.');
+      else if (r === 'busy') toast('Still saving...');
+    });
   }
   /* ---------- save dialog: events and folders ---------- */
   var csCopy = false, csMode = 'event', csFolder = [], csAfter = null, csIndex = [], csNameTouched = false, csFolderTouched = false;
@@ -3306,11 +3701,36 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   $('csNewF').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('csNewFBtn').click(); } });
   /* Save, then carry on with whatever was waiting. */
   function saveThen(cb) {
-    if (cloudRef.__event) {
-      saveToCloudSilent().then(function (ok) { if (ok) cb(); else toast('Could not save. Try again.'); });
+    if (S.event.cid) {
+      S.conflict = false;
+      runSave({}).then(function (r) {
+        if (r === 'ok' || r === 'queued') { toast(saveToast(r)); cb(); }
+        else if (r === 'fail') toast('Could not save. Check the connection and try again.');
+      });
       return;
     }
     openSaveDlg(false, 'event', cb);
+  }
+  /* First save of an event (or a copy): pick the title, folder and file name, then save like any other save. */
+  function csEventGo(author, fname, title, host, date, many) {
+    var ref = csCopy ? null : cloudRef.__event, conv = (!cloudRef.__event && cloudRef.__draft) ? cloudRef.__draft : null;
+    S.event.host = host; S.event.date = date;
+    if (date || many) S.event.name = title; else doc().name = title;
+    syncEventUI(); syncDocUI();
+    var rel = csFolder.map(cleanSeg).filter(Boolean), full = (rel.length ? rel.join('/') + '/' : '') + fname;
+    var useRef = ref && !$('csReplaceRow').hidden && $('csReplace').checked;
+    var cid = conv ? conv.id : (useRef ? ref.id : newId());
+    if (S.event.cid && S.event.cid !== cid) { fileHandle = null; S.event.sync = ''; }
+    if (!S.event.cid) S.event.sync = '';
+    S.event.cid = cid; S.event.cname = full; S.event.needsFile = false;
+    $('csGo').disabled = true; $('csErr').textContent = 'Saving...';
+    runSave({ create: !conv && !useRef }).then(function (r) {
+      $('csGo').disabled = false;
+      if (r === 'cancel') { $('csErr').textContent = ''; return; }
+      if (r !== 'ok' && r !== 'queued') { $('csErr').textContent = 'The save did not go through. Check the connection and try again.'; return; }
+      var after = csAfter; csAfter = null;
+      csDlg.close(); toast(saveToast(r)); if (after) after();
+    });
   }
   $('cloudSaveBtn').addEventListener('click', function () { closeMenu(); doSave(); });
   $('saveCopyBtn').addEventListener('click', function () { closeMenu(); openSaveDlg(true, 'event'); });
@@ -3331,6 +3751,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (S.event.date && !date) { $('csErr').textContent = 'An event needs a date.'; return; }
     }
     try { localStorage.setItem(AUTHOR_KEY, author); } catch (e) {}
+    if (!std) { csEventGo(author, fname, title, host, date, many); return; }
     var ref = csCopy ? null : (std ? cloudRef[S.room] : cloudRef.__event), refKey = std ? S.room : '__event';
     var conv = (!std && !cloudRef.__event && cloudRef.__draft) ? cloudRef.__draft : null;
     if (!std) {
@@ -3379,7 +3800,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         guardDirty(function () {
         var err = applyLayout(JSON.stringify(rows[0].data));
         if (err) { $('coErr').textContent = err; return; }
-        if (r.kind === 'standard') cloudRef[S.room] = { id: r.id, kind: 'standard', name: r.name }; else if (r.kind === 'draft') { cloudRef.__draft = { id: r.id, kind: 'draft', name: r.name }; S.dirty = S.stale = true; } else cloudRef.__event = { id: r.id, kind: 'layout', name: r.name };
+        if (r.kind === 'standard') cloudRef[S.room] = { id: r.id, kind: 'standard', name: r.name }; else if (r.kind === 'draft') { cloudRef.__draft = { id: r.id, kind: 'draft', name: r.name }; S.dirty = S.stale = true; } else if (r.kind === 'version') { S.event.cid = ''; S.event.sync = ''; S.event.cname = ''; delete cloudRef.__event; S.dirty = S.stale = true; } else adoptCloudEvent(r.id, r.name);
         save();
         coDlg.close(); if (openDlg.open) openDlg.close(); showView('editor'); toast('Opened ' + (r.name || 'layout') + '.');
         });
@@ -3406,6 +3827,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     bs.appendChild(open); bs.appendChild(del); row.appendChild(bs);
     return row;
+  }
+  function adoptCloudEvent(id, name) {
+    S.event.cid = id; S.event.cname = name || S.event.cname || ''; fileHandle = null;
+    cloudRef.__event = { id: id, kind: 'layout', name: S.event.cname };
+    recallHandle(id);
   }
   function openCloud() { closeMenu(); coDlg.showModal(); loadCloudList(); }
   var coPath = [], coRows = [];
@@ -3439,6 +3865,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     here.forEach(function (r) { list.appendChild(cloudRow(r)); });
     std.sort(function (a, b) { return (b.room === S.room) - (a.room === S.room) || (b.is_default ? 1 : 0) - (a.is_default ? 1 : 0); });
     sect('Standard layouts', std, 'None yet. Use Save as room standard in the editor menu.');
+    var ver = rows.filter(function (r) { return r.kind === 'version'; });
+    if (ver.length) { list.appendChild(dm('div', 'chead', 'Prior versions')); ver.forEach(function (r) { list.appendChild(cloudRow(r)); }); }
     list.appendChild(dm('div', 'chead', 'Drafts'));
     if (!drf.length) list.appendChild(dm('p', 'fine', 'None. Unsaved work is kept here until you delete it.'));
     else {
@@ -3674,7 +4102,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (!keys.length) return;
     meta = meta || {};
     S.event = { rooms: keys, name: meta.name || '', host: meta.host || '', date: vDate(meta.date), multi: false, endDate: '', notes: '', pos: null, locked: false, setRooms: [] };
-    S.dirty = false; S.stale = false; S.viaNext = false; setSaveInd('');
+    S.dirty = false; S.stale = false; S.viaNext = false; S.conflict = false; fileHandle = null; setSaveInd('');
     keys.forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
     leaveAll(); sel = null; multi = [];
@@ -4325,10 +4753,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     saveThen(function () { if (n) n(); });
   });
   /* Throw the open project away and go back to a blank start. */
-  function resetProject() {
+  function resetProject(keepDraft) {
     dropLocals();
     var dr = cloudRef.__draft;
-    if (dr) sb('DELETE', '?id=eq.' + encodeURIComponent(dr.id)).catch(function () {});
+    fileHandle = null; S.conflict = false;
+    if (dr && keepDraft !== true) sb('DELETE', '?id=eq.' + encodeURIComponent(dr.id)).catch(function () {});
     S.event = { rooms: sortRooms(visibleRooms()), name: '', host: '', date: '', multi: false, endDate: '', notes: '', pos: null, locked: false, setRooms: [] };
     Object.keys(ROOMS).forEach(function (k) { S.docs[k] = freshDoc(); delete hist[k]; });
     Object.keys(cloudRef).forEach(function (k) { delete cloudRef[k]; });
@@ -4690,7 +5119,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function ymdDate(v) { var a = v.split('-'); return new Date(+a[0], +a[1] - 1, +a[2]); }
   function todayStr() { return ymd(new Date()); }
   function evFromRow(r) {
-    var e = r.ev || (r.data && r.data.event) || null, d = r.data || {}, o = { id: r.id, name: (e && e.name) || r.name || 'Untitled event', author: r.author || '' };
+    var e = r.ev || (r.data && r.data.event) || null, d = r.data || {}, o = { id: r.id, name: (e && e.name) || r.name || 'Untitled event', rowName: r.name || '', updated: r.updated_at || '', author: r.author || '' };
     if (e) {
       o.start = vDate(e.date); o.host = String(e.host || '');
       o.end = e.multi && vDate(e.endDate) >= o.start ? vDate(e.endDate) : o.start;
@@ -4717,19 +5146,28 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
   }
   function evStatus(e) {
+    if (e.pending) return 'w';
     if (e.draft) return 'd';
     if (e.end < todayStr()) return 'x';
     var n = e.rooms.filter(function (k) { return e.set.indexOf(k) >= 0; }).length;
     return n === 0 ? 'r' : (n >= e.rooms.length ? 'g' : 'y');
   }
-  var EV_STATUS = { d: 'Draft, not saved yet', r: 'Nothing set yet', y: 'Partly set', g: 'All rooms set', x: 'Past event' };
+  var EV_STATUS = { w: 'Waiting to sync to the cloud', d: 'Draft, not saved yet', r: 'Nothing set yet', y: 'Partly set', g: 'All rooms set', x: 'Past event' };
   function rName(k) { return has(ROOMS, k) ? ROOMS[k].name : k; }
   function localDraft() {
     if (!hasWork() || !S.event.date || cloudRef.__event || cloudRef.__draft) return null;
     var e = S.event, end = e.multi && vDate(e.endDate) >= e.date ? e.endDate : e.date;
     return { id: '__local', name: eventLabel() || 'Untitled event', author: '', start: e.date, end: end, host: e.host || '', rooms: e.rooms.slice(), set: [], draft: true, local: true };
   }
-  function eventsOn(day) { return (evCache || []).concat(localDraft() || []).filter(function (e) { return e.start <= day && day <= e.end; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); }); }
+  function pendingEvents() {
+    return pendingList().map(function (it) {
+      var ev = it.row && it.row.data && it.row.data.event; if (!ev || !vDate(ev.date)) return null;
+      var end = ev.multi && vDate(ev.endDate) >= ev.date ? ev.endDate : ev.date;
+      return { id: it.cid, name: ev.name || leafName(it.row.name), author: it.row.author || '', start: ev.date, end: end, host: ev.host || '', rooms: Array.isArray(ev.rooms) ? ev.rooms : [], set: Array.isArray(ev.setRooms) ? ev.setRooms : [], pending: true };
+    }).filter(Boolean);
+  }
+  function calEvents() { var pe = pendingEvents(), ids = {}; pe.forEach(function (e) { ids[e.id] = 1; }); return (evCache || []).filter(function (e) { return !ids[e.id]; }).concat(pe); }
+  function eventsOn(day) { return calEvents().concat(localDraft() || []).filter(function (e) { return e.start <= day && day <= e.end; }).sort(function (a, b) { return a.start < b.start ? -1 : a.start > b.start ? 1 : (a.name < b.name ? -1 : 1); }); }
   function buildCalendar(force) {
     if (!calMonth) { var t = new Date(); calMonth = new Date(t.getFullYear(), t.getMonth(), 1); }
     $('calMsg').textContent = 'Loading...';
@@ -4780,6 +5218,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var range = e.end !== e.start ? ymdDate(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) + ' to ' + ymdDate(e.end).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '';
     info.appendChild(dm('div', 'sm', [EV_STATUS[st], e.host ? 'Host: ' + e.host : '', range, e.author].filter(Boolean).join(' · ')));
     head.appendChild(info);
+    if (e.pending) {
+      if (S.event.cid === e.id) head.appendChild(mkBtn('Open', 'btn primary', function () { showView('editor'); }));
+      head.appendChild(mkBtn('Sync now', 'btn', function () { $('calMsg').textContent = 'Syncing...'; flushPending().then(function () { evCache = null; buildCalendar(true); }); }));
+      card.appendChild(head); return card;
+    }
     if (e.draft) {
       head.appendChild(mkBtn(e.local ? 'Resume' : 'Open', 'btn primary', function () { openDraftRow(e); }));
       if (!e.local) head.appendChild(sureBtn('Delete draft', function () {
@@ -4824,7 +5267,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
   }
   function openDraftRow(e) {
-    if (e.local) { showView('editor'); return; }
+    if (e.local || (cloudRef.__draft && cloudRef.__draft.id === e.id && hasWork())) { showView('editor'); return; }
     guardDirty(function () {
       sb('GET', '?id=eq.' + encodeURIComponent(e.id) + '&select=data').then(function (rows) {
         if (!rows || !rows[0]) { toast('That draft is gone.'); return; }
@@ -4841,7 +5284,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         if (!rows || !rows[0]) { toast('That event is gone.'); return; }
         var err = applyLayout(JSON.stringify(rows[0].data));
         if (err) { toast(err); return; }
-        cloudRef.__event = { id: e.id, kind: 'layout', name: e.name }; save();
+        adoptCloudEvent(e.id, e.rowName || e.name); save();
         showView('editor');
         if (then) then(); else toast('Opened ' + e.name + '.');
       }, function (x) { toast(cloudMsg(x)); });
@@ -4945,23 +5388,96 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   applyPP();
   syncLP();
   setRoom(S.room);
+  if (FS_OK) idbGet('root').then(function (h) { if (h) fsRoot = h; syncFolderUI(); refreshNeedFile(); }, function () { syncFolderUI(); }); else syncFolderUI();
+  if (S.event.cid) { recallHandle(S.event.cid); if (pendGet()[S.event.cid]) setSaveInd('Saved on this computer. Not backed up to the cloud yet.'); }
+  setTimeout(flushPending, 2500);
 
   /* ---------- pages, theme, settings lists ---------- */
-  function syncResume() {
-    var on = hasWork(); $('goResume').hidden = !on;
-    if (on) $('resumeTxt').textContent = [eventLabel() || room().name, eventDateText(), S.dirty ? 'Not saved yet' : 'Saved'].filter(Boolean).join(' · ');
+  var prevView = 'home';
+  function localWorkRow() {
+    if (!hasWork() || S.event.cid || cloudRef.__event || cloudRef.__draft) return null;
+    var e = S.event, end = e.multi && vDate(e.endDate) >= e.date ? e.endDate : e.date;
+    return { id: '__local', name: eventLabel() || 'Untitled', author: '', start: e.date || '', end: end || '', host: e.host || '', rooms: e.rooms.slice(), set: [], draft: true, local: true };
   }
-  $('goResume').addEventListener('click', function () { showView('editor'); });
-  var VIEWS = { home: 'viewHome', calendar: 'viewCalendar', settings: 'viewSettings', rooms: 'viewRooms', tables: 'viewTables', editor: 'viewEditor' };
+  function refreshDraftCount() {
+    var t = $('draftsTxt');
+    sb('GET', '?kind=eq.draft&select=id&limit=200').then(function (rows) {
+      var n = (rows || []).length + (localWorkRow() ? 1 : 0);
+      t.textContent = n ? n + (n === 1 ? ' draft waiting.' : ' drafts waiting.') : 'Work in progress that is not saved as an event yet.';
+    }, function () {});
+  }
+  function syncHome() { refreshDraftCount(); refreshNeedFile(); }
+  function draftRow(e, repaint) {
+    var card = dm('div', 'evcard'), head = dm('div', 'evhead'), info = dm('div', 'sinfo');
+    info.appendChild(dm('div', 'sn', e.name));
+    var when = e.start ? ymdDate(e.start).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : 'No date';
+    info.appendChild(dm('div', 'sm', [e.local ? 'On this device, not backed up yet' : '', when, e.rooms.map(rName).join(', '), e.host ? 'Host: ' + e.host : '', e.author, e.updated ? fmtShort(e.updated) : ''].filter(Boolean).join(' · ')));
+    head.appendChild(info);
+    head.appendChild(mkBtn(e.local ? 'Resume' : 'Open', 'btn primary', function () { openDraftRow(e); }));
+    if (!e.local) head.appendChild(sureBtn('Delete draft', function () {
+      sb('DELETE', '?id=eq.' + encodeURIComponent(e.id)).then(function () {
+        evCache = null; if (cloudRef.__draft && cloudRef.__draft.id === e.id) delete cloudRef.__draft;
+        save(); repaint();
+      }, function (x) { $('draftMsg').textContent = cloudMsg(x); });
+    }));
+    card.appendChild(head);
+    return card;
+  }
+  function buildDrafts() {
+    var box = $('draftList'), msg = $('draftMsg'), foot = $('draftFoot');
+    box.replaceChildren(); foot.hidden = true; foot.replaceChildren(); msg.textContent = 'Loading...';
+    function paint(rows) {
+      box.replaceChildren(); foot.replaceChildren();
+      var loc = localWorkRow(), n = 0;
+      if (loc) { box.appendChild(draftRow(loc, buildDrafts)); n++; }
+      rows.forEach(function (r) { var e = evFromRow(r); e.id = r.id; e.draft = true; box.appendChild(draftRow(e, buildDrafts)); n++; });
+      if (!n) box.appendChild(dm('p', 'fine', 'No drafts. Work that is not saved as an event shows up here.'));
+      if (rows.length) {
+        foot.appendChild(sureBtn('Clear all drafts', function () {
+          sb('DELETE', '?kind=eq.draft').then(function () { delete cloudRef.__draft; evCache = null; save(); buildDrafts(); }, function (x) { msg.textContent = cloudMsg(x); });
+        }));
+        foot.hidden = false;
+      }
+    }
+    sb('GET', '?kind=eq.draft&select=id,name,author,room,updated_at,ev:data->event&order=updated_at.desc&limit=200').then(function (rows) { msg.textContent = ''; paint(rows || []); }, function (e) { msg.textContent = cloudMsg(e); paint([]); });
+  }
+  /* Close: back to wherever the editor was opened from, after asking what to do with unsaved work. */
+  var closeBack = 'home';
+  function closeEditor() {
+    var back = prevView && prevView !== 'editor' ? prevView : 'home';
+    var saved = !!(S.event.cid || cloudRef.__event), unsaved = S.dirty || (!saved && hasWork());
+    if (!unsaved) { showView(back, false, true); return; }
+    closeBack = back;
+    $('clDraft').hidden = saved;
+    $('clLead').textContent = saved ? 'This event has changes that are not saved.' : 'This event is not saved yet.';
+    $('closeDlg').showModal();
+  }
+  $('hdClose').addEventListener('click', closeEditor);
+  $('hdSave').addEventListener('click', doSave);
+  $('clCancel').addEventListener('click', function () { $('closeDlg').close(); });
+  $('clSave').addEventListener('click', function () { $('closeDlg').close(); saveThen(function () { showView(closeBack, false, true); }); });
+  $('clDraft').addEventListener('click', function () {
+    $('closeDlg').close();
+    saveDraft().then(function (ok) {
+      if (ok) { resetProject(true); toast('Saved to Draft Events.'); }
+      else toast('Could not reach the cloud. Kept on this device in Draft Events.');
+      showView(closeBack, false, true);
+    });
+  });
+  $('clDiscard').addEventListener('click', function () { $('closeDlg').close(); resetProject(); showView(closeBack, false, true); });
+
+  var VIEWS = { home: 'viewHome', calendar: 'viewCalendar', drafts: 'viewDrafts', settings: 'viewSettings', rooms: 'viewRooms', tables: 'viewTables', editor: 'viewEditor' };
   function showView(name, fromHash, noGuard) {
     if (!VIEWS[name]) name = 'home';
     if (!noGuard && curView === 'editor' && name !== 'editor' && S.dirty) {
       guardDirty(function () { showView(name, fromHash, true); }, resetProject, fromHash);
       return;
     }
+    if (name === 'editor' && curView !== 'editor') prevView = curView;
     Object.keys(VIEWS).forEach(function (k) { $(VIEWS[k]).hidden = k !== name; });
     curView = name;
-    if (name === 'home') syncResume();
+    if (name === 'home') syncHome();
+    if (name === 'drafts') buildDrafts();
     if (name === 'calendar') buildCalendar(true);
     if (name === 'rooms') { buildRoomSettings(); setCfgStatus(''); fetchConfig(); }
     if (name === 'tables') { buildTableSettings(); setCfgStatus(''); fetchConfig(); }
@@ -5010,10 +5526,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   if (window.launchQueue && window.launchQueue.setConsumer) {
     window.launchQueue.setConsumer(function (params) {
       if (!params || !params.files || !params.files.length) return;
-      params.files[0].getFile().then(function (f) {
+      var fh = params.files[0];
+      fh.getFile().then(function (f) {
         return f.text().then(function (t) {
           var err = applyLayout(t);
           showView('editor');
+          if (!err) { fileHandle = fh; rememberHandle(); checkCloudOnOpen(); }
           toast(err || ('Opened ' + f.name));
         });
       });
