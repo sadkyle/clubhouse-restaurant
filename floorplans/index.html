@@ -212,6 +212,11 @@ body.allv .palette, body.allv .rpanel, body.allv #lpToggle, body.allv #rpToggle,
 .rptab { flex: 1; padding: 7px 10px; font: 600 13px var(--font-ui); color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .rptab[aria-selected="true"] { color: var(--ink); border-color: var(--accent); background: var(--accent-soft); }
 .rpx { flex: none; }
+.rptitle { flex: 1; margin: 0; font-size: 15px; font-weight: 600; }
+#seatInput.atmax { color: var(--danger); font-weight: 600; }
+#labelInput.tnum { resize: none; min-height: 0; overflow: hidden; }
+.mi.delev { justify-content: flex-start; padding: 5px 10px; font-size: 12px; color: var(--danger); }
+.mi.delev:hover { background: none; text-decoration: underline; }
 .cathead { width: 100%; cursor: pointer; font: inherit; color: inherit; }
 .cathead .chev { width: 14px; height: 14px; transition: transform .2s ease; }
 .cathead[aria-expanded="true"] .chev { transform: rotate(90deg); }
@@ -262,7 +267,7 @@ body.allv .palette, body.allv .rpanel, body.allv #lpToggle, body.allv #rpToggle,
 .chair.dec { stroke: var(--accent); stroke-width: 1.5; fill: var(--accent-soft); }
 .chairback.dec { fill: var(--accent); opacity: .55; }
 .chg { pointer-events: none; }
-.table.cedit .chg { pointer-events: all; cursor: pointer; }
+.table.cedit .chg { pointer-events: all; cursor: grab; }
 .chg.ghostc .chair { fill: none; stroke: var(--muted); stroke-dasharray: 3 3; opacity: .8; }
 .chg.ghostc .chairback { display: none; }
 .sides4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
@@ -537,6 +542,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <button class="card" type="button" data-go="drafts"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 3.5h8l4 4V18.5H5zM13 3.5v4h4M8 11h6M8 14.5h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Draft Events</h2><p id="draftsTxt">Work in progress that is not saved as an event yet.</p></button>
     <button class="card" type="button" id="goNew"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 4v14M4 11h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>New</h2><p>Start an event or a single floor plan.</p></button>
     <button class="card" type="button" id="goLoad"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 15V4M6.5 8.5L11 4l4.5 4.5M4 15v3h14v-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Load</h2><p>Open a saved layout from this device.</p></button>
+    <button class="card installBtn" type="button" hidden><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M11 3.5v10M6.5 9.5L11 14l4.5-4.5M4.5 17.5h13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2>Install app</h2><p>Add Floor Plans to this computer.</p></button>
     <button class="card" type="button" data-go="settings"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 7h9M17 7h1M4 15h1M9 15h9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="15" cy="7" r="2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="15" r="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></span><h2>Settings</h2><p>Room sizes, standard layouts, and table sizes.</p></button>
   </div>
 </main>
@@ -547,6 +553,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     <button class="card" type="button" data-go="rooms"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M4 4h14v14H4zM4 11h6v7" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Room Settings</h2><p>Add, edit and arrange rooms, and manage standard layouts.</p></button>
     <button class="card" type="button" data-go="tables"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><circle cx="11" cy="11" r="5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 2.5v2M11 17.5v2M2.5 11h2M17.5 11h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span><h2>Table Settings</h2><p>Add and edit table sizes, shapes and defaults.</p></button>
     <button class="card" type="button" id="goFolder"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M3.5 6.5a1.5 1.5 0 011.5-1.5h4l2 2.5h6a1.5 1.5 0 011.5 1.5v7.5a1.5 1.5 0 01-1.5 1.5H5a1.5 1.5 0 01-1.5-1.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Floor plans folder</h2><p id="folderTxt"></p></button>
+    <button class="card" type="button" id="goNaming"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><path d="M5 3.5h8l4 4V18.5H5zM13 3.5v4h4M8 12h6M8 15h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg></span><h2>File naming</h2><p id="namingTxt"></p></button>
     <button class="card" type="button" id="goEmail"><span class="ci"><svg width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"><rect x="3" y="5" width="16" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3.5 6.5L11 12l7.5-5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span><h2>Email Text</h2><p>The wording used when you share a floor plan by email.</p></button>
   </div>
 </main>
@@ -617,27 +624,17 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="3" cy="9" r="1.7" fill="currentColor"/><circle cx="9" cy="9" r="1.7" fill="currentColor"/><circle cx="15" cy="9" r="1.7" fill="currentColor"/></svg>
         </button>
         <div class="menu" id="menu" hidden>
-          <button class="mi" id="newMenuBtn" type="button"><span>New</span></button>
-          <button class="mi" id="defaultBtn" type="button"><span>Load room default</span></button>
-          <button class="mi" id="openBtn" type="button"><span>Open file</span></button>
-          <button class="mi" id="cloudSaveBtn" type="button"><span>Save floor plan</span><kbd>Ctrl+S</kbd></button>
-          <button class="mi" id="saveBtn" type="button"><span>Download a copy</span></button>
-          <button class="mi" id="saveCopyBtn" type="button"><span>Save a copy as a new event</span></button>
-          <button class="mi" id="saveStdBtn" type="button"><span>Save as room standard</span></button>
-          <button class="mi installBtn" type="button" hidden><span>Install app</span></button>
-          <button class="mi" id="cloudOpenBtn" type="button"><span>Open from cloud</span></button>
+          <button class="mi" id="evSetBtn" type="button"><span>Event settings</span></button>
+          <hr>
           <button class="mi" id="printBtn" type="button"><span>Print</span></button>
           <button class="mi" id="pdfBtn" type="button"><span>Save as PDF</span></button>
           <button class="mi" id="shareBtn" type="button"><span>Share floor plan</span></button>
-          <button class="mi" id="printSetBtn" type="button"><span>Print settings</span></button>
           <hr>
-          <button class="mi" id="fixBtn" type="button" role="switch" aria-checked="false"><span>Edit room fixtures</span><span class="sw"></span></button>
-          <div class="mcap">Display</div>
-          <button class="mi" id="snapBtn" type="button" role="switch" aria-checked="true"><span>Snap to 6 in</span><span class="sw"></span></button>
-          <button class="mi" id="gridBtn" type="button" role="switch" aria-checked="false"><span>Show grid</span><span class="sw"></span></button>
-          <button class="mi" id="dimsBtn" type="button" role="switch" aria-checked="false"><span>Show room size</span><span class="sw"></span></button>
+          <button class="mi" id="layoutOptsBtn" type="button"><span>Layout editor options</span></button>
           <hr>
-          <button class="mi" id="clearBtn" type="button"><span>Clear layout</span></button>
+          <button class="mi" id="defaultBtn" type="button"><span>Reload default layout</span></button>
+          <button class="mi" id="clearBtn" type="button"><span>Clear room layout</span></button>
+          <button class="mi delev" id="delEvBtn" type="button"><span>Delete event</span></button>
         </div>
       </div>
     </div>
@@ -666,7 +663,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
           <input id="dateInput" class="datein" type="date" title="Event date (optional)">
           <button class="pill allonly" id="arrLock" type="button" role="switch" aria-checked="false" title="Lock the room arrangement"><span>Lock layout</span><span class="sw"></span></button>
           <button class="pill allonly" id="autoBtn" type="button" title="Go back to the automatic arrangement"><span>Auto-arrange</span></button>
-          <button class="pill" id="evSetBtn" type="button" title="Event title, host, date and rooms"><span>Event settings</span></button>
           <button class="pill" id="nextEvBtn" type="button" hidden title="Jump to the next scheduled event that uses this room"><span>Next event</span></button>
           <button class="pill" id="stdBackBtn" type="button" title="Start over from the standard layout" hidden><span>Back to standard</span></button>
         </div>
@@ -708,9 +704,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
     <aside class="rpanel" id="rightPanel" aria-label="Side panel" inert>
       <div class="inspector rpin">
-        <div class="rptabs" role="tablist">
-          <button class="rptab" id="rpTabTable" type="button" role="tab" aria-selected="true" aria-controls="rpTable">Table</button>
-          <button class="rptab" id="rpTabNotes" type="button" role="tab" aria-selected="false" aria-controls="rpNotes">Notes</button>
+        <div class="rptabs">
+          <h2 class="rptitle" id="rpTitle">Table</h2>
           <button class="btn rpx" id="rpClose" type="button" aria-label="Close panel" title="Close panel">Close</button>
         </div>
         <div id="rpTable" role="tabpanel">
@@ -732,7 +727,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
         <div id="blkTable">
           <div class="field">
-            <label for="labelInput">Label</label>
+            <label for="labelInput" id="labelLbl">Label</label>
             <textarea id="labelInput" maxlength="400" rows="2" autocomplete="off"></textarea>
           </div>
           <div class="field" id="seatField">
@@ -742,27 +737,19 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
               <input id="seatInput" type="number" min="0" step="1" inputmode="numeric">
               <button class="btn" id="seatPlus" type="button" aria-label="More seats">+</button>
             </div>
-            <span class="fine" id="seatMax"></span>
-          </div>
-          <div class="field" id="seatRotField">
-            <label for="seatRotInput">Seat ring rotation (degrees)</label>
-            <input id="seatRotInput" type="number" step="0.5" inputmode="decimal">
-          </div>
-          <div class="field" id="mvField" hidden>
-            <button class="btn full" id="mvBtn" type="button" aria-pressed="false">Move chairs</button>
-            <p class="fine" id="mvHint" hidden>Drag a chair to any side of the table. It snaps to that side and the chairs on it space out evenly. Change the seat count to start over.</p>
           </div>
           <div class="field" id="ceField">
             <button class="btn full" id="ceBtn" type="button" aria-expanded="false" aria-controls="ceWrap">Edit chairs</button>
             <div id="ceWrap" hidden style="margin-top:8px">
               <div class="seg" id="ceMode" role="group" aria-label="Click a chair to">
-                <button type="button" data-cm="x" aria-pressed="true">Hide</button>
+                <button type="button" data-cm="n" aria-pressed="true">Regular</button>
+                <button type="button" data-cm="x" aria-pressed="false">Hide</button>
                 <button type="button" data-cm="h" aria-pressed="false">High chair</button>
                 <button type="button" data-cm="d" aria-pressed="false">Decorative</button>
               </div>
-              <label class="chk2" style="margin-top:8px"><input type="checkbox" id="dcCount"><span>Decorative chairs count as seats</span></label>
+              <label class="chk2" id="ceCount" style="margin-top:8px" hidden><input type="checkbox" id="dcCount"><span id="ceCountTxt"></span></label>
               <button class="btn" id="ceReset" type="button" style="margin-top:6px">Reset chairs</button>
-              <p class="fine">Click a chair on the plan. Hidden chairs still count as seats.</p>
+              <p class="fine">Click a chair on the plan to apply the selected type. Drag a chair to another side to move it. On a round table, dragging a chair turns the whole ring.</p>
             </div>
           </div>
           <div class="field">
@@ -1043,6 +1030,33 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <h2 id="unsTitle">Save this event?</h2>
   <p class="lead">This event has changes since the last save.</p>
   <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Don't save</button><button class="btn primary" id="unsSave" type="button">Save event</button></div>
+</dialog>
+
+<dialog id="optsDlg" aria-labelledby="optsTitle">
+  <h2 id="optsTitle">Layout editor options</h2>
+  <div class="optsbox">
+    <button class="mi" id="snapBtn" type="button" role="switch" aria-checked="true"><span>Snap to 6 inches</span><span class="sw"></span></button>
+    <button class="mi" id="gridBtn" type="button" role="switch" aria-checked="false"><span>Show grid</span><span class="sw"></span></button>
+    <button class="mi" id="dimsBtn" type="button" role="switch" aria-checked="false"><span>Show room size</span><span class="sw"></span></button>
+  </div>
+  <div class="dlgfoot"><button class="btn primary" id="optsClose" type="button">Done</button></div>
+</dialog>
+
+<dialog id="delEvDlg" aria-labelledby="delEvTitle">
+  <h2 id="delEvTitle">Delete this event?</h2>
+  <p class="lead">This removes the cloud copy and any draft of it. It cannot be undone. A file on the H drive is not touched.</p>
+  <div class="err" id="delEvErr" role="alert"></div>
+  <div class="dlgfoot"><button class="btn" id="delEvNo" type="button">Cancel</button><button class="btn danger" id="delEvGo" type="button">Delete event</button></div>
+</dialog>
+
+<dialog id="namingDlg" aria-labelledby="nmTitle">
+  <h2 id="nmTitle">File naming</h2>
+  <p class="lead">How new events are filed in the floor plans folder. Use / to start a subfolder.</p>
+  <div class="field"><label for="nmFolder">Folder</label><input id="nmFolder" type="text" maxlength="120" autocomplete="off"></div>
+  <div class="field"><label for="nmFile">File name</label><input id="nmFile" type="text" maxlength="120" autocomplete="off"></div>
+  <p class="fine">Pieces: {yyyy} {year} {month} {mm} {dd} {date} {title} {host}. {mm} and {dd} are two digits, {month} is the full month name.</p>
+  <p class="fine" id="nmPrev"></p>
+  <div class="dlgfoot"><button class="btn" id="nmReset" type="button">Reset to default</button><button class="btn" id="nmCancel" type="button">Cancel</button><button class="btn primary" id="nmSave" type="button">Save</button></div>
 </dialog>
 
 <dialog id="closeDlg" aria-labelledby="clTitle">
@@ -1422,10 +1436,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function seatLabel(seats, hc) { return hc > 0 ? (seats - hc) + ' + ' + hc + ' HC' : seatWord(seats); }
   function chairCounts(t) {
     var T = tinfo(t);
-    var hc = 0, dc = 0, cs = t.cs || {};
-    Object.keys(cs).forEach(function (k) { if (+k < t.seats) { if (cs[k] === 'h') hc++; else if (cs[k] === 'd') dc++; } });
-    return { n: t.seats - (t.dcNo ? dc : 0), hc: hc };
+    var hc = 0, dc = 0, hid = 0, cs = t.cs || {};
+    Object.keys(cs).forEach(function (k) { if (+k < t.seats) { if (cs[k] === 'h') hc++; else if (cs[k] === 'd') dc++; else if (cs[k] === 'x') hid++; } });
+    return { n: t.seats - (t.dcNo ? dc : 0) - (t.hdNo ? hid : 0) - (t.hcNo ? hc : 0), hc: t.hcNo ? 0 : hc };
   }
+  function seatNum(n, hc) { return hc > 0 ? (n - hc) + ' + ' + hc + ' HC' : String(n); }
 
   /* ---------- state ---------- */
   var S = { room: 'bistro', snap: true, grid: false, dims: false, docs: {}, fix: {}, editFix: false, all: false, allVB: null,
@@ -1454,7 +1469,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var menuBtn = $('menuBtn'), menu = $('menu');
   var inspBody = $('inspBody'), inspTitle = $('inspTitle'), inspSub = $('inspSub');
   var blkTable = $('blkTable'), blkChairs = $('blkChairs'), blkShape = $('blkShape'), blkLine = $('blkLine'), blkText = $('blkText');
-  var guestInput = $('guestInput'), labelInput = $('labelInput'), seatField = $('seatField'), seatInput = $('seatInput'), seatMax = $('seatMax');
+  var guestInput = $('guestInput'), labelInput = $('labelInput'), seatField = $('seatField'), seatInput = $('seatInput');
   var seatMinus = $('seatMinus'), seatPlus = $('seatPlus');
   var chCount = $('chCount'), chLen = $('chLen'), chSpace = $('chSpace'), chWarn = $('chWarn'), chFlip = $('chFlip'), chCounts = $('chCounts');
   var wInput = $('wInput'), hInput = $('hInput'), fillRow = $('fillRow'), wtRow = $('wtRow');
@@ -1463,7 +1478,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   var openDlg = $('openDlg'), toastEl = $('toast');
   var notesBtn = $('notesBtn'), notesInput = $('notesInput');
   
-  var inspMulti = $('inspMulti'), mergeBtn = $('mergeBtn'), unmergeBtn = $('unmergeBtn'), seatRotField = $('seatRotField'), seatRotInput = $('seatRotInput'), dateInput = $('dateInput');
+  var inspMulti = $('inspMulti'), mergeBtn = $('mergeBtn'), unmergeBtn = $('unmergeBtn'), dateInput = $('dateInput');
 
   /* ---------- stats and text tokens ---------- */
   function stats(arr) {
@@ -1517,7 +1532,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     g.setAttribute('data-id', it.id); g.setAttribute('tabindex', '0'); g.setAttribute('role', 'button'); g.setAttribute('aria-label', label);
   }
 
-  var CE = { id: null, mode: 'x' }, MV = { id: null };
+  var CE = { id: null, mode: 'n' }, MV = { id: null };
   function tableNode(t, live) {
     var T = tinfo(t);
     var g = el('g', { 'class': 'item table' + (isSvc(T) ? ' svc' : '') + (live && isSel(t.id) ? ' sel' : ''), transform: 'translate(' + t.x + ' ' + t.y + ') rotate(' + t.rot + ')' });
@@ -1551,7 +1566,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     var fs = clamp(minD * 0.34, 9, 14);
     var tg = el('g', { transform: 'rotate(' + (-t.rot) + ')' }, g);
     var fit = fitLabel(isSvc(T) ? (t.label || T.short) : t.label, t, T, fs), nl = fit.lines.length;
-    var showSub = (!isSvc(T) || t.seats > 0) && minD >= 40 && t.seats > 0 && nl <= 1 && !fit.over.length;
+    var showSub = (!isSvc(T) || t.seats > 0) && t.seats > 0 && nl <= 1 && !fit.over.length;
     fs = fit.fs;
     fit.lines.forEach(function (ln, i) {
       var lab = el('text', { 'class': 'tlabel' + (isSvc(T) ? '' : ' num'), 'font-size': fs, y: nl > 1 ? (i - (nl - 1) / 2) * fs * 1.15 : (showSub ? -fs * 0.35 : 0) }, tg);
@@ -1559,8 +1574,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     if (!nl) el('text', { 'class': 'tlabel', 'font-size': fs, y: 0 }, tg).textContent = '';
     if (showSub) {
-      var sub = el('text', { 'class': 'tseats', 'font-size': fs * 0.62, y: fs * 0.75 }, tg);
-      sub.textContent = seatLabel(cc0.n, cc0.hc);
+      var sub = el('text', { 'class': 'tseats', 'font-size': fs * (minD < 40 ? 0.52 : 0.62), y: fs * (minD < 40 ? 0.7 : 0.75) }, tg);
+      sub.textContent = seatNum(cc0.n, cc0.hc);
     }
     return g;
   }
@@ -2038,6 +2053,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   function segLen(it) { return Math.hypot(it.x2 - it.x1, it.y2 - it.y1); }
 
+  var CNT_KEY = { x: 'hdNo', h: 'hcNo', d: 'dcNo' }, CNT_TXT = { x: 'Hidden chairs count as seats', h: 'High chairs count as seats', d: 'Decorative chairs count as seats' };
+  function fitLabelBox(svc) {
+    var e = labelInput;
+    if (svc) { e.classList.remove('tnum'); e.rows = 2; e.style.width = ''; e.style.height = ''; return; }
+    e.classList.add('tnum'); e.rows = 1;
+    var len = Math.max(e.value.split('\n').reduce(function (a, l) { return Math.max(a, l.length); }, 0), 6);
+    e.style.width = Math.min(len + 3, 34) + 'ch';
+    e.style.height = 'auto'; e.style.height = Math.max(e.scrollHeight, 30) + 'px';
+  }
   function syncInspector() {
     var it = sel ? byId(sel) : null;
     inspMulti.hidden = multi.length < 2;
@@ -2045,11 +2069,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (multi.length >= 2) { inspBody.hidden = true; syncMulti(); return; }
     inspBody.hidden = !it;
     if (!it) return;
-    unmergeBtn.hidden = true; seatRotField.hidden = true; $('grpInfo').hidden = true;
+    unmergeBtn.hidden = true; $('grpInfo').hidden = true;
     blkTable.hidden = it.kind !== 'table';
     (function () {
       var rf = $('rotField'), act = document.querySelector('#inspBody > .actions');
-      if (it.kind === 'table') { if (rf.previousElementSibling !== seatField) seatField.after(rf); }
+      if (it.kind === 'table') { if (rf.previousElementSibling !== $('ceField')) $('ceField').after(rf); }
       else if (rf.nextElementSibling !== act) act.before(rf);
     })();
     blkChairs.hidden = it.kind !== 'chairs';
@@ -2068,10 +2092,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         : isRound(T) ? inch(T.w) + ' diameter' : inch(T.h) + ' × ' + inch(T.w);
       unmergeBtn.hidden = !T.merged;
       $('grpInfo').hidden = !it.grp; if (it.grp) $('grpTxt').textContent = 'Grouped with ' + (grpMembers(it.grp).length - 1) + ' other table' + (grpMembers(it.grp).length === 2 ? '' : 's') + '.';
-      seatRotField.hidden = !(isRound(T) && mx > 0);
-      if (document.activeElement !== seatRotInput) seatRotInput.value = r2(it.seatRot || 0);
       if (document.activeElement !== labelInput) labelInput.value = it.label;
+      $('labelLbl').textContent = isSvc(T) ? 'Label' : 'Table number';
       labelInput.placeholder = isSvc(T) ? 'Optional' : 'Table number';
+      fitLabelBox(isSvc(T));
       var gh0 = gboxHost(it);
       if (document.activeElement !== guestInput) guestInput.value = gh0.guests || '';
       if (asgFor !== it.id) { asgFor = it.id; asgOpen = !!gh0.guests; }
@@ -2079,16 +2103,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       seatField.hidden = mx === 0;
       seatInput.max = mx;
       if (document.activeElement !== seatInput) seatInput.value = it.seats;
-      seatMax.textContent = 'Max ' + mx + ' chairs';
-      var canMv = canMoveChairs(it);
-      $('mvField').hidden = !canMv;
-      if (!canMv && MV.id === it.id) MV.id = null;
-      if (MV.id && MV.id !== it.id) { var oldMv = byId(MV.id); MV.id = null; if (oldMv) refreshItem(oldMv); }
-      $('mvBtn').setAttribute('aria-pressed', MV.id === it.id ? 'true' : 'false'); $('mvHint').hidden = MV.id !== it.id;
+      seatInput.classList.toggle('atmax', it.seats >= mx && mx > 0);
       $('ceField').hidden = isSvc(T) && !(it.seats > 0);
       if (CE.id && CE.id !== it.id) CE.id = null;
       $('ceWrap').hidden = CE.id !== it.id; $('ceBtn').setAttribute('aria-expanded', CE.id === it.id ? 'true' : 'false');
-      pressed($('ceMode'), 'data-cm', CE.mode); $('dcCount').checked = !it.dcNo;
+      pressed($('ceMode'), 'data-cm', CE.mode);
+      var ck = CNT_KEY[CE.mode];
+      $('ceCount').hidden = !ck;
+      if (ck) { $('ceCountTxt').textContent = CNT_TXT[CE.mode]; $('dcCount').checked = !it[ck]; }
       seatMinus.disabled = it.seats <= 0; seatPlus.disabled = it.seats >= mx;
     } else if (it.kind === 'chairs') {
       var len = segLen(it), sp = len / it.count;
@@ -2189,14 +2211,13 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     svg.classList.toggle('editfix', on);
     scroller.classList.toggle('editfix', on);
     $('fixPill').hidden = !on;
-    $('fixBtn').setAttribute('aria-checked', on ? 'true' : 'false');
     var tiles = document.querySelectorAll('.tile.tbl');
     for (var i = 0; i < tiles.length; i++) tiles[i].disabled = on;
     renderHandles(); syncInspector();
   }
 
   /* ---------- inspector wiring ---------- */
-  labelInput.addEventListener('input', function () { var t = byId(sel); if (!t) return; t.label = labelInput.value.slice(0, 400); refreshItem(t); });
+  labelInput.addEventListener('input', function () { var t = byId(sel); if (!t) return; t.label = labelInput.value.slice(0, 400); fitLabelBox(isSvc(tinfo(t))); refreshItem(t); });
   labelInput.addEventListener('change', commit);
   /* Move chairs: drag any chair to another side. It snaps there and that side re-spaces evenly. */
   var SIDE_ORDER = ['top', 'right', 'bottom', 'left'];
@@ -2244,44 +2265,34 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (Object.keys(cs).length) t.cs = cs; else delete t.cs;
     return true;
   }
-  $('mvBtn').addEventListener('click', function () {
-    var t = byId(sel); if (!t || t.kind !== 'table' || !canMoveChairs(t)) return;
-    var prev = MV.id; MV.id = MV.id === t.id ? null : t.id;
-    if (MV.id && CE.id) { var pc = byId(CE.id); CE.id = null; if (pc) refreshItem(pc); }
-    refreshItem(t); if (prev && prev !== t.id) { var pt = byId(prev); if (pt) refreshItem(pt); }
-    syncInspector();
-  });
   $('ceBtn').addEventListener('click', function () {
     var t = byId(sel); if (!t || t.kind !== 'table') return;
-    if (MV.id) { var pm = byId(MV.id); MV.id = null; if (pm) refreshItem(pm); }
     var prev = CE.id; CE.id = CE.id === t.id ? null : t.id;
     refreshItem(t); if (prev && prev !== t.id) { var pt = byId(prev); if (pt) refreshItem(pt); }
     syncInspector();
   });
-  $('ceMode').addEventListener('click', function (e) { var b = e.target.closest('button[data-cm]'); if (!b) return; CE.mode = b.getAttribute('data-cm'); pressed($('ceMode'), 'data-cm', CE.mode); });
-  $('dcCount').addEventListener('change', function () { var t = byId(sel); if (!t) return; if ($('dcCount').checked) delete t.dcNo; else t.dcNo = true; refreshItem(t); updateStats(); commit(); });
+  $('ceMode').addEventListener('click', function (e) { var b = e.target.closest('button[data-cm]'); if (!b) return; CE.mode = b.getAttribute('data-cm'); pressed($('ceMode'), 'data-cm', CE.mode); syncInspector(); });
+  $('dcCount').addEventListener('change', function () {
+    var t = byId(sel), k = CNT_KEY[CE.mode]; if (!t || !k) return;
+    if ($('dcCount').checked) delete t[k]; else t[k] = true;
+    refreshItem(t); updateStats(); commit();
+  });
   $('ceReset').addEventListener('click', function () { var t = byId(sel); if (!t) return; delete t.cs; refreshItem(t); updateStats(); commit(); });
   $('ctRow').addEventListener('click', function (e) {
     var b = e.target.closest('button[data-ct]'), it = byId(sel); if (!b || !it || it.kind !== 'chairs') return;
     it.ctype = b.getAttribute('data-ct'); if (it.ctype === 'h') it.counts = true;
     refreshItem(it); updateStats(); syncInspector(); commit();
   });
-  seatMinus.addEventListener('click', function () { var t = byId(sel); if (t) { setSeats(t, t.seats - 1); seatInput.value = t.seats; } });
-  seatPlus.addEventListener('click', function () { var t = byId(sel); if (t) { setSeats(t, t.seats + 1); seatInput.value = t.seats; } });
+  function seatRed(t) { seatInput.classList.toggle('atmax', t.seats > 0 && t.seats >= maxSeats(tinfo(t))); }
+  seatMinus.addEventListener('click', function () { var t = byId(sel); if (t) { setSeats(t, t.seats - 1); seatInput.value = t.seats; seatRed(t); } });
+  seatPlus.addEventListener('click', function () { var t = byId(sel); if (t) { setSeats(t, t.seats + 1); seatInput.value = t.seats; seatRed(t); } });
   seatInput.addEventListener('input', function () {
     var t = byId(sel), n = parseInt(seatInput.value, 10);
     if (!t || isNaN(n)) return;
     delete t.sides; t.seats = clamp(n, 0, maxSeats(tinfo(t))); refreshItem(t); updateStats();
-    seatMinus.disabled = t.seats <= 0; seatPlus.disabled = t.seats >= maxSeats(tinfo(t));
+    seatMinus.disabled = t.seats <= 0; seatPlus.disabled = t.seats >= maxSeats(tinfo(t)); seatRed(t);
   });
   seatInput.addEventListener('change', function () { var t = byId(sel); if (!t) return; seatInput.value = t.seats; commit(); });
-
-  seatRotInput.addEventListener('input', function () {
-    var t = byId(sel), v = parseFloat(seatRotInput.value);
-    if (!t || !isFinite(v)) return;
-    t.seatRot = norm(v); refreshItem(t);
-  });
-  seatRotInput.addEventListener('change', function () { var t = byId(sel); if (t) seatRotInput.value = r2(t.seatRot || 0); commit(); });
 
   function sizeField(input, prop) {
     input.addEventListener('input', function () {
@@ -2566,26 +2577,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       try { svg.setPointerCapture(e.pointerId); } catch (err) {}
       return;
     }
-    var mvc = MV.id && e.target.closest ? e.target.closest('.chg[data-ci]') : null;
-    if (mvc) {
-      var mt = byId(MV.id), mit = e.target.closest('.item');
-      if (mt && mit && mit.getAttribute('data-id') === mt.id) {
-        drag = { mode: 'chair', id: mt.id, ci: +mvc.getAttribute('data-ci'), node: mvc, lx: 0, ly: 0 };
-        mvc.classList.add('mvdrag');
-        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
-        svg.classList.add('dragging');
-        e.preventDefault();
-        return;
-      }
-    }
     var chg = CE.id && e.target.closest ? e.target.closest('.chg[data-ci]') : null;
     if (chg) {
-      var ct = byId(CE.id), ci = chg.getAttribute('data-ci');
-      if (ct && e.target.closest('.item') && e.target.closest('.item').getAttribute('data-id') === ct.id) {
-        ct.cs = ct.cs || {};
-        if (ct.cs[ci] === CE.mode) delete ct.cs[ci]; else ct.cs[ci] = CE.mode;
-        if (!Object.keys(ct.cs).length) delete ct.cs;
-        refreshItem(ct); updateStats(); commit();
+      var ct = byId(CE.id), cit = e.target.closest('.item');
+      if (ct && cit && cit.getAttribute('data-id') === ct.id) {
+        var pc0 = toWorld(e);
+        drag = { mode: 'chair', id: ct.id, ci: +chg.getAttribute('data-ci'), node: chg, lx: 0, ly: 0, sx: pc0.x, sy: pc0.y, moved: false };
+        try { svg.setPointerCapture(e.pointerId); } catch (err) {}
+        e.preventDefault();
         return;
       }
     }
@@ -2633,8 +2632,15 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     if (drag.mode === 'chair') {
       var ct2 = byId(drag.id); if (!ct2) return;
-      var lv2 = rotVec(p.x - ct2.x, p.y - ct2.y, -(ct2.rot || 0)), cur2 = drag.node.getAttribute('transform') || '', rm = /rotate\(([-\d.]+)\)/.exec(cur2);
-      drag.lx = lv2.x; drag.ly = lv2.y; drag.moved = true;
+      if (!drag.moved) { if (Math.hypot(p.x - drag.sx, p.y - drag.sy) < 6) return; drag.moved = true; svg.classList.add('dragging'); drag.node.classList.add('mvdrag'); }
+      var T2 = tinfo(ct2), lv2 = rotVec(p.x - ct2.x, p.y - ct2.y, -(ct2.rot || 0));
+      if (isRound(T2)) {
+        if (ct2.seats > 0) { ct2.seatRot = norm(Math.atan2(lv2.y, lv2.x) * 180 / Math.PI + 90 - drag.ci * 360 / ct2.seats); refreshItem(ct2); }
+        return;
+      }
+      if (!canMoveChairs(ct2)) return;
+      var cur2 = drag.node.getAttribute('transform') || '', rm = /rotate\(([-\d.]+)\)/.exec(cur2);
+      drag.lx = lv2.x; drag.ly = lv2.y;
       drag.node.setAttribute('transform', 'translate(' + lv2.x.toFixed(2) + ' ' + lv2.y.toFixed(2) + ') rotate(' + (rm ? rm[1] : 0) + ')');
       return;
     }
@@ -2721,12 +2727,23 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     svg.classList.remove('dragging');
     if (d.mode === 'marquee') { finishMarquee(d); return; }
     if (d.mode === 'chair') {
-      var ct3 = byId(d.id);
-      if (ct3 && d.moved) {
-        var T3 = tinfo(ct3);
-        moveChair(ct3, d.ci, nearestSide(T3, d.lx, d.ly), d.lx, d.ly);
-        refreshItem(ct3);
+      var ct3 = byId(d.id), ch3 = false;
+      if (ct3) {
+        var T3 = tinfo(ct3), before3 = JSON.stringify([ct3.cs || null, ct3.sides || null, ct3.seatRot || 0]);
+        if (!d.moved) {
+          ct3.cs = ct3.cs || {};
+          if (CE.mode === 'n') delete ct3.cs[d.ci];
+          else if (ct3.cs[d.ci] === CE.mode) delete ct3.cs[d.ci]; else ct3.cs[d.ci] = CE.mode;
+          if (!Object.keys(ct3.cs).length) delete ct3.cs;
+          refreshItem(ct3);
+        } else if (!isRound(T3) && canMoveChairs(ct3)) {
+          moveChair(ct3, d.ci, nearestSide(T3, d.lx, d.ly), d.lx, d.ly);
+          refreshItem(ct3);
+        } else refreshItem(ct3);
+        ch3 = (d.moved && isRound(T3)) || before3 !== JSON.stringify([ct3.cs || null, ct3.sides || null, ct3.seatRot || 0]);
       }
+      syncInspector();
+      if (!ch3) return;
     }
     syncInspector();
     updateStats();
@@ -2894,14 +2911,27 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   $('snapBtn').addEventListener('click', function () { S.snap = !S.snap; applyDisplay(); save(); });
   $('gridBtn').addEventListener('click', function () { S.grid = !S.grid; applyDisplay(); save(); });
   $('dimsBtn').addEventListener('click', function () { S.dims = !S.dims; applyDisplay(); save(); });
-  $('fixBtn').addEventListener('click', function () {
-    setEditFix(!S.editFix);
-    toast(S.editFix ? 'Editing room fixtures. Add shapes, lines, or text; they show on every layout.' : 'Back to the layout.');
-  });
+  $('layoutOptsBtn').addEventListener('click', function () { closeMenu(); $('optsDlg').showModal(); });
+  $('optsClose').addEventListener('click', function () { $('optsDlg').close(); });
+  function delEventNow() {
+    var c = S.event.cid || (cloudRef.__event && cloudRef.__event.id), dr = cloudRef.__draft && cloudRef.__draft.id, jobs = [];
+    if (c) jobs.push(sb('DELETE', '?id=eq.' + encodeURIComponent(c)));
+    if (dr && dr !== c) jobs.push(sb('DELETE', '?id=eq.' + encodeURIComponent(dr)));
+    $('delEvGo').disabled = true; $('delEvErr').textContent = 'Deleting...';
+    Promise.all(jobs).then(function () {
+      if (c) removePending(c);
+      $('delEvGo').disabled = false; $('delEvDlg').close();
+      resetProject(true); showView('home', false, true);
+      toast('Event deleted. A file on the H drive is not touched.');
+    }, function (e) { $('delEvGo').disabled = false; $('delEvErr').textContent = cloudMsg(e); });
+  }
+  $('delEvBtn').addEventListener('click', function () { closeMenu(); $('delEvErr').textContent = ''; $('delEvGo').disabled = false; $('delEvDlg').showModal(); });
+  $('delEvNo').addEventListener('click', function () { $('delEvDlg').close(); });
+  $('delEvGo').addEventListener('click', delEventNow);
   $('clearBtn').addEventListener('click', function () {
     closeMenu();
     doc().items = []; sel = null; multi = []; render(); syncInspector(); commit();
-    toast('Layout cleared. Room fixtures stay. Undo brings it back.');
+    toast('Room layout cleared. Room fixtures stay. Undo brings it back.');
   });
   undoBtn.addEventListener('click', undo);
   redoBtn.addEventListener('click', redo);
@@ -2953,6 +2983,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (Object.keys(cs).length) dst.cs = cs;
     }
     if (o.dcNo) dst.dcNo = true;
+    if (o.hdNo) dst.hdNo = true;
+    if (o.hcNo) dst.hcNo = true;
     if (typeof o.grp === 'string' && /^[a-z0-9]{3,12}$/.test(o.grp)) dst.grp = o.grp;
   }
   function gbClean(dst, o) {
@@ -3145,14 +3177,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     return '';
   }
 
-  $('saveBtn').addEventListener('click', function () { closeMenu(); saveFile(); });
   function openLoad() {
     closeMenu(); $('openErr').textContent = ''; $('fileInput').value = '';
     $('openFs').hidden = !FS_OK; $('openPlain').hidden = FS_OK;
     if (FS_OK) { ofPath = []; renderBrowse(); }
     openDlg.showModal();
   }
-  $('openBtn').addEventListener('click', openLoad);
   $('goLoad').addEventListener('click', openLoad);
   $('openCancel').addEventListener('click', function () { openDlg.close(); });
   $('fileInput').addEventListener('change', function () {
@@ -3187,11 +3217,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       PP[k] = $(PP_IDS[k]).checked; applyPP();
       try { localStorage.setItem(PRINT_KEY, JSON.stringify(PP)); } catch (e) {}
     });
-  });
-  $('printSetBtn').addEventListener('click', function () {
-    closeMenu();
-    Object.keys(PP_IDS).forEach(function (k) { $(PP_IDS[k]).checked = PP[k]; });
-    $('printDlg').showModal();
   });
   $('ppClose').addEventListener('click', function () { $('printDlg').close(); });
   $('ppPrint').addEventListener('click', function () { $('printDlg').close(); doPrint(); });
@@ -3282,7 +3307,26 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function authorName() { try { return localStorage.getItem(AUTHOR_KEY) || ''; } catch (e) { return ''; } }
   function eventLabel() { return S.event.name || (S.docs[S.event.rooms[0]] && S.docs[S.event.rooms[0]].name) || ''; }
   function hasWork() { return !!(S.event.name || S.event.date || S.event.rooms.some(function (k) { return !S.docs[k].fresh || !!S.docs[k].name; })); }
-  function layoutRow(kind, name) { return { kind: kind, room: S.event.rooms.join(','), name: name, author: authorName(), data: payload(), updated_at: new Date().toISOString() }; }
+  function stripStdNotes(data) {
+    var ch = false;
+    if (!data || typeof data !== 'object') return false;
+    if (data.notes) { data.notes = ''; ch = true; }
+    if (data.showNotes) { data.showNotes = false; ch = true; }
+    if (data.event && data.event.notes) { data.event.notes = ''; ch = true; }
+    if (data.rooms && typeof data.rooms === 'object') Object.keys(data.rooms).forEach(function (k) { var r = data.rooms[k]; if (r && (r.notes || r.showNotes)) { r.notes = ''; r.showNotes = false; ch = true; } });
+    return ch;
+  }
+  function layoutRow(kind, name) { var d = payload(); if (kind === 'standard') stripStdNotes(d); return { kind: kind, room: S.event.rooms.join(','), name: name, author: authorName(), data: d, updated_at: new Date().toISOString() }; }
+  /* One-time clean-up: standard layouts never carry notes. */
+  function scrubStandards() {
+    var KEY = 'applebrook-std-scrub-v1';
+    try { if (localStorage.getItem(KEY)) return; } catch (e) {}
+    sb('GET', '?kind=eq.standard&select=id,data').then(function (rows) {
+      var jobs = [];
+      (rows || []).forEach(function (r) { if (stripStdNotes(r.data)) jobs.push(sb('PATCH', '?id=eq.' + encodeURIComponent(r.id), { data: r.data }, 'return=minimal')); });
+      return Promise.all(jobs);
+    }).then(function () { try { localStorage.setItem(KEY, '1'); } catch (e) {} }, function () {});
+  }
   function failInd(e) { setSaveInd(e instanceof TypeError ? 'Offline, will retry' : 'Save failed, will retry'); }
   /* ---------- H drive: files on this computer are the master, the cloud holds the backup ---------- */
   var FS_OK = !!(window.showDirectoryPicker && window.showOpenFilePicker && window.indexedDB);
@@ -3524,7 +3568,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       $('cfLead').textContent = (mode === 'open'
         ? 'The cloud copy has newer changes than this file (' + who + '). '
         : 'The cloud copy changed after this file was last saved (' + who + '). ')
-        + 'Pick the version to keep. The other one is stored as a prior version in Open from cloud, so nothing is lost.';
+        + 'Pick the version to keep. The other one is stored as a prior version, so nothing is lost.';
       $('cfErr').textContent = ''; $('cfMine').disabled = false; $('cfCloud').disabled = false;
       $('cfCancel').textContent = mode === 'open' ? 'Decide later' : 'Cancel';
       cfDlg.showModal();
@@ -3635,8 +3679,44 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     return out;
   }
-  function defaultFile(title, date) { return cleanSeg((date ? date + ' ' : '') + title); }
-  function defaultFolder(date) { return date ? [date.slice(0, 4), date] : ['Floor plans']; }
+  var NAMING_KEY = 'applebrook-naming-v1', NAMING_DEF = { folder: '{year}/{month} {year}', file: '{mm}.{dd}.{yyyy} {title}' };
+  var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  function naming() {
+    try { var o = JSON.parse(localStorage.getItem(NAMING_KEY)); if (o && typeof o.folder === 'string' && typeof o.file === 'string' && o.file.trim()) return o; } catch (e) {}
+    return NAMING_DEF;
+  }
+  function fillName(pat, date, title, host) {
+    var y = date ? date.slice(0, 4) : '', m = date ? date.slice(5, 7) : '', d = date ? date.slice(8, 10) : '';
+    var map = { yyyy: y, year: y, mm: m, dd: d, month: date ? MONTHS[+m - 1] || '' : '', date: date || '', title: title || '', host: host || '' };
+    return pat.replace(/\{(\w+)\}/g, function (_, k) { return map[k] == null ? '' : map[k]; });
+  }
+  function defaultFile(title, date, host) {
+    if (!date) return cleanSeg(title);
+    var n = cleanSeg(fillName(naming().file, date, title, host == null ? S.event.host : host));
+    return n || cleanSeg(title);
+  }
+  function defaultFolder(date) {
+    if (!date) return ['Floor plans'];
+    var segs = fillName(naming().folder, date, '', '').split('/').map(cleanSeg).filter(Boolean);
+    return segs.length ? segs : ['Floor plans'];
+  }
+  function namingPreview() {
+    var keep = localStorage.getItem(NAMING_KEY);
+    try { localStorage.setItem(NAMING_KEY, JSON.stringify({ folder: $('nmFolder').value, file: $('nmFile').value || NAMING_DEF.file })); } catch (e) {}
+    var txt = defaultFolder('2026-04-15').join('/') + '/' + defaultFile('Smith Wedding', '2026-04-15', 'Smith') + '.floorplan';
+    try { if (keep == null) localStorage.removeItem(NAMING_KEY); else localStorage.setItem(NAMING_KEY, keep); } catch (e) {}
+    $('nmPrev').textContent = 'Example: ' + txt;
+  }
+  function syncNamingUI() { $('namingTxt').textContent = defaultFolder('2026-04-15').join('/') + '/' + defaultFile('Event Title', '2026-04-15', '') ; }
+  $('goNaming').addEventListener('click', function () { var n = naming(); $('nmFolder').value = n.folder; $('nmFile').value = n.file; namingPreview(); $('namingDlg').showModal(); });
+  $('nmFolder').addEventListener('input', namingPreview);
+  $('nmFile').addEventListener('input', namingPreview);
+  $('nmCancel').addEventListener('click', function () { $('namingDlg').close(); });
+  $('nmReset').addEventListener('click', function () { $('nmFolder').value = NAMING_DEF.folder; $('nmFile').value = NAMING_DEF.file; namingPreview(); });
+  $('nmSave').addEventListener('click', function () {
+    try { localStorage.setItem(NAMING_KEY, JSON.stringify({ folder: $('nmFolder').value.trim(), file: $('nmFile').value.trim() || NAMING_DEF.file })); } catch (e) {}
+    $('namingDlg').close(); syncNamingUI(); toast('File naming saved. It applies to events saved from now on.');
+  });
   function renderLoc() {
     var cr = $('csCrumbs'), fl = $('csFolders'); cr.replaceChildren(); fl.replaceChildren();
     cr.appendChild(mkBtn('Cloud', 'btn crumb', function () { csFolder = []; csFolderTouched = true; renderLoc(); }));
@@ -3658,7 +3738,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function csNameDefault() {
     if (csNameTouched) return;
-    $('csName').value = defaultFile($('csEvTitle').value.trim() || 'Untitled', vDate($('csDate').value));
+    $('csName').value = defaultFile($('csEvTitle').value.trim() || 'Untitled', vDate($('csDate').value), $('csHost').value.trim());
   }
   function openSaveDlg(copy, mode, after) {
     csCopy = !!copy; csMode = mode === 'std' ? 'std' : 'event'; csAfter = after || null;
@@ -3732,13 +3812,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       csDlg.close(); toast(saveToast(r)); if (after) after();
     });
   }
-  $('cloudSaveBtn').addEventListener('click', function () { closeMenu(); doSave(); });
-  $('saveCopyBtn').addEventListener('click', function () { closeMenu(); openSaveDlg(true, 'event'); });
-  $('saveStdBtn').addEventListener('click', function () {
-    closeMenu();
-    if (S.all) { toast('Pick a room first.'); return; }
-    openSaveDlg(false, 'std');
-  });
   $('csCancel').addEventListener('click', function () { csAfter = null; csDlg.close(); });
   csDlg.addEventListener('close', function () { csAfter = null; });
   $('csGo').addEventListener('click', function () {
@@ -3877,12 +3950,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       cb.style.margin = '8px 10px'; list.appendChild(cb);
     }
   }
-  $('cloudOpenBtn').addEventListener('click', openCloud);
   $('defaultBtn').addEventListener('click', function () {
     closeMenu();
     sb('GET', '?kind=eq.standard&is_default=eq.true&room=eq.' + encodeURIComponent(S.room) + '&select=id,name,data&limit=1').then(function (rows) {
-      if (!rows || !rows.length) { toast('No default set for ' + room().name + '. Open from cloud and press Make default.'); return; }
-      var err = applyLayout(JSON.stringify(rows[0].data));
+      if (!rows || !rows.length) { toast('No default layout is set for ' + room().name + '.'); return; }
+      var dd = rows[0].data || {}; stripStdNotes(dd); dd.notes = doc().notes; dd.showNotes = doc().showNotes;
+      var err = applyLayout(JSON.stringify(dd));
       if (err) { toast(err); return; }
       cloudRef[S.room] = { id: rows[0].id, kind: 'standard', name: rows[0].name };
       toast('Loaded the default layout. Undo brings your last one back.');
@@ -3894,6 +3967,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       rows.forEach(function (r) {
         var d = S.docs[r.room];
         if (!d || !d.fresh || !ROOMS[r.room] || !r.data || !Array.isArray(r.data.items)) return;
+        stripStdNotes(r.data);
         var cd = cleanDoc(r.data); cd.fresh = true; if (d.name) cd.name = d.name; S.docs[r.room] = cd;
         if (Array.isArray(r.data.fixtures) && !S.fix[r.room].length) S.fix[r.room] = cleanItems(r.data.fixtures, true);
         cloudRef[r.room] = { id: r.id, kind: 'standard', name: r.name };
@@ -4122,7 +4196,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
   });
   $('goNew').addEventListener('click', openChoose);
-  $('newMenuBtn').addEventListener('click', openChoose);
   $('chooseEvent').addEventListener('click', function () { $('chooseDlg').close(); openNew('event'); });
   $('choosePlan').addEventListener('click', function () { $('chooseDlg').close(); openNew('plan'); });
   $('chooseCancel').addEventListener('click', function () { $('chooseDlg').close(); });
@@ -4684,6 +4757,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
 
   /* ---------- Event settings ---------- */
   function openEvDlg() {
+    closeMenu();
     var e = S.event;
     $('evTitle').value = e.name; $('evHost').value = e.host || ''; $('evDate').value = e.date;
     $('evMulti').checked = e.multi; $('evEnd').value = e.endDate; evMultiSync();
@@ -5323,11 +5397,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     rpEl.inert = !open;
     $('rpToggle').setAttribute('aria-expanded', open ? 'true' : 'false');
     $('notesBtn').setAttribute('aria-expanded', open && rpTab === 'notes' ? 'true' : 'false');
-    [['table', 'rpTabTable', 'rpTable'], ['notes', 'rpTabNotes', 'rpNotes']].forEach(function (t) {
-      var on = rpTab === t[0];
-      $(t[1]).setAttribute('aria-selected', on ? 'true' : 'false'); $(t[1]).tabIndex = on ? 0 : -1;
-      $(t[2]).hidden = !on;
-    });
+    $('rpTitle').textContent = rpTab === 'notes' ? 'Notes' : 'Table';
+    $('rpTable').hidden = rpTab !== 'table'; $('rpNotes').hidden = rpTab !== 'notes';
   }
   function setRP(open, tab) {
     if (tab) rpTab = tab;
@@ -5343,8 +5414,6 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   $('lpToggle').addEventListener('click', function () { UI.lcol = !UI.lcol; saveUI(); syncLP(); });
   $('rpToggle').addEventListener('click', function () { setRP(!workEl.classList.contains('rpan')); });
   $('rpClose').addEventListener('click', function () { setRP(false); });
-  $('rpTabTable').addEventListener('click', function () { setRP(true, 'table'); });
-  $('rpTabNotes').addEventListener('click', function () { setRP(true, 'notes'); });
   $('notesBtn').addEventListener('click', function () {
     if (workEl.classList.contains('rpan') && rpTab === 'notes') setRP(false);
     else { setRP(true, 'notes'); }
@@ -5391,6 +5460,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   if (FS_OK) idbGet('root').then(function (h) { if (h) fsRoot = h; syncFolderUI(); refreshNeedFile(); }, function () { syncFolderUI(); }); else syncFolderUI();
   if (S.event.cid) { recallHandle(S.event.cid); if (pendGet()[S.event.cid]) setSaveInd('Saved on this computer. Not backed up to the cloud yet.'); }
   setTimeout(flushPending, 2500);
+  setTimeout(scrubStandards, 4000);
+  syncNamingUI();
 
   /* ---------- pages, theme, settings lists ---------- */
   var prevView = 'home';
