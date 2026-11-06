@@ -412,6 +412,12 @@ body.pdfmode { --bg: #fff; --panel: #fff; --ink: #111; --muted: #444; --line: #b
 .evroom .btn { padding: 5px 10px; font-size: 13px; }
 .btn.isset { background: #3d8b63; color: #fff; border-color: #3d8b63; }
 .calnew { margin-top: 2px; }
+.calwrap { display: grid; gap: 16px; }
+@media (min-width: 900px) { .page#viewCalendar { max-width: 1280px; } .calwrap { grid-template-columns: 2fr 1fr; align-items: start; } .calday { position: sticky; top: 12px; } }
+.evitem { display: grid; gap: 8px; }
+.evrow { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; font: inherit; color: inherit; cursor: pointer; }
+.evrow:hover, .evrow[aria-expanded="true"] { border-color: var(--accent); }
+.evrow .sinfo { min-width: 0; flex: 1; }
 @media (max-width: 600px) { .calc { min-height: 58px; padding: 5px; } .calbar h2 { min-width: 0; flex: 1; } }
 .wall { stroke-linejoin: round; }
 .seg { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -569,8 +575,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <header class="phead"><div class="l"><button class="btn" type="button" data-go="home">&larr; Back</button><h1 class="ptitle">Club Events Calendar</h1></div><button class="iconbtn themeBtn" type="button"></button></header>
   <div class="calbar"><button class="btn" id="calPrev" type="button" aria-label="Previous month">&larr;</button><h2 id="calTitle"></h2><button class="btn" id="calNext" type="button" aria-label="Next month">&rarr;</button><button class="btn" id="calToday" type="button">Today</button></div>
   <p class="fine" id="calMsg" role="status"></p>
-  <div class="calgrid" id="calGrid"></div>
-  <div class="calday" id="calDay"></div>
+  <div class="calwrap"><div class="calgrid" id="calGrid"></div>
+  <aside class="calday" id="calDay" aria-live="polite"></aside></div>
 </main>
 
 <main class="page" id="viewDrafts" hidden>
@@ -913,14 +919,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       </div>
       <p class="fine" id="csRooms" style="margin:0 0 4px"></p>
     </div>
-    <div class="field" style="margin:0"><label for="csName" id="csNameL">File name</label><input id="csName" type="text" maxlength="80" autocomplete="off"></div>
+    <div class="field" id="csNameF" style="margin:0"><label for="csName" id="csNameL">File name</label><input id="csName" type="text" maxlength="80" autocomplete="off"></div>
     <div class="field" id="csLoc" style="margin:0">
       <span class="lbl">Save in</span>
       <div class="crumbs" id="csCrumbs"></div>
       <div class="folders" id="csFolders"></div>
       <div class="newf"><input id="csNewF" type="text" maxlength="60" placeholder="New folder name" autocomplete="off"><button class="btn" id="csNewFBtn" type="button">Add folder</button></div>
     </div>
-    <div class="field" style="margin:0"><label for="csAuthor">Your name</label><input id="csAuthor" type="text" maxlength="40" autocomplete="off"></div>
+    <div class="field" id="csAuthorF" style="margin:0" hidden><label for="csAuthor">Your name</label><input id="csAuthor" type="text" maxlength="40" autocomplete="off"></div>
     <label class="chk2" id="csReplaceRow" hidden><input type="checkbox" id="csReplace"><span id="csReplaceTxt">Replace the saved copy</span></label>
     <div class="err" id="csErr" role="alert"></div>
   </div>
@@ -1064,6 +1070,11 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <p class="fine">Pieces: {yyyy} {year} {month} {m} {d} {mm} {dd} {date} {title} {host}. {m} and {d} have no leading zero (4.5.2026), {mm} and {dd} are two digits, {month} is the full month name.</p>
   <p class="fine" id="nmPrev"></p>
   <div class="dlgfoot"><button class="btn" id="nmReset" type="button">Reset to default</button><button class="btn" id="nmCancel" type="button">Cancel</button><button class="btn primary" id="nmSave" type="button">Save</button></div>
+</dialog>
+
+<dialog id="setDlg" aria-labelledby="sdTitle">
+  <h2 id="sdTitle">Is the room fully set?</h2>
+  <div class="dlgfoot"><button class="btn" id="sdCancel" type="button">Cancel</button><button class="btn primary" id="sdYes" type="button">Yes</button></div>
 </dialog>
 
 <dialog id="closeDlg" aria-labelledby="clTitle">
@@ -3651,8 +3662,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }).then(function (r) { saving = false; return r; }, function () { saving = false; return 'fail'; });
   }
   function saveToast(r) {
-    if (r === 'queued') return 'Saved on this computer. The cloud backup sends when you are back online.';
-    if (lastWrote) return 'Saved to your H drive and the cloud.';
+    if (r === 'queued') return 'File saved. The cloud backup sends when you are back online.';
+    if (lastWrote) return 'File saved and backed up to cloud.';
     if (FS_OK && !fsRoot) return 'Saved to the cloud. Set your floor plans folder in Settings to save files too.';
     return FS_OK ? 'Saved to the cloud. It still needs saving to your H drive.' : 'Saved to the cloud.';
   }
@@ -3865,7 +3876,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     csNameTouched = false; csFolderTouched = false; csIndex = [];
     var std = csMode === 'std', many = S.event.rooms.length > 1;
     $('csTitle').textContent = std ? 'Save as room standard' : (copy ? 'Save a copy' : 'Save event');
-    hide($('csEvFields'), std); hide($('csLoc'), std);
+    hide($('csEvFields'), std); hide($('csLoc'), true); hide($('csNameF'), !std);
     $('csNameL').textContent = std ? 'Standard name' : 'File name';
     $('csAuthor').value = authorName();
     $('csErr').textContent = '';
@@ -3875,7 +3886,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       var title = S.event.name || (!many && !S.event.date ? doc().name : '');
       $('csEvTitle').value = title; $('csHost').value = S.event.host || ''; $('csDate').value = S.event.date || '';
       $('csDate').required = !!S.event.date;
-      $('csRooms').textContent = 'Rooms: ' + S.event.rooms.map(function (k) { return ROOMS[k].name; }).join(', ') + '. Change them in Event settings.';
+      $('csRooms').textContent = 'Rooms: ' + S.event.rooms.map(function (k) { return ROOMS[k].name; }).join(', ') + '';
       var ref = copy ? null : cloudRef.__event;
       $('csName').value = ref ? leafName(ref.name) : defaultFile(title || 'Untitled', S.event.date);
       csNameTouched = !!ref;
@@ -3911,6 +3922,29 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     openSaveDlg(false, 'event', cb);
   }
+  /* The real file picker, opened on the proposed month folder with the proposed name filled in. */
+  function pickSaveFile(fname, rel) {
+    if (!FS_OK || !window.showSaveFilePicker || fileHandle) return Promise.resolve(null);
+    var start = Promise.resolve(null);
+    if (fsRoot) start = askPerm(fsRoot, true).then(function (p) {
+      if (p !== 'granted') return fsRoot;
+      var d = fsRoot, chain = Promise.resolve();
+      rel.map(fsName).forEach(function (seg) { chain = chain.then(function () { return d.getDirectoryHandle(seg, { create: true }).then(function (n) { d = n; }); }); });
+      return chain.then(function () { return d; });
+    }).catch(function () { return fsRoot; });
+    return start.then(function (dir) {
+      var opts = { suggestedName: fsName(fname) + '.floorplan', types: [{ description: 'Floor plan', accept: { 'application/json': ['.floorplan'] } }] };
+      if (dir) opts.startIn = dir;
+      return window.showSaveFilePicker(opts);
+    }).then(function (h) {
+      var leaf = String(h.name || fname).replace(/\.floorplan$/i, '');
+      var relP = fsRoot && fsRoot.resolve ? fsRoot.resolve(h).catch(function () { return null; }) : Promise.resolve(null);
+      return relP.then(function (parts) {
+        return { h: h, leaf: leaf, rel: parts && parts.length ? parts.slice(0, -1) : rel_default() };
+      });
+    }, function (e) { return (e && e.name === 'AbortError') ? 'cancel' : null; });
+    function rel_default() { return csFolder.map(cleanSeg).filter(Boolean); }
+  }
   /* First save of an event (or a copy): pick the title, folder and file name, then save like any other save. */
   function csEventGo(author, fname, title, host, date, many) {
     var ref = csCopy ? null : cloudRef.__event, conv = (!cloudRef.__event && cloudRef.__draft) ? cloudRef.__draft : null;
@@ -3923,8 +3957,16 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (S.event.cid && S.event.cid !== cid) { fileHandle = null; S.event.sync = ''; }
     if (!S.event.cid) S.event.sync = '';
     S.event.cid = cid; S.event.cname = full; S.event.needsFile = false;
-    $('csGo').disabled = true; $('csErr').textContent = 'Saving...';
-    runSave({ create: !conv && !useRef }).then(function (r) {
+    $('csGo').disabled = true; $('csErr').textContent = '';
+    pickSaveFile(fname, rel).then(function (picked) {
+      if (picked === 'cancel') { $('csGo').disabled = false; return 'cancel'; }
+      if (picked) {
+        fileHandle = picked.h; rememberHandle();
+        S.event.cname = (picked.rel.length ? picked.rel.join('/') + '/' : '') + picked.leaf;
+      }
+      $('csErr').textContent = 'Saving...';
+      return runSave({ create: !conv && !useRef });
+    }).then(function (r) {
       $('csGo').disabled = false;
       if (r === 'cancel') { $('csErr').textContent = ''; return; }
       if (r !== 'ok' && r !== 'queued') { $('csErr').textContent = 'The save did not go through. Check the connection and try again.'; return; }
@@ -5389,18 +5431,28 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         if (evs.length > 4) dots.appendChild(dm('span', 'cmore', '+' + (evs.length - 4) + ' more'));
         c.appendChild(dots);
       }
-      c.addEventListener('click', function () { calSel = ds; renderCal(); });
+      c.addEventListener('click', function () { if (calSel !== ds) calOpen = null; calSel = ds; renderCal(); });
       grid.appendChild(c);
     })(i);
     renderDay();
   }
+  var calOpen = null;
   function renderDay() {
     var box = $('calDay'); box.replaceChildren();
-    if (!calSel) { box.appendChild(dm('p', 'fine', 'Pick a day to see its floor plans.')); return; }
+    if (!calSel) return;
     var evs = eventsOn(calSel);
     box.appendChild(dm('h2', 'calh2', ymdDate(calSel).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })));
-    if (!evs.length) box.appendChild(dm('p', 'fine', 'No alternate floor plans scheduled.'));
-    evs.forEach(function (e) { box.appendChild(calEventCard(e)); });
+    if (!evs.length) box.appendChild(dm('p', 'fine', 'No events this day'));
+    evs.forEach(function (e) {
+      var item = dm('div', 'evitem'), st = evStatus(e), open = calOpen === e.id;
+      var r = dm('button', 'evrow'); r.type = 'button'; r.setAttribute('aria-expanded', open ? 'true' : 'false');
+      r.appendChild(dm('span', 'cdot big ' + st));
+      var info = dm('div', 'sinfo'); info.appendChild(dm('div', 'sn', e.name)); info.appendChild(dm('div', 'sm', EV_STATUS[st])); r.appendChild(info);
+      r.addEventListener('click', function () { calOpen = open ? null : e.id; renderDay(); });
+      item.appendChild(r);
+      if (open) item.appendChild(calEventCard(e, true));
+      box.appendChild(item);
+    });
     var nb = dm('div', 'calnew'); nb.appendChild(mkBtn('New event for this day', 'btn', function () { openNew('event'); $('nwDate').value = calSel; newGoSync(); }));
     box.appendChild(nb);
   }
@@ -5419,7 +5471,8 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }
     if (e.draft) {
       head.appendChild(mkBtn(e.local ? 'Resume' : 'Open', 'btn primary', function () { openDraftRow(e); }));
-      if (!e.local) head.appendChild(sureBtn('Delete draft', function () {
+      head.appendChild(sureBtn('Delete draft', function () {
+        if (e.local) { resetProject(); evCache = null; renderCal(); toast('Draft deleted.'); return; }
         sb('DELETE', '?id=eq.' + encodeURIComponent(e.id)).then(function () {
           evCache = (evCache || []).filter(function (x) { return x.id !== e.id; });
           if (cloudRef.__draft && cloudRef.__draft.id === e.id) delete cloudRef.__draft;
@@ -5437,8 +5490,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       if (has(ROOMS, k) && ROOMS[k].color) sw.style.background = COLORS[ROOMS[k].color];
       row.appendChild(sw); row.appendChild(dm('span', 'rn2', rName(k)));
       var b = mkBtn(on ? 'Set ✓' : 'Mark as set', 'btn' + (on ? ' isset' : ''), function () {
-        b.disabled = true;
-        markRoomSet(e, k, !on).then(function () { renderCal(); }, function (x) { $('calMsg').textContent = cloudMsg(x); b.disabled = false; });
+        confirmSet(rName(k), !on, function () {
+          b.disabled = true;
+          markRoomSet(e, k, !on).then(function () { renderCal(); }, function (x) { $('calMsg').textContent = cloudMsg(x); b.disabled = false; });
+        });
       });
       b.setAttribute('aria-pressed', on ? 'true' : 'false');
       row.appendChild(b); rl.appendChild(row);
@@ -5446,6 +5501,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     card.appendChild(rl);
     return card;
   }
+  var setCb = null;
+  function confirmSet(name, on, cb) {
+    var the = /^the /i.test(name) ? name : 'the ' + name;
+    $('sdTitle').textContent = on ? 'Is ' + the + ' fully set?' : 'Mark ' + the + ' as not set?';
+    setCb = cb; $('setDlg').showModal();
+  }
+  $('sdCancel').addEventListener('click', function () { setCb = null; $('setDlg').close(); });
+  $('sdYes').addEventListener('click', function () { var cb = setCb; setCb = null; $('setDlg').close(); if (cb) cb(); });
   function markRoomSet(e, k, on) {
     return sb('GET', '?id=eq.' + encodeURIComponent(e.id) + '&select=data').then(function (rows) {
       if (!rows || !rows[0]) throw new Error('That event is gone.');
@@ -5605,9 +5668,10 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     info.appendChild(dm('div', 'sm', [e.local ? 'On this device, not backed up yet' : '', when, e.rooms.map(rName).join(', '), e.host ? 'Host: ' + e.host : '', e.author, e.updated ? fmtShort(e.updated) : ''].filter(Boolean).join(' · ')));
     head.appendChild(info);
     head.appendChild(mkBtn(e.local ? 'Resume' : 'Open', 'btn primary', function () { openDraftRow(e); }));
-    if (!e.local) head.appendChild(sureBtn('Delete draft', function () {
+    head.appendChild(sureBtn('Delete draft', function () {
+      if (e.local) { resetProject(); evCache = null; repaint(); toast('Draft deleted.'); return; }
       sb('DELETE', '?id=eq.' + encodeURIComponent(e.id)).then(function () {
-        evCache = null; if (cloudRef.__draft && cloudRef.__draft.id === e.id) delete cloudRef.__draft;
+        evCache = null; if (cloudRef.__draft && cloudRef.__draft.id === e.id) { delete cloudRef.__draft; if (hasWork()) resetProject(); }
         save(); repaint();
       }, function (x) { $('draftMsg').textContent = cloudMsg(x); });
     }));
