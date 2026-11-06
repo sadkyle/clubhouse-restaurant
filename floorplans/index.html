@@ -888,6 +888,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
       <button class="btn primary" id="openPick" type="button">Choose a file</button>
       <div id="openFolderBox" style="margin-top:12px" hidden>
         <span class="lbl">Floor plans folder</span>
+        <input id="ofSearch" type="search" placeholder="Search floor plans in this folder and below" autocomplete="off" aria-label="Search floor plans" style="width:100%;margin:6px 0">
         <div class="crumbs" id="ofCrumbs"></div>
         <div class="folders" id="ofList"></div>
       </div>
@@ -1032,6 +1033,12 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <div class="dlgfoot"><button class="btn" id="unsCancel" type="button">Cancel</button><button class="btn danger" id="unsDiscard" type="button">Don't save</button><button class="btn primary" id="unsSave" type="button">Save event</button></div>
 </dialog>
 
+<dialog id="dupDlg" aria-labelledby="dupTitle">
+  <h2 id="dupTitle">A file with this name exists</h2>
+  <p class="lead" id="dupTxt"></p>
+  <div class="dlgfoot"><button class="btn" id="dupCancel" type="button">Cancel</button><button class="btn" id="dupSame" type="button">Same event, replace it</button><button class="btn primary" id="dupNew" type="button">New event</button></div>
+</dialog>
+
 <dialog id="optsDlg" aria-labelledby="optsTitle">
   <h2 id="optsTitle">Layout editor options</h2>
   <div class="optsbox">
@@ -1054,7 +1061,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   <p class="lead">How new events are filed in the floor plans folder. Use / to start a subfolder.</p>
   <div class="field"><label for="nmFolder">Folder</label><input id="nmFolder" type="text" maxlength="120" autocomplete="off"></div>
   <div class="field"><label for="nmFile">File name</label><input id="nmFile" type="text" maxlength="120" autocomplete="off"></div>
-  <p class="fine">Pieces: {yyyy} {year} {month} {mm} {dd} {date} {title} {host}. {mm} and {dd} are two digits, {month} is the full month name.</p>
+  <p class="fine">Pieces: {yyyy} {year} {month} {m} {d} {mm} {dd} {date} {title} {host}. {m} and {d} have no leading zero (4.5.2026), {mm} and {dd} are two digits, {month} is the full month name.</p>
   <p class="fine" id="nmPrev"></p>
   <div class="dlgfoot"><button class="btn" id="nmReset" type="button">Reset to default</button><button class="btn" id="nmCancel" type="button">Cancel</button><button class="btn primary" id="nmSave" type="button">Save</button></div>
 </dialog>
@@ -3180,7 +3187,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function openLoad() {
     closeMenu(); $('openErr').textContent = ''; $('fileInput').value = '';
     $('openFs').hidden = !FS_OK; $('openPlain').hidden = FS_OK;
-    if (FS_OK) { ofPath = []; renderBrowse(); }
+    if (FS_OK) { browseToMonth().then(renderBrowse); }
     openDlg.showModal();
   }
   $('goLoad').addEventListener('click', openLoad);
@@ -3352,21 +3359,57 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function writeHandle(h, text) { return h.createWritable().then(function (w) { return w.write(text).then(function () { return w.close(); }); }); }
   function fsName(t) { return String(t || '').replace(/[\\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 80) || 'Floor plan'; }
+  function eventDays() {
+    var e = S.event, out = [];
+    if (!vDate(e.date)) return out;
+    out.push(e.date);
+    if (e.multi && vDate(e.endDate) > e.date) {
+      var d = ymdDate(e.date);
+      for (var n = 0; n < 13; n++) { d.setDate(d.getDate() + 1); var iso = ymd(d); if (iso > e.endDate) break; out.push(iso); }
+    }
+    return out;
+  }
   function planRel() { return (S.event.cname ? pathOf(S.event.cname) : defaultFolder(S.event.date)).map(fsName); }
   function planFile() { return fsName(S.event.cname ? leafName(S.event.cname) : defaultFile(S.event.name || (S.event.rooms.length === 1 ? doc().name : '') || 'Untitled', S.event.date)) + '.floorplan'; }
+  function roman(n) { return ['', '', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'][n] || String(n); }
+  var dupState = null;
+  function askDup(folderTxt, existing, next) {
+    return new Promise(function (resolve) {
+      dupState = { resolve: resolve, done: false };
+      $('dupTxt').textContent = existing + ' is already in ' + folderTxt + ' and it belongs to a different event.';
+      $('dupNew').textContent = 'New event, save as ' + next;
+      $('dupDlg').showModal();
+    });
+  }
+  function dupFinish(v) { var d = dupState; if (!d || d.done) return; d.done = true; dupState = null; if ($('dupDlg').open) $('dupDlg').close(); d.resolve(v); }
+  $('dupSame').addEventListener('click', function () { dupFinish('same'); });
+  $('dupNew').addEventListener('click', function () { dupFinish('new'); });
+  $('dupCancel').addEventListener('click', function () { dupFinish('cancel'); });
+  $('dupDlg').addEventListener('close', function () { dupFinish('cancel'); });
+  /* The event's file inside the floor plans folder: the year and month folders are made when missing.
+     A file with the same name that belongs to another event triggers a question; this never deletes anything. */
   function rootFileFor(rel, fname) {
     var p = Promise.resolve(fsRoot);
     rel.forEach(function (seg) { p = p.then(function (d) { return d.getDirectoryHandle(seg, { create: true }); }); });
     return p.then(function (d) {
       function tryName(i) {
-        var nm = i ? fname.replace(/\.floorplan$/, ' (' + (i + 1) + ').floorplan') : fname;
+        var nm = i ? fname.replace(/\.floorplan$/, ' ' + roman(i + 1) + '.floorplan') : fname;
         return d.getFileHandle(nm).then(function (fh) {
           return fh.getFile().then(function (f) { return f.text(); }).then(function (t) {
             var o = null; try { o = JSON.parse(t); } catch (e) {}
             if (o && o.event && o.event.cid && o.event.cid === S.event.cid) return fh;
-            return i < 30 ? tryName(i + 1) : Promise.reject(new Error('name'));
+            if (i >= 30) return Promise.reject(new Error('name'));
+            var nx = fname.replace(/\.floorplan$/, ' ' + roman(i + 2) + '.floorplan');
+            return askDup(rel.join(' / '), nm, nx).then(function (a) {
+              if (a === 'same') return fh;
+              if (a === 'new') return tryName(i + 1);
+              return Promise.reject(new DOMException('cancel', 'AbortError'));
+            });
           });
-        }, function () { return d.getFileHandle(nm, { create: true }); });
+        }, function (err) {
+          if (err && err.name === 'NotFoundError') return d.getFileHandle(nm, { create: true });
+          return Promise.reject(err);
+        });
       }
       return tryName(0);
     });
@@ -3380,8 +3423,29 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (quiet || !fsRoot) return Promise.resolve(null);
     return askPerm(fsRoot).then(function (p) {
       if (p !== 'granted') return null;
-      return rootFileFor(planRel(), planFile()).then(function (h) { fileHandle = h; rememberHandle(); return h; }, function () { return null; });
+      return rootFileFor(planRel(), planFile()).then(function (h) { fileHandle = h; rememberHandle(); return h; }, function (e) {
+        if (e && e.name === 'AbortError') return Promise.reject(e);
+        return null;
+      });
     });
+  }
+  /* Multi-day events keep one file per day, each in its own day's month folder. */
+  function writeExtraDays(text, primary) {
+    var days = eventDays().slice(1);
+    if (!days.length || !fsRoot) return Promise.resolve(0);
+    var done = 0, chain = Promise.resolve();
+    days.forEach(function (day) {
+      chain = chain.then(function () {
+        var rel = defaultFolder(day).map(fsName), nm = fsName(defaultFile(S.event.name || 'Untitled', day)) + '.floorplan';
+        return rootFileFor(rel, nm).then(function (h) {
+          return (primary && primary.isSameEntry ? primary.isSameEntry(h) : Promise.resolve(false)).then(function (same) {
+            if (same) return;
+            return writeHandle(h, text).then(function () { done++; });
+          });
+        });
+      }).then(null, function (e) { if (e && e.name === 'AbortError') return; });
+    });
+    return chain.then(function () { return done; });
   }
   function listDir(d) {
     var out = [], it = d.values();
@@ -3391,7 +3455,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   function syncFolderUI() {
     var t = $('folderTxt');
     if (!FS_OK) { t.textContent = 'This browser cannot save to a folder. Use Chrome or Edge on the computer that holds your files.'; return; }
-    if (!fsRoot) { t.textContent = 'Not set. Pick the folder your floor plans live in. Saves go there, with a backup copy in the cloud.'; return; }
+    if (!fsRoot) { t.textContent = 'Not set. Pick the folder with your year folders (Function Sheets). Saves go to the year and month folder, with a backup copy in the cloud.'; return; }
     fsRoot.queryPermission({ mode: 'readwrite' }).then(function (p) { t.textContent = fsRoot.name + (p === 'granted' ? ' (connected). Tap to change it.' : ' (tap to reconnect).'); }, function () { t.textContent = fsRoot.name; });
   }
   $('goFolder').addEventListener('click', function () {
@@ -3399,6 +3463,9 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     function pick() {
       window.showDirectoryPicker({ mode: 'readwrite', id: 'applebrook-floorplans' }).then(function (h) {
         fsRoot = h; idbSet('root', h).catch(function () {}); syncFolderUI(); refreshNeedFile(); toast('Floor plans folder set to ' + h.name + '.');
+        listDir(h).then(function (ents) {
+          if (!ents.some(function (x) { return x.kind === 'directory' && /^20\d\d$/.test(x.name); })) toast('No year folders (2026, 2027...) in ' + h.name + '. Saves will create them here.');
+        }, function () {});
       }, function () {});
     }
     if (!fsRoot) { pick(); return; }
@@ -3408,21 +3475,47 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     }, function () { pick(); });
   });
   /* Open a layout from the floor plans folder, or any file, keeping the file so Save writes back to it. */
+  /* Files made before the cloud backup have no ID. Give them one now; it is written into the file on the next save. */
+  function adoptOldFile() {
+    if (S.event.cid || !S.event.rooms.length) return;
+    S.event.cid = newId(); S.event.sync = '';
+    if (vDate(S.event.date)) S.event.cname = defaultFolder(S.event.date).concat([defaultFile(S.event.name || 'Untitled', S.event.date)]).join('/');
+    cloudRef.__event = { id: S.event.cid, kind: 'layout', name: S.event.cname || S.event.name || 'Untitled' };
+  }
   function openHandle(h) {
     return h.getFile().then(function (f) {
       return f.text().then(function (t) {
         guardDirty(function () {
           var err = applyLayout(t);
           if (err) { $('openErr').textContent = err; return; }
-          fileHandle = h; rememberHandle();
+          fileHandle = h; adoptOldFile(); rememberHandle();
           if (openDlg.open) openDlg.close();
           showView('editor'); toast('Opened ' + f.name); checkCloudOnOpen();
         });
       });
     }, function () { $('openErr').textContent = 'Could not read that file.'; });
   }
+  var ofQ = '', ofTok = 0;
+  function relName(h, fallback) { return fallback; }
+  function walkFiles(dir, prefix, depth, acc) {
+    if (acc.n > 4000) return Promise.resolve();
+    return listDir(dir).then(function (ents) {
+      var chain = Promise.resolve();
+      ents.forEach(function (x) {
+        acc.n++;
+        if (x.kind === 'file' && /\.floorplan$/i.test(x.name)) acc.files.push({ h: x, path: prefix });
+        else if (x.kind === 'directory' && depth < 4) chain = chain.then(function () { return walkFiles(x, prefix + x.name + ' / ', depth + 1, acc); });
+      });
+      return chain;
+    });
+  }
+  function openRow(f, where) {
+    var b = mkBtn(f.name.replace(/\.floorplan$/i, ''), 'fbrow', function () { $('openErr').textContent = 'Opening...'; openHandle(f).then(function () { if (openDlg.open) $('openErr').textContent = ''; }); });
+    if (where) { var sm = dm('span', 'fine', ' ' + where); b.appendChild(sm); }
+    return b;
+  }
   function renderBrowse() {
-    var box = $('openFolderBox'), cr = $('ofCrumbs'), ls = $('ofList');
+    var box = $('openFolderBox'), cr = $('ofCrumbs'), ls = $('ofList'), tok = ++ofTok;
     if (!fsRoot) { box.hidden = true; return; }
     box.hidden = false; cr.replaceChildren(); ls.replaceChildren();
     cr.appendChild(mkBtn(fsRoot.name, 'btn crumb', function () { ofPath = []; renderBrowse(); }));
@@ -3433,15 +3526,40 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         ls.appendChild(mkBtn('Reconnect to your folder', 'btn primary', function () { askPerm(fsRoot).then(function (q) { if (q === 'granted') renderBrowse(); else $('openErr').textContent = 'Folder access was not allowed.'; }); }));
         return;
       }
+      if (ofQ) {
+        ls.appendChild(dm('p', 'fine', 'Searching...'));
+        var acc = { files: [], n: 0 }, q = ofQ.toLowerCase();
+        return walkFiles(cur, '', 0, acc).then(function () {
+          if (tok !== ofTok) return;
+          ls.replaceChildren();
+          var hit = acc.files.filter(function (f) { return f.h.name.toLowerCase().indexOf(q) >= 0; }).sort(function (a, b) { return a.h.name < b.h.name ? 1 : -1; }).slice(0, 80);
+          if (!hit.length) ls.appendChild(dm('p', 'fine', 'No floor plans match "' + ofQ + '" in ' + cur.name + ' and the folders under it.'));
+          hit.forEach(function (f) { ls.appendChild(openRow(f.h, f.path.replace(/ \/ $/, ''))); });
+        });
+      }
       return listDir(cur).then(function (ents) {
+        if (tok !== ofTok) return;
         var dirs = ents.filter(function (x) { return x.kind === 'directory'; }).sort(function (a, b) { return a.name < b.name ? 1 : -1; });
         var files = ents.filter(function (x) { return x.kind === 'file' && /\.floorplan$/i.test(x.name); }).sort(function (a, b) { return a.name < b.name ? 1 : -1; });
-        if (!dirs.length && !files.length) ls.appendChild(dm('p', 'fine', 'Nothing here yet.'));
-        dirs.forEach(function (d) { var b = mkBtn(d.name, 'fbtn', function () { ofPath = ofPath.concat([d]); renderBrowse(); }); ls.appendChild(b); });
-        files.forEach(function (f) { var b = mkBtn(f.name.replace(/\.floorplan$/i, ''), 'fbrow', function () { $('openErr').textContent = 'Opening...'; openHandle(f).then(function () { if (openDlg.open) $('openErr').textContent = ''; }); }); ls.appendChild(b); });
+        if (!dirs.length && !files.length) ls.appendChild(dm('p', 'fine', 'No floor plans here yet.'));
+        dirs.forEach(function (d) { ls.appendChild(mkBtn(d.name, 'fbtn', function () { ofPath = ofPath.concat([d]); renderBrowse(); })); });
+        files.forEach(function (f) { ls.appendChild(openRow(f)); });
       });
-    }).catch(function () { ls.appendChild(dm('p', 'fine', 'Could not read that folder.')); });
+    }).catch(function () { ls.replaceChildren(); ls.appendChild(dm('p', 'fine', 'Could not read that folder.')); });
   }
+  /* Open the picker on this month's folder when it exists. */
+  function browseToMonth() {
+    ofPath = []; ofQ = ''; $('ofSearch').value = '';
+    if (!fsRoot) return Promise.resolve();
+    var now = new Date(), y = String(now.getFullYear()), m = MONTHS[now.getMonth()] + ' ' + y;
+    return askPerm(fsRoot, true).then(function (p) {
+      if (p !== 'granted') return;
+      return fsRoot.getDirectoryHandle(y).then(function (yd) {
+        return yd.getDirectoryHandle(m).then(function (md) { ofPath = [yd, md]; }, function () { ofPath = [yd]; });
+      }, function () {});
+    }).then(null, function () {});
+  }
+  $('ofSearch').addEventListener('input', function () { ofQ = $('ofSearch').value.trim(); renderBrowse(); });
   $('openPick').addEventListener('click', function () {
     var o = { types: FILE_TYPES, multiple: false };
     if (fsRoot) o.startIn = fsRoot;
@@ -3495,7 +3613,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     if (cur.sets) S.event.setRooms = cur.sets.filter(function (k) { return S.event.rooms.indexOf(k) >= 0; });
     S.event.sync = newId();
     var text = JSON.stringify(payload(), null, 2);
-    var wp = h ? writeHandle(h, text).then(function () { return true; }, function () { fileHandle = null; return false; }) : Promise.resolve(false);
+    var wp = h ? writeHandle(h, text).then(function () { return writeExtraDays(text, h).then(function () { return true; }, function () { return true; }); }, function () { fileHandle = null; return false; }) : Promise.resolve(false);
     return wp.then(function (wrote) {
       var row = cloudBody(wrote);
       function offline() {
@@ -3679,7 +3797,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
     });
     return out;
   }
-  var NAMING_KEY = 'applebrook-naming-v1', NAMING_DEF = { folder: '{year}/{month} {year}', file: '{mm}.{dd}.{yyyy} {title}' };
+  var NAMING_KEY = 'applebrook-naming-v1', NAMING_DEF = { folder: '{year}/{month} {year}', file: '{m}.{d}.{yyyy} {title} Floor Plan' };
   var MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   function naming() {
     try { var o = JSON.parse(localStorage.getItem(NAMING_KEY)); if (o && typeof o.folder === 'string' && typeof o.file === 'string' && o.file.trim()) return o; } catch (e) {}
@@ -3687,12 +3805,14 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
   }
   function fillName(pat, date, title, host) {
     var y = date ? date.slice(0, 4) : '', m = date ? date.slice(5, 7) : '', d = date ? date.slice(8, 10) : '';
-    var map = { yyyy: y, year: y, mm: m, dd: d, month: date ? MONTHS[+m - 1] || '' : '', date: date || '', title: title || '', host: host || '' };
+    var map = { yyyy: y, year: y, mm: m, dd: d, m: date ? String(+m) : '', d: date ? String(+d) : '', month: date ? MONTHS[+m - 1] || '' : '', date: date || '', title: title || '', host: host || '' };
     return pat.replace(/\{(\w+)\}/g, function (_, k) { return map[k] == null ? '' : map[k]; });
   }
+  function cleanName(t) { return String(t || '').replace(/[\/\\]/g, '-').replace(/\s+/g, ' ').trim().slice(0, 120); }
   function defaultFile(title, date, host) {
     if (!date) return cleanSeg(title);
-    var n = cleanSeg(fillName(naming().file, date, title, host == null ? S.event.host : host));
+    var t = String(title || '').replace(/\s+floor\s*plan$/i, '');
+    var n = cleanName(fillName(naming().file, date, t, host == null ? S.event.host : host));
     return n || cleanSeg(title);
   }
   function defaultFolder(date) {
@@ -5602,7 +5722,7 @@ dialog .lead { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
         return f.text().then(function (t) {
           var err = applyLayout(t);
           showView('editor');
-          if (!err) { fileHandle = fh; rememberHandle(); checkCloudOnOpen(); }
+          if (!err) { fileHandle = fh; adoptOldFile(); rememberHandle(); checkCloudOnOpen(); }
           toast(err || ('Opened ' + f.name));
         });
       });
